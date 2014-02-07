@@ -1,4 +1,4 @@
 gocl
 ====
 
-Go Open Compute Language (GOCL) Binding
+Go Open Compute Language (GOCL) - Go OpenCL Binding
