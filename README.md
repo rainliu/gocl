@@ -17,5 +17,6 @@ ATI should include them with their APP SDK: http://developer.amd.com/resources/h
 The locations of the library and include file can be supplied by way of environment variables: 
 
 export CGO_LDFLAGS=-L$AMDAPPSDKROOT/lib/x86_64
+
 export CGO_CFLAGS=-I$AMDAPPSDKROOT/include
 
