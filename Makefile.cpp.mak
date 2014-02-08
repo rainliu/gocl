@@ -1,4 +1,4 @@
-#PROJ=HelloWorld
+PROJ=HelloWorld
 
 CC=g++
 
