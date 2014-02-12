@@ -7,7 +7,7 @@ package cl
 #include "CL/opencl.h"
 
 extern void go_pfn_notify(char *errinfo, void *private_info, int cb, void *user_data);
-static void c_pfn_notify(const char *errinfo, const void *private_info, size_t cb, void *user_data) {
+static void CL_CALLBACK c_pfn_notify(const char *errinfo, const void *private_info, size_t cb, void *user_data) {
 	go_pfn_notify((char *)errinfo, (void *)private_info, cb, user_data);
 }
 
