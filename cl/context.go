@@ -6,9 +6,9 @@ package cl
 
 #include "CL/opencl.h"
 
-extern void go_pfn_notify(char *errinfo, void *private_info, int cb, void *user_data);
-static void CL_CALLBACK c_pfn_notify(const char *errinfo, const void *private_info, size_t cb, void *user_data) {
-	go_pfn_notify((char *)errinfo, (void *)private_info, cb, user_data);
+extern void go_ctx_notify(char *errinfo, void *private_info, int cb, void *user_data);
+static void CL_CALLBACK c_ctx_notify(const char *errinfo, const void *private_info, size_t cb, void *user_data) {
+	go_ctx_notify((char *)errinfo, (void *)private_info, cb, user_data);
 }
 
 static cl_context CLCreateContext(	const cl_context_properties *  	properties,
@@ -17,7 +17,7 @@ static cl_context CLCreateContext(	const cl_context_properties *  	properties,
 					                void *                   		user_data,
 					                cl_int *                 		errcode_ret){
 
-    return clCreateContext(properties, num_devices, devices, c_pfn_notify, user_data, errcode_ret);
+    return clCreateContext(properties, num_devices, devices, c_ctx_notify, user_data, errcode_ret);
 }
 
 static cl_context CLCreateContextFromType(	const cl_context_properties *  	properties,
@@ -25,7 +25,7 @@ static cl_context CLCreateContextFromType(	const cl_context_properties *  	prope
 					                		void *                   		user_data,
 					                		cl_int *                 		errcode_ret){
 
-    return clCreateContextFromType(properties, device_type, c_pfn_notify, user_data, errcode_ret);
+    return clCreateContextFromType(properties, device_type, c_ctx_notify, user_data, errcode_ret);
 }
 */
 import "C"
@@ -34,19 +34,19 @@ import (
 	"unsafe"
 )
 
-type CL_pfn_notify func(errinfo string, private_info interface{}, cb int, user_data interface{})
+type CL_ctx_notify func(errinfo string, private_info interface{}, cb int, user_data interface{})
 
-var my_pfn_notify CL_pfn_notify
+var ctx_notify CL_ctx_notify
 
-//export go_pfn_notify
-func go_pfn_notify(errinfo *C.char, private_info unsafe.Pointer, cb C.int, user_data unsafe.Pointer) {
-	my_pfn_notify(C.GoString(errinfo), private_info, int(cb), user_data)
+//export go_ctx_notify
+func go_ctx_notify(errinfo *C.char, private_info unsafe.Pointer, cb C.int, user_data unsafe.Pointer) {
+	ctx_notify(C.GoString(errinfo), private_info, int(cb), user_data)
 }
 
 func CLCreateContext(properties []CL_context_properties,
 	num_devices CL_uint,
 	devices []CL_device_id,
-	pfn_notify CL_pfn_notify,
+	pfn_notify CL_ctx_notify,
 	user_data interface{},
 	errcode_ret *CL_int) CL_context {
 
@@ -78,7 +78,7 @@ func CLCreateContext(properties []CL_context_properties,
 	}
 
 	if pfn_notify != nil {
-		my_pfn_notify = pfn_notify
+		ctx_notify = pfn_notify
 
 		c_context = C.CLCreateContext(c_properties_ptr,
 			C.cl_uint(len(c_devices)),
@@ -87,7 +87,7 @@ func CLCreateContext(properties []CL_context_properties,
 			&c_errcode_ret)
 
 	} else {
-		my_pfn_notify = nil
+		ctx_notify = nil
 
 		c_context = C.clCreateContext(c_properties_ptr,
 			C.cl_uint(len(c_devices)),
@@ -107,7 +107,7 @@ func CLCreateContext(properties []CL_context_properties,
 
 func CLCreateContextFromType(properties []CL_context_properties,
 	device_type CL_device_type,
-	pfn_notify CL_pfn_notify,
+	pfn_notify CL_ctx_notify,
 	user_data interface{},
 	errcode_ret *CL_int) CL_context {
 
@@ -127,7 +127,7 @@ func CLCreateContextFromType(properties []CL_context_properties,
 	}
 
 	if pfn_notify != nil {
-		my_pfn_notify = pfn_notify
+		ctx_notify = pfn_notify
 
 		c_context = C.CLCreateContextFromType(c_properties_ptr,
 			C.cl_device_type(device_type),
@@ -135,7 +135,7 @@ func CLCreateContextFromType(properties []CL_context_properties,
 			&c_errcode_ret)
 
 	} else {
-		my_pfn_notify = nil
+		ctx_notify = nil
 
 		c_context = C.clCreateContextFromType(c_properties_ptr,
 			C.cl_device_type(device_type),
