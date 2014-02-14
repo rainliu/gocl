@@ -182,3 +182,199 @@ func CLBuildProgram(program CL_program,
 
 	return CL_int(c_errcode_ret)
 }
+
+func CLGetProgramInfo(program CL_program,
+	param_name CL_program_info,
+	param_value_size CL_size_t,
+	param_value *interface{},
+	param_value_size_ret *CL_size_t) CL_int {
+
+	var ret C.cl_int
+
+	if (param_value_size == 0 || param_value == nil) && param_value_size_ret == nil {
+		ret = C.clGetProgramInfo(program.cl_program,
+			C.cl_program_info(param_name),
+			0,
+			nil,
+			nil)
+	} else {
+		var size_ret C.size_t
+
+		if param_value_size == 0 || param_value == nil {
+			ret = C.clGetProgramInfo(program.cl_program,
+				C.cl_program_info(param_name),
+				0,
+				nil,
+				&size_ret)
+		} else {
+			switch param_name {
+			case CL_PROGRAM_SOURCE:
+
+				value := make([]C.char, param_value_size)
+				ret = C.clGetProgramInfo(program.cl_program,
+					C.cl_program_info(param_name),
+					C.size_t(param_value_size),
+					unsafe.Pointer(&value[0]),
+					&size_ret)
+
+				*param_value = C.GoStringN(&value[0], C.int(size_ret-1))
+
+			case CL_PROGRAM_REFERENCE_COUNT,
+				CL_PROGRAM_NUM_DEVICES:
+
+				var value C.cl_uint
+				ret = C.clGetProgramInfo(program.cl_program,
+					C.cl_program_info(param_name),
+					C.size_t(param_value_size),
+					unsafe.Pointer(&value),
+					&size_ret)
+
+			case CL_PROGRAM_CONTEXT:
+
+				var value C.cl_context
+				ret = C.clGetProgramInfo(program.cl_program,
+					C.cl_program_info(param_name),
+					C.size_t(param_value_size),
+					unsafe.Pointer(&value),
+					&size_ret)
+
+			case CL_PROGRAM_DEVICES:
+				var s_device C.cl_device_id
+				num_devices := int(C.size_t(param_value_size) / C.size_t(unsafe.Sizeof(s_device)))
+				c_devices := make([]C.cl_device_id, num_devices)
+
+				ret = C.clGetProgramInfo(program.cl_program,
+					C.cl_program_info(param_name),
+					C.size_t(param_value_size),
+					unsafe.Pointer(&c_devices[0]),
+					&size_ret)
+
+				devices := make([]CL_device_id, num_devices)
+				for i := 0; i < num_devices; i++ {
+					devices[i].cl_device_id = c_devices[i]
+				}
+
+				*param_value = devices
+
+			case CL_PROGRAM_BINARY_SIZES:
+				var s_device C.cl_device_id
+				num_devices := int(C.size_t(param_value_size) / C.size_t(unsafe.Sizeof(s_device)))
+				c_binary_sizes := make([]C.size_t, num_devices)
+
+				ret = C.clGetProgramInfo(program.cl_program,
+					C.cl_program_info(param_name),
+					C.size_t(param_value_size),
+					unsafe.Pointer(&c_binary_sizes[0]),
+					&size_ret)
+
+				binary_sizes := make([]CL_size_t, num_devices)
+				for i := 0; i < num_devices; i++ {
+					binary_sizes[i] = CL_size_t(c_binary_sizes[i])
+				}
+
+				*param_value = binary_sizes
+
+			case CL_PROGRAM_BINARIES:
+
+				var s_device C.cl_device_id
+				num_devices := int(C.size_t(param_value_size) / C.size_t(unsafe.Sizeof(s_device)))
+				c_binaries := make([]*C.uchar, num_devices)
+				c_lengths := make([]C.size_t, num_devices)
+				binaries := (*param_value).([][]byte)
+
+				for i := 0; i < num_devices; i++ {
+					c_lengths[i] = C.size_t(len(binaries[i]))
+					c_binaries[i] = (*C.uchar)(C.malloc(c_lengths[i]))
+					defer C.free(unsafe.Pointer(c_binaries[i]))
+				}
+
+				ret = C.clGetProgramInfo(program.cl_program,
+					C.cl_program_info(param_name),
+					C.size_t(param_value_size),
+					unsafe.Pointer(&c_binaries[0]),
+					&size_ret)
+
+				for i := 0; i < num_devices; i++ {
+					C.memcpy(unsafe.Pointer(&binaries[i][0]), unsafe.Pointer(c_binaries[i]), c_lengths[i])
+				}
+
+			default:
+				return CL_INVALID_VALUE
+			}
+		}
+
+		if param_value_size_ret != nil {
+			*param_value_size_ret = CL_size_t(size_ret)
+		}
+
+	}
+
+	return CL_int(ret)
+}
+
+func CLGetProgramBuildInfo(program CL_program,
+	device CL_device_id,
+	param_name CL_program_build_info,
+	param_value_size CL_size_t,
+	param_value *interface{},
+	param_value_size_ret *CL_size_t) CL_int {
+
+	var ret C.cl_int
+
+	if (param_value_size == 0 || param_value == nil) && param_value_size_ret == nil {
+		ret = C.clGetProgramBuildInfo(program.cl_program,
+			device.cl_device_id,
+			C.cl_program_build_info(param_name),
+			0,
+			nil,
+			nil)
+	} else {
+		var size_ret C.size_t
+
+		if param_value_size == 0 || param_value == nil {
+			ret = C.clGetProgramBuildInfo(program.cl_program,
+				device.cl_device_id,
+				C.cl_program_build_info(param_name),
+				0,
+				nil,
+				&size_ret)
+		} else {
+			switch param_name {
+			case CL_PROGRAM_BUILD_STATUS:
+				var value C.cl_build_status
+
+				ret = C.clGetProgramBuildInfo(program.cl_program,
+					device.cl_device_id,
+					C.cl_program_build_info(param_name),
+					C.size_t(param_value_size),
+					unsafe.Pointer(&value),
+					&size_ret)
+
+				*param_value = CL_build_status(value)
+
+			case CL_PROGRAM_BUILD_OPTIONS,
+				CL_PROGRAM_BUILD_LOG:
+
+				value := make([]C.char, param_value_size)
+				ret = C.clGetProgramBuildInfo(program.cl_program,
+					device.cl_device_id,
+					C.cl_program_build_info(param_name),
+					C.size_t(param_value_size),
+					unsafe.Pointer(&value[0]),
+					&size_ret)
+
+				*param_value = C.GoStringN(&value[0], C.int(size_ret-1))
+
+			default:
+				return CL_INVALID_VALUE
+			}
+		}
+
+		if param_value_size_ret != nil {
+			*param_value_size_ret = CL_size_t(size_ret)
+		}
+
+	}
+
+	return CL_int(ret)
+}

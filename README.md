@@ -1,7 +1,7 @@
 gocl
 ====
 
-Go OpenCL (GOCL) Binding
+Go Open Compute Language (GOCL) - Go OpenCL Binding
 
 
 Library documentation: http://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/
