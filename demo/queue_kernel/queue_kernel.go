@@ -6,39 +6,22 @@ import (
 	"os"
 )
 
-const (
-	NUM_FILES = 2
-)
-
-/*
-var program_buffer = [NUM_FILES]string{"__kernel void good(__global float *a,\n" +
-	"                   __global float *b,\n" +
-	"                   __global float *c) {\n" +
-	"   *c = *a + *b;\n" +
-	"}",
-	"__kernel void bad(__global float *a,\n" +
-		"                   __global float *b,\n" +
-		"                   __global float *c) {\n" +
-		"   *c = *a + *b;\n" +
-		"}",
-}
-*/
 func main() {
 
 	/* Host/device data structures */
 	var platform [1]cl.CL_platform_id
 	var device [1]cl.CL_device_id
 	var context cl.CL_context
-	var i, err cl.CL_int
+	var queue cl.CL_command_queue
+	var err cl.CL_int
 
-	/* Program data structures */
+	/* Program/kernel data structures */
 	var program cl.CL_program
-	var program_buffer [NUM_FILES][]byte
+	var program_buffer [1][]byte
 	var program_log interface{}
-	var file_name = []string{"bad.cl", "good.cl"}
-	options := "-cl-finite-math-only -cl-no-signed-zeros"
-	var program_size [NUM_FILES]cl.CL_size_t
+	var program_size [1]cl.CL_size_t
 	var log_size cl.CL_size_t
+	var kernel cl.CL_kernel
 
 	/* Access the first installed platform */
 	err = cl.CLGetPlatformIDs(1, platform[:], nil)
@@ -65,30 +48,28 @@ func main() {
 	}
 
 	/* Read each program file and place content into buffer array */
-	for i = 0; i < NUM_FILES; i++ {
-		program_handle, err := os.Open(file_name[i])
-		if err != nil {
-			println("Couldn't find the program file")
-			return
-		}
-		defer program_handle.Close()
+	program_handle, err1 := os.Open("blank.cl")
+	if err1 != nil {
+		println("Couldn't find the program file")
+		return
+	}
+	defer program_handle.Close()
 
-		fi, err2 := program_handle.Stat()
-		if err2 != nil {
-			println("Couldn't find the program stat")
-			return
-		}
-		program_size[i] = cl.CL_size_t(fi.Size())
-		program_buffer[i] = make([]byte, program_size[i])
-		read_size, err3 := program_handle.Read(program_buffer[i])
-		if err3 != nil || cl.CL_size_t(read_size) != program_size[i] {
-			println("read file error or file size wrong")
-			return
-		}
+	fi, err2 := program_handle.Stat()
+	if err2 != nil {
+		println("Couldn't find the program stat")
+		return
+	}
+	program_size[0] = cl.CL_size_t(fi.Size())
+	program_buffer[0] = make([]byte, program_size[0])
+	read_size, err3 := program_handle.Read(program_buffer[0])
+	if err3 != nil || cl.CL_size_t(read_size) != program_size[0] {
+		println("read file error or file size wrong")
+		return
 	}
 
-	/* Create a program containing all program content */
-	program = cl.CLCreateProgramWithSource(context, NUM_FILES,
+	/* Create program from file */
+	program = cl.CLCreateProgramWithSource(context, 1,
 		program_buffer[:], program_size[:], &err)
 	if err < 0 {
 		println("Couldn't create the program")
@@ -96,7 +77,7 @@ func main() {
 	}
 
 	/* Build program */
-	err = cl.CLBuildProgram(program, 1, device[:], options, nil, nil)
+	err = cl.CLBuildProgram(program, 1, device[:], "", nil, nil)
 	if err < 0 {
 		/* Find size of log and print to std output */
 		cl.CLGetProgramBuildInfo(program, device[0], cl.CL_PROGRAM_BUILD_LOG,
@@ -110,10 +91,32 @@ func main() {
 		return
 	}
 
+	/* Create the kernel */
+	kernel = cl.CLCreateKernel(program, "blank", &err)
+	if err < 0 {
+		println("Couldn't create the kernel")
+		return
+	}
+
+	/* Create the command queue */
+	queue = cl.CLCreateCommandQueue(context, device[0], 0, &err)
+	if err < 0 {
+		println("Couldn't create the command queue")
+		return
+	}
+
+	/* Enqueue the kernel execution command */
+	err = cl.CLEnqueueTask(queue, kernel, 0, nil, nil)
+	if err < 0 {
+		println("Couldn't enqueue the kernel execution command")
+		return
+	} else {
+		println("Successfully queued kernel.\n")
+	}
+
 	/* Deallocate resources */
-	//for(i=0; i<NUM_FILES; i++) {
-	//   free(program_buffer[i]);
-	//}
+	cl.CLReleaseCommandQueue(queue)
+	cl.CLReleaseKernel(kernel)
 	cl.CLReleaseProgram(program)
 	cl.CLReleaseContext(context)
 }

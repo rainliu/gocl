@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"gocl/cl"
+	"unsafe"
 )
 
 func main() {
@@ -14,6 +15,7 @@ func main() {
 
 	var paramValueSize cl.CL_size_t
 	var ref_count interface{}
+	user_data := []byte("Hello, I am callback")
 
 	/* Access the first installed platform */
 	err = cl.CLGetPlatformIDs(1, platform[:], nil)
@@ -33,7 +35,7 @@ func main() {
 	}
 
 	/* Create the context */
-	context = cl.CLCreateContext(nil, 1, device[:], my_contex_notify, "Hello, I am callback", &err)
+	context = cl.CLCreateContext(nil, 1, device[:], my_contex_notify, unsafe.Pointer(&user_data[0]), &err)
 	if err != cl.CL_SUCCESS {
 		println("Couldn't create a context")
 		return
@@ -72,6 +74,6 @@ func main() {
 	return
 }
 
-func my_contex_notify(errinfo string, private_info interface{}, cb int, user_data interface{}) {
-	fmt.Printf("my_contex_notify callback: %s\n", user_data.(string))
+func my_contex_notify(errinfo string, private_info interface{}, cb int, user_data unsafe.Pointer) {
+	fmt.Printf("my_contex_notify callback: %s\n", user_data)
 }

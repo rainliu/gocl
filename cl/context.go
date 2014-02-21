@@ -34,7 +34,7 @@ import (
 	"unsafe"
 )
 
-type CL_ctx_notify func(errinfo string, private_info interface{}, cb int, user_data interface{})
+type CL_ctx_notify func(errinfo string, private_info interface{}, cb int, user_data unsafe.Pointer)
 
 var ctx_notify CL_ctx_notify
 
@@ -47,7 +47,7 @@ func CLCreateContext(properties []CL_context_properties,
 	num_devices CL_uint,
 	devices []CL_device_id,
 	pfn_notify CL_ctx_notify,
-	user_data interface{},
+	user_data unsafe.Pointer,
 	errcode_ret *CL_int) CL_context {
 
 	var c_properties []C.cl_context_properties
@@ -83,7 +83,7 @@ func CLCreateContext(properties []CL_context_properties,
 		c_context = C.CLCreateContext(c_properties_ptr,
 			C.cl_uint(len(c_devices)),
 			c_devices_ptr,
-			unsafe.Pointer(&user_data),
+			user_data,
 			&c_errcode_ret)
 
 	} else {
@@ -108,7 +108,7 @@ func CLCreateContext(properties []CL_context_properties,
 func CLCreateContextFromType(properties []CL_context_properties,
 	device_type CL_device_type,
 	pfn_notify CL_ctx_notify,
-	user_data interface{},
+	user_data unsafe.Pointer,
 	errcode_ret *CL_int) CL_context {
 
 	var c_properties []C.cl_context_properties
@@ -131,7 +131,7 @@ func CLCreateContextFromType(properties []CL_context_properties,
 
 		c_context = C.CLCreateContextFromType(c_properties_ptr,
 			C.cl_device_type(device_type),
-			unsafe.Pointer(&user_data),
+			user_data,
 			&c_errcode_ret)
 
 	} else {

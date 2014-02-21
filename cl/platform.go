@@ -62,7 +62,7 @@ func CLGetPlatformInfo(platform CL_platform_id,
 			C.cl_platform_info(param_name),
 			0,
 			nil,
-			(*C.size_t)(nil))
+			nil)
 	} else {
 		var size_ret C.size_t
 
@@ -96,7 +96,6 @@ func CLGetPlatformInfo(platform CL_platform_id,
 		if param_value_size_ret != nil {
 			*param_value_size_ret = CL_size_t(size_ret)
 		}
-
 	}
 
 	return CL_int(ret)

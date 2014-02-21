@@ -28,7 +28,7 @@ import (
 	"unsafe"
 )
 
-type CL_prg_notify func(program CL_program, user_data interface{})
+type CL_prg_notify func(program CL_program, user_data unsafe.Pointer)
 
 var prg_notify CL_prg_notify
 
@@ -39,7 +39,7 @@ func go_prg_notify(program C.cl_program, user_data unsafe.Pointer) {
 
 func CLCreateProgramWithSource(context CL_context,
 	count CL_uint,
-	strings []string,
+	strings [][]byte,
 	lengths []CL_size_t,
 	errcode_ret *CL_int) CL_program {
 
@@ -57,7 +57,7 @@ func CLCreateProgramWithSource(context CL_context,
 	c_strings = make([]*C.char, count)
 	for i := CL_uint(0); i < count; i++ {
 		c_lengths[i] = C.size_t(lengths[i])
-		c_strings[i] = C.CString(strings[i])
+		c_strings[i] = C.CString(string(strings[i]))
 		defer C.free(unsafe.Pointer(c_strings[i]))
 	}
 
@@ -142,7 +142,7 @@ func CLBuildProgram(program CL_program,
 	devices []CL_device_id,
 	options string,
 	pfn_notify CL_prg_notify,
-	user_data interface{}) CL_int {
+	user_data unsafe.Pointer) CL_int {
 
 	if num_devices == 0 || len(devices) != int(num_devices) {
 		return CL_INVALID_VALUE
@@ -156,8 +156,12 @@ func CLBuildProgram(program CL_program,
 	for i := 0; i < len(devices); i++ {
 		c_devices[i] = C.cl_device_id(devices[i].cl_device_id)
 	}
-	c_options = C.CString(options)
-	defer C.free(unsafe.Pointer(c_options))
+	if options != "" {
+		c_options = C.CString(options)
+		defer C.free(unsafe.Pointer(c_options))
+	} else {
+		c_options = nil
+	}
 
 	if pfn_notify != nil {
 		prg_notify = pfn_notify
@@ -166,8 +170,7 @@ func CLBuildProgram(program CL_program,
 			C.cl_uint(num_devices),
 			&c_devices[0],
 			c_options,
-			unsafe.Pointer(&user_data))
-
+			user_data)
 	} else {
 		prg_notify = nil
 
@@ -177,7 +180,6 @@ func CLBuildProgram(program CL_program,
 			c_options,
 			nil,
 			nil)
-
 	}
 
 	return CL_int(c_errcode_ret)
