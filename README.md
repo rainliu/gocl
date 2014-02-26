@@ -4,7 +4,11 @@ gocl
 Go OpenCL (GOCL) Binding
 
 
-Library documentation: http://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/
+Library documentation: 
+
+http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/
+
+http://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/
 
 In order to build this, make sure you have the required drivers and SDK installed for your graphics card. You will need at least and opencl.lib:
 
