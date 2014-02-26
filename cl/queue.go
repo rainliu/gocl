@@ -1,3 +1,5 @@
+// +build opencl1.1 opencl1.2
+
 package cl
 
 /*

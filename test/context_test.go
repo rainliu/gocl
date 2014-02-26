@@ -3,10 +3,11 @@ package main
 import (
 	"fmt"
 	"gocl/cl"
+	"testing"
 	"unsafe"
 )
 
-func main() {
+func TestContext(t *testing.T) {
 	/* Host/device data structures */
 	var platform [1]cl.CL_platform_id
 	var device [1]cl.CL_device_id
@@ -20,8 +21,7 @@ func main() {
 	/* Access the first installed platform */
 	err = cl.CLGetPlatformIDs(1, platform[:], nil)
 	if err != cl.CL_SUCCESS {
-		println("Couldn't find any platforms")
-		return
+		t.Errorf("Couldn't find any platforms")
 	}
 
 	/* Access the first available device */
@@ -30,15 +30,13 @@ func main() {
 		err = cl.CLGetDeviceIDs(platform[0], cl.CL_DEVICE_TYPE_CPU, 1, device[:], nil)
 	}
 	if err != cl.CL_SUCCESS {
-		println("Couldn't find any devices")
-		return
+		t.Errorf("Couldn't find any devices")
 	}
 
 	/* Create the context */
-	context = cl.CLCreateContext(nil, 1, device[:], my_contex_notify, unsafe.Pointer(&user_data[0]), &err)
+	context = cl.CLCreateContext(nil, 1, device[:], my_contex_notify, unsafe.Pointer(&user_data), &err)
 	if err != cl.CL_SUCCESS {
-		println("Couldn't create a context")
-		return
+		t.Errorf("Couldn't create a context")
 	}
 
 	/* Determine the reference count */
@@ -46,32 +44,28 @@ func main() {
 		0, nil, &paramValueSize)
 
 	if err != cl.CL_SUCCESS {
-		fmt.Printf("Failed to find context %s.\n", "CL_CONTEXT_REFERENCE_COUNT")
-		return
+		t.Errorf("Failed to find context %s.\n", "CL_CONTEXT_REFERENCE_COUNT")
 	}
 
 	err = cl.CLGetContextInfo(context, cl.CL_CONTEXT_REFERENCE_COUNT,
 		paramValueSize, &ref_count, nil)
 	if err != cl.CL_SUCCESS {
-		println("Couldn't read the reference count.")
-		return
+		t.Errorf("Couldn't read the reference count.")
 	}
-	fmt.Printf("Initial reference count: %d\n", ref_count.(cl.CL_uint))
+	t.Logf("Initial reference count: %d\n", ref_count.(cl.CL_uint))
 
 	/* Update and display the reference count */
 	cl.CLRetainContext(context)
 	cl.CLGetContextInfo(context, cl.CL_CONTEXT_REFERENCE_COUNT,
 		paramValueSize, &ref_count, nil)
-	fmt.Printf("Reference count: %d\n", ref_count.(cl.CL_uint))
+	t.Logf("Reference count: %d\n", ref_count.(cl.CL_uint))
 
 	cl.CLReleaseContext(context)
 	cl.CLGetContextInfo(context, cl.CL_CONTEXT_REFERENCE_COUNT,
 		paramValueSize, &ref_count, nil)
-	fmt.Printf("Reference count: %d\n", ref_count.(cl.CL_uint))
+	t.Logf("Reference count: %d\n", ref_count.(cl.CL_uint))
 
 	cl.CLReleaseContext(context)
-
-	return
 }
 
 func my_contex_notify(errinfo string, private_info unsafe.Pointer, cb int, user_data unsafe.Pointer) {
