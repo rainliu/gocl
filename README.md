@@ -17,3 +17,16 @@ The locations of the library and include file can be supplied by way of environm
 export CGO_LDFLAGS=-L$AMDAPPSDKROOT/lib/x86_64 (or null for NVIDIA)
 
 export CGO_CFLAGS=-I$AMDAPPSDKROOT/include (or $NVSDKCOMPUTE_ROOT/OpenCL/common/inc for NVIDIA)
+
+
+To build OpenCL 1.1 compliance: 
+
+go build -tags 'opencl1.1' gocl/cl
+
+go test -tags 'opencl1.1' gocl/test
+
+To build OpenCL 1.2 compliance: 
+
+go build -tags 'opencl1.2' gocl/cl
+
+go test -tags 'opencl1.2' gocl/test
