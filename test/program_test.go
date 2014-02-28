@@ -76,7 +76,7 @@ func TestProgram(t *testing.T) {
 	}
 
 	/* Build program */
-	err = cl.CLBuildProgram(program, 1, device[:], options, nil, nil)
+	err = cl.CLBuildProgram(program, 1, device[:], []byte(options), nil, nil)
 	if err < 0 {
 		/* Find size of log and print to std output */
 		cl.CLGetProgramBuildInfo(program, device[0], cl.CL_PROGRAM_BUILD_LOG,

@@ -7,7 +7,6 @@ package cl
 #cgo LDFLAGS: -lOpenCL
 
 #include "CL/opencl.h"
-#include <stdlib.h>
 #include <string.h>
 
 extern void go_prg_notify(cl_program program, void *user_data);
@@ -45,9 +44,20 @@ func CLCreateProgramWithSource(context CL_context,
 	lengths []CL_size_t,
 	errcode_ret *CL_int) CL_program {
 
-	if count == 0 || len(strings) != int(count) {
-		*errcode_ret = CL_INVALID_VALUE
+	if count == 0 || len(strings) != int(count) || len(lengths) != int(count) {
+		if errcode_ret != nil {
+			*errcode_ret = CL_INVALID_VALUE
+		}
 		return CL_program{nil}
+	}
+
+	for i := 0; i < int(count); i++ {
+		if strings[i] == nil || lengths[i] == 0 {
+			if errcode_ret != nil {
+				*errcode_ret = CL_INVALID_VALUE
+			}
+			return CL_program{nil}
+		}
 	}
 
 	var c_program C.cl_program
@@ -57,7 +67,7 @@ func CLCreateProgramWithSource(context CL_context,
 
 	c_lengths = make([]C.size_t, count)
 	c_strings = make([]*C.char, count)
-	for i := CL_uint(0); i < count; i++ {
+	for i := 0; i < int(count); i++ {
 		c_lengths[i] = C.size_t(lengths[i])
 		c_strings[i] = C.CString(string(strings[i]))
 		defer C.free(unsafe.Pointer(c_strings[i]))
@@ -89,8 +99,19 @@ func CLCreateProgramWithBinary(context CL_context,
 		len(lengths) != int(num_devices) ||
 		len(binaries) != int(num_devices) ||
 		len(binary_status) != int(num_devices) {
-		*errcode_ret = CL_INVALID_VALUE
+		if errcode_ret != nil {
+			*errcode_ret = CL_INVALID_VALUE
+		}
 		return CL_program{nil}
+	}
+
+	for i := 0; i < int(num_devices); i++ {
+		if binaries[i] == nil || lengths[i] == 0 {
+			if errcode_ret != nil {
+				*errcode_ret = CL_INVALID_VALUE
+			}
+			return CL_program{nil}
+		}
 	}
 
 	var c_program C.cl_program
@@ -142,24 +163,26 @@ func CLReleaseProgram(program CL_program) CL_int {
 func CLBuildProgram(program CL_program,
 	num_devices CL_uint,
 	devices []CL_device_id,
-	options string,
+	options []byte,
 	pfn_notify CL_prg_notify,
 	user_data unsafe.Pointer) CL_int {
 
-	if num_devices == 0 || len(devices) != int(num_devices) {
+	if (num_devices == 0 && devices != nil) ||
+		(num_devices != 0 && devices == nil) ||
+		(pfn_notify == nil && user_data != nil) {
 		return CL_INVALID_VALUE
 	}
 
 	var c_devices []C.cl_device_id
-	var c_errcode_ret C.cl_int
 	var c_options *C.char
+	var c_errcode_ret C.cl_int
 
 	c_devices = make([]C.cl_device_id, len(devices))
 	for i := 0; i < len(devices); i++ {
 		c_devices[i] = C.cl_device_id(devices[i].cl_device_id)
 	}
-	if options != "" {
-		c_options = C.CString(options)
+	if options != nil {
+		c_options = C.CString(string(options))
 		defer C.free(unsafe.Pointer(c_options))
 	} else {
 		c_options = nil
@@ -193,114 +216,106 @@ func CLGetProgramInfo(program CL_program,
 	param_value *interface{},
 	param_value_size_ret *CL_size_t) CL_int {
 
-	var ret C.cl_int
-
 	if (param_value_size == 0 || param_value == nil) && param_value_size_ret == nil {
-		ret = C.clGetProgramInfo(program.cl_program,
-			C.cl_program_info(param_name),
-			0,
-			nil,
-			nil)
+		return CL_INVALID_VALUE
 	} else {
-		var size_ret C.size_t
+		var c_param_value_size_ret C.size_t
+		var c_errcode_ret C.cl_int
 
 		if param_value_size == 0 || param_value == nil {
-			ret = C.clGetProgramInfo(program.cl_program,
+			c_errcode_ret = C.clGetProgramInfo(program.cl_program,
 				C.cl_program_info(param_name),
-				0,
+				C.size_t(param_value_size),
 				nil,
-				&size_ret)
+				&c_param_value_size_ret)
 		} else {
 			switch param_name {
 			case CL_PROGRAM_SOURCE:
 
 				value := make([]C.char, param_value_size)
-				ret = C.clGetProgramInfo(program.cl_program,
+				c_errcode_ret = C.clGetProgramInfo(program.cl_program,
 					C.cl_program_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value[0]),
-					&size_ret)
+					&c_param_value_size_ret)
 
-				*param_value = C.GoStringN(&value[0], C.int(size_ret-1))
+				*param_value = C.GoStringN(&value[0], C.int(c_param_value_size_ret-1))
 
 			case CL_PROGRAM_REFERENCE_COUNT,
 				CL_PROGRAM_NUM_DEVICES:
 
 				var value C.cl_uint
-				ret = C.clGetProgramInfo(program.cl_program,
+				c_errcode_ret = C.clGetProgramInfo(program.cl_program,
 					C.cl_program_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 			case CL_PROGRAM_CONTEXT:
 
 				var value C.cl_context
-				ret = C.clGetProgramInfo(program.cl_program,
+				c_errcode_ret = C.clGetProgramInfo(program.cl_program,
 					C.cl_program_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 			case CL_PROGRAM_DEVICES:
-				var s_device C.cl_device_id
-				num_devices := int(C.size_t(param_value_size) / C.size_t(unsafe.Sizeof(s_device)))
-				c_devices := make([]C.cl_device_id, num_devices)
+				var param C.cl_device_id
+				length := int(C.size_t(param_value_size) / C.size_t(unsafe.Sizeof(param)))
 
-				ret = C.clGetProgramInfo(program.cl_program,
+				value1 := make([]C.cl_device_id, length)
+				value2 := make([]CL_device_id, length)
+
+				c_errcode_ret = C.clGetProgramInfo(program.cl_program,
 					C.cl_program_info(param_name),
 					C.size_t(param_value_size),
-					unsafe.Pointer(&c_devices[0]),
-					&size_ret)
+					unsafe.Pointer(&value1[0]),
+					&c_param_value_size_ret)
 
-				devices := make([]CL_device_id, num_devices)
-				for i := 0; i < num_devices; i++ {
-					devices[i].cl_device_id = c_devices[i]
+				for i := 0; i < length; i++ {
+					value2[i].cl_device_id = value1[i]
 				}
 
-				*param_value = devices
+				*param_value = value2
 
 			case CL_PROGRAM_BINARY_SIZES:
-				var s_device C.cl_device_id
-				num_devices := int(C.size_t(param_value_size) / C.size_t(unsafe.Sizeof(s_device)))
-				c_binary_sizes := make([]C.size_t, num_devices)
+				var param C.size_t
+				length := int(C.size_t(param_value_size) / C.size_t(unsafe.Sizeof(param)))
 
-				ret = C.clGetProgramInfo(program.cl_program,
+				value1 := make([]C.size_t, length)
+				value2 := make([]CL_size_t, length)
+
+				c_errcode_ret = C.clGetProgramInfo(program.cl_program,
 					C.cl_program_info(param_name),
 					C.size_t(param_value_size),
-					unsafe.Pointer(&c_binary_sizes[0]),
-					&size_ret)
+					unsafe.Pointer(&value1[0]),
+					&c_param_value_size_ret)
 
-				binary_sizes := make([]CL_size_t, num_devices)
-				for i := 0; i < num_devices; i++ {
-					binary_sizes[i] = CL_size_t(c_binary_sizes[i])
+				for i := 0; i < length; i++ {
+					value2[i] = CL_size_t(value1[i])
 				}
 
-				*param_value = binary_sizes
+				*param_value = value2
 
 			case CL_PROGRAM_BINARIES:
+				var param *C.uchar
+				length := int(C.size_t(param_value_size) / C.size_t(unsafe.Sizeof(param)))
 
-				var s_device C.cl_device_id
-				num_devices := int(C.size_t(param_value_size) / C.size_t(unsafe.Sizeof(s_device)))
-				c_binaries := make([]*C.uchar, num_devices)
-				c_lengths := make([]C.size_t, num_devices)
-				binaries := (*param_value).([][]byte)
+				value1 := make([]*C.uchar, length)
+				value2 := make([]*CL_uchar, length)
 
-				for i := 0; i < num_devices; i++ {
-					c_lengths[i] = C.size_t(len(binaries[i]))
-					c_binaries[i] = (*C.uchar)(C.malloc(c_lengths[i]))
-					defer C.free(unsafe.Pointer(c_binaries[i]))
-				}
-
-				ret = C.clGetProgramInfo(program.cl_program,
+				c_errcode_ret = C.clGetProgramInfo(program.cl_program,
 					C.cl_program_info(param_name),
 					C.size_t(param_value_size),
-					unsafe.Pointer(&c_binaries[0]),
-					&size_ret)
+					unsafe.Pointer(&value1[0]),
+					&c_param_value_size_ret)
 
-				for i := 0; i < num_devices; i++ {
-					C.memcpy(unsafe.Pointer(&binaries[i][0]), unsafe.Pointer(c_binaries[i]), c_lengths[i])
+				for i := 0; i < length; i++ {
+					value2[i] = (*CL_uchar)(value1[i])
 				}
+
+				*param_value = value2
 
 			default:
 				return CL_INVALID_VALUE
@@ -308,12 +323,11 @@ func CLGetProgramInfo(program CL_program,
 		}
 
 		if param_value_size_ret != nil {
-			*param_value_size_ret = CL_size_t(size_ret)
+			*param_value_size_ret = CL_size_t(c_param_value_size_ret)
 		}
 
+		return CL_int(c_errcode_ret)
 	}
-
-	return CL_int(ret)
 }
 
 func CLGetProgramBuildInfo(program CL_program,
@@ -323,36 +337,30 @@ func CLGetProgramBuildInfo(program CL_program,
 	param_value *interface{},
 	param_value_size_ret *CL_size_t) CL_int {
 
-	var ret C.cl_int
-
 	if (param_value_size == 0 || param_value == nil) && param_value_size_ret == nil {
-		ret = C.clGetProgramBuildInfo(program.cl_program,
-			device.cl_device_id,
-			C.cl_program_build_info(param_name),
-			0,
-			nil,
-			nil)
+		return CL_INVALID_VALUE
 	} else {
-		var size_ret C.size_t
+		var c_param_value_size_ret C.size_t
+		var c_errcode_ret C.cl_int
 
 		if param_value_size == 0 || param_value == nil {
-			ret = C.clGetProgramBuildInfo(program.cl_program,
+			c_errcode_ret = C.clGetProgramBuildInfo(program.cl_program,
 				device.cl_device_id,
 				C.cl_program_build_info(param_name),
-				0,
+				C.size_t(param_value_size),
 				nil,
-				&size_ret)
+				&c_param_value_size_ret)
 		} else {
 			switch param_name {
 			case CL_PROGRAM_BUILD_STATUS:
 				var value C.cl_build_status
 
-				ret = C.clGetProgramBuildInfo(program.cl_program,
+				c_errcode_ret = C.clGetProgramBuildInfo(program.cl_program,
 					device.cl_device_id,
 					C.cl_program_build_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 				*param_value = CL_build_status(value)
 
@@ -360,14 +368,26 @@ func CLGetProgramBuildInfo(program CL_program,
 				CL_PROGRAM_BUILD_LOG:
 
 				value := make([]C.char, param_value_size)
-				ret = C.clGetProgramBuildInfo(program.cl_program,
+				c_errcode_ret = C.clGetProgramBuildInfo(program.cl_program,
 					device.cl_device_id,
 					C.cl_program_build_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value[0]),
-					&size_ret)
+					&c_param_value_size_ret)
 
-				*param_value = C.GoStringN(&value[0], C.int(size_ret-1))
+				*param_value = C.GoStringN(&value[0], C.int(c_param_value_size_ret-1))
+
+			case CL_PROGRAM_BINARY_TYPE:
+				var value C.cl_program_binary_type
+
+				c_errcode_ret = C.clGetProgramBuildInfo(program.cl_program,
+					device.cl_device_id,
+					C.cl_program_build_info(param_name),
+					C.size_t(param_value_size),
+					unsafe.Pointer(&value),
+					&c_param_value_size_ret)
+
+				*param_value = CL_program_binary_type(value)
 
 			default:
 				return CL_INVALID_VALUE
@@ -375,10 +395,9 @@ func CLGetProgramBuildInfo(program CL_program,
 		}
 
 		if param_value_size_ret != nil {
-			*param_value_size_ret = CL_size_t(size_ret)
+			*param_value_size_ret = CL_size_t(c_param_value_size_ret)
 		}
 
+		return CL_int(c_errcode_ret)
 	}
-
-	return CL_int(ret)
 }

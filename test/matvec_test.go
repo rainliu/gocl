@@ -89,7 +89,7 @@ func TestMatvec(t *testing.T) {
 	}
 
 	/* Build program */
-	err = cl.CLBuildProgram(program, 1, device[:], "", nil, nil)
+	err = cl.CLBuildProgram(program, 1, device[:], nil, nil, nil)
 	if err < 0 {
 		/* Find size of log and print to std output */
 		cl.CLGetProgramBuildInfo(program, device[0], cl.CL_PROGRAM_BUILD_LOG,
@@ -103,7 +103,7 @@ func TestMatvec(t *testing.T) {
 	}
 
 	/* Create kernel for the mat_vec_mult function */
-	kernel = cl.CLCreateKernel(program, "matvec_mult", &err)
+	kernel = cl.CLCreateKernel(program, []byte("matvec_mult"), &err)
 	if err < 0 {
 		t.Errorf("Couldn't create the kernel")
 		return

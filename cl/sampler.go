@@ -50,73 +50,68 @@ func CLGetSamplerInfo(sampler CL_sampler,
 	param_value *interface{},
 	param_value_size_ret *CL_size_t) CL_int {
 
-	var ret C.cl_int
-
 	if (param_value_size == 0 || param_value == nil) && param_value_size_ret == nil {
-		ret = C.clGetSamplerInfo(sampler.cl_sampler,
-			C.cl_sampler_info(param_name),
-			0,
-			nil,
-			nil)
+		return CL_INVALID_VALUE
 	} else {
-		var size_ret C.size_t
+		var c_param_value_size_ret C.size_t
+		var c_errcode_ret C.cl_int
 
 		if param_value_size == 0 || param_value == nil {
-			ret = C.clGetSamplerInfo(sampler.cl_sampler,
+			c_errcode_ret = C.clGetSamplerInfo(sampler.cl_sampler,
 				C.cl_sampler_info(param_name),
-				0,
+				C.size_t(param_value_size),
 				nil,
-				&size_ret)
+				&c_param_value_size_ret)
 		} else {
 			switch param_name {
 			case CL_SAMPLER_REFERENCE_COUNT:
 
 				var value C.cl_uint
-				ret = C.clGetSamplerInfo(sampler.cl_sampler,
+				c_errcode_ret = C.clGetSamplerInfo(sampler.cl_sampler,
 					C.cl_sampler_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 				*param_value = CL_uint(value)
 			case CL_SAMPLER_CONTEXT:
 
 				var value C.cl_context
-				ret = C.clGetSamplerInfo(sampler.cl_sampler,
+				c_errcode_ret = C.clGetSamplerInfo(sampler.cl_sampler,
 					C.cl_sampler_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 				*param_value = CL_context{value}
 			case CL_SAMPLER_FILTER_MODE:
 
 				var value C.cl_filter_mode
-				ret = C.clGetSamplerInfo(sampler.cl_sampler,
+				c_errcode_ret = C.clGetSamplerInfo(sampler.cl_sampler,
 					C.cl_sampler_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 				*param_value = CL_filter_mode(value)
 			case CL_SAMPLER_ADDRESSING_MODE:
 
 				var value C.cl_addressing_mode
-				ret = C.clGetSamplerInfo(sampler.cl_sampler,
+				c_errcode_ret = C.clGetSamplerInfo(sampler.cl_sampler,
 					C.cl_sampler_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 				*param_value = CL_addressing_mode(value)
 			case CL_SAMPLER_NORMALIZED_COORDS:
 
 				var value C.cl_bool
-				ret = C.clGetSamplerInfo(sampler.cl_sampler,
+				c_errcode_ret = C.clGetSamplerInfo(sampler.cl_sampler,
 					C.cl_sampler_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 				*param_value = CL_bool(value)
 			default:
@@ -125,9 +120,9 @@ func CLGetSamplerInfo(sampler CL_sampler,
 		}
 
 		if param_value_size_ret != nil {
-			*param_value_size_ret = CL_size_t(size_ret)
+			*param_value_size_ret = CL_size_t(c_param_value_size_ret)
 		}
-	}
 
-	return CL_int(ret)
+		return CL_int(c_errcode_ret)
+	}
 }

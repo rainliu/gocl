@@ -63,12 +63,14 @@ func CLEnqueueUnmapMemObject(command_queue CL_command_queue,
 	event_wait_list []CL_event,
 	event *CL_event) CL_int {
 
-	if num_events_in_wait_list != 0 && len(event_wait_list) != int(num_events_in_wait_list) {
-		return CL_INVALID_VALUE
+	if (num_events_in_wait_list == 0 && event_wait_list != nil) ||
+		(num_events_in_wait_list != 0 && event_wait_list == nil) ||
+		int(num_events_in_wait_list) != len(event_wait_list) {
+		return CL_INVALID_EVENT_WAIT_LIST
 	}
 
 	var c_event C.cl_event
-	var c_ret C.cl_int
+	var c_errcode_ret C.cl_int
 
 	if num_events_in_wait_list != 0 {
 		var c_event_wait_list []C.cl_event
@@ -77,14 +79,14 @@ func CLEnqueueUnmapMemObject(command_queue CL_command_queue,
 			c_event_wait_list[i] = event_wait_list[i].cl_event
 		}
 
-		c_ret = C.clEnqueueUnmapMemObject(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueUnmapMemObject(command_queue.cl_command_queue,
 			memobj.cl_mem,
 			mapped_ptr,
 			C.cl_uint(num_events_in_wait_list),
 			&c_event_wait_list[0],
 			&c_event)
 	} else {
-		c_ret = C.clEnqueueUnmapMemObject(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueUnmapMemObject(command_queue.cl_command_queue,
 			memobj.cl_mem,
 			mapped_ptr,
 			0,
@@ -96,7 +98,7 @@ func CLEnqueueUnmapMemObject(command_queue CL_command_queue,
 		event.cl_event = c_event
 	}
 
-	return CL_int(c_ret)
+	return CL_int(c_errcode_ret)
 }
 
 func CLGetMemObjectInfo(memobj CL_mem,
@@ -105,88 +107,83 @@ func CLGetMemObjectInfo(memobj CL_mem,
 	param_value *interface{},
 	param_value_size_ret *CL_size_t) CL_int {
 
-	var ret C.cl_int
-
 	if (param_value_size == 0 || param_value == nil) && param_value_size_ret == nil {
-		ret = C.clGetMemObjectInfo(memobj.cl_mem,
-			C.cl_mem_info(param_name),
-			0,
-			nil,
-			nil)
+		return CL_INVALID_VALUE
 	} else {
-		var size_ret C.size_t
+		var c_param_value_size_ret C.size_t
+		var c_errcode_ret C.cl_int
 
 		if param_value_size == 0 || param_value == nil {
-			ret = C.clGetMemObjectInfo(memobj.cl_mem,
+			c_errcode_ret = C.clGetMemObjectInfo(memobj.cl_mem,
 				C.cl_mem_info(param_name),
-				0,
+				C.size_t(param_value_size),
 				nil,
-				&size_ret)
+				&c_param_value_size_ret)
 		} else {
 			switch param_name {
 			case CL_MEM_TYPE:
 				var value C.cl_mem_object_type
-				ret = C.clGetMemObjectInfo(memobj.cl_mem,
+				c_errcode_ret = C.clGetMemObjectInfo(memobj.cl_mem,
 					C.cl_mem_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 				*param_value = CL_mem_object_type(value)
 			case CL_MEM_FLAGS:
 				var value C.cl_mem_flags
-				ret = C.clGetMemObjectInfo(memobj.cl_mem,
+				c_errcode_ret = C.clGetMemObjectInfo(memobj.cl_mem,
 					C.cl_mem_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 				*param_value = CL_mem_flags(value)
 			case CL_MEM_SIZE,
 				CL_MEM_OFFSET:
 				var value C.size_t
-				ret = C.clGetMemObjectInfo(memobj.cl_mem,
+				c_errcode_ret = C.clGetMemObjectInfo(memobj.cl_mem,
 					C.cl_mem_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 				*param_value = CL_size_t(value)
 			case CL_MEM_HOST_PTR:
 				var value unsafe.Pointer
-				ret = C.clGetMemObjectInfo(memobj.cl_mem,
+				c_errcode_ret = C.clGetMemObjectInfo(memobj.cl_mem,
 					C.cl_mem_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 				*param_value = value
 			case CL_MEM_MAP_COUNT,
 				CL_MEM_REFERENCE_COUNT:
 				var value C.cl_uint
-				ret = C.clGetMemObjectInfo(memobj.cl_mem,
+				c_errcode_ret = C.clGetMemObjectInfo(memobj.cl_mem,
 					C.cl_mem_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 				*param_value = CL_uint(value)
 			case CL_MEM_CONTEXT:
 				var value C.cl_context
-				ret = C.clGetMemObjectInfo(memobj.cl_mem,
+				c_errcode_ret = C.clGetMemObjectInfo(memobj.cl_mem,
 					C.cl_mem_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 				*param_value = CL_context{value}
 			case CL_MEM_ASSOCIATED_MEMOBJECT:
 				var value C.cl_mem
-				ret = C.clGetMemObjectInfo(memobj.cl_mem,
+				c_errcode_ret = C.clGetMemObjectInfo(memobj.cl_mem,
 					C.cl_mem_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 				*param_value = CL_mem{value}
 			default:
@@ -195,9 +192,9 @@ func CLGetMemObjectInfo(memobj CL_mem,
 		}
 
 		if param_value_size_ret != nil {
-			*param_value_size_ret = CL_size_t(size_ret)
+			*param_value_size_ret = CL_size_t(c_param_value_size_ret)
 		}
-	}
 
-	return CL_int(ret)
+		return CL_int(c_errcode_ret)
+	}
 }

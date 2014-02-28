@@ -68,12 +68,14 @@ func CLEnqueueReadBuffer(command_queue CL_command_queue,
 	event_wait_list []CL_event,
 	event *CL_event) CL_int {
 
-	if num_events_in_wait_list != 0 && len(event_wait_list) != int(num_events_in_wait_list) {
-		return CL_INVALID_VALUE
+	if (num_events_in_wait_list == 0 && event_wait_list != nil) ||
+		(num_events_in_wait_list != 0 && event_wait_list == nil) ||
+		int(num_events_in_wait_list) != len(event_wait_list) {
+		return CL_INVALID_EVENT_WAIT_LIST
 	}
 
 	var c_event C.cl_event
-	var c_ret C.cl_int
+	var c_errcode_ret C.cl_int
 
 	if num_events_in_wait_list != 0 {
 		var c_event_wait_list []C.cl_event
@@ -82,7 +84,7 @@ func CLEnqueueReadBuffer(command_queue CL_command_queue,
 			c_event_wait_list[i] = event_wait_list[i].cl_event
 		}
 
-		c_ret = C.clEnqueueReadBuffer(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueReadBuffer(command_queue.cl_command_queue,
 			buffer.cl_mem,
 			C.cl_bool(blocking_read),
 			C.size_t(offset),
@@ -92,7 +94,7 @@ func CLEnqueueReadBuffer(command_queue CL_command_queue,
 			&c_event_wait_list[0],
 			&c_event)
 	} else {
-		c_ret = C.clEnqueueReadBuffer(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueReadBuffer(command_queue.cl_command_queue,
 			buffer.cl_mem,
 			C.cl_bool(blocking_read),
 			C.size_t(offset),
@@ -107,7 +109,7 @@ func CLEnqueueReadBuffer(command_queue CL_command_queue,
 		event.cl_event = c_event
 	}
 
-	return CL_int(c_ret)
+	return CL_int(c_errcode_ret)
 }
 
 func CLEnqueueWriteBuffer(command_queue CL_command_queue,
@@ -120,12 +122,14 @@ func CLEnqueueWriteBuffer(command_queue CL_command_queue,
 	event_wait_list []CL_event,
 	event *CL_event) CL_int {
 
-	if num_events_in_wait_list != 0 && len(event_wait_list) != int(num_events_in_wait_list) {
-		return CL_INVALID_VALUE
+	if (num_events_in_wait_list == 0 && event_wait_list != nil) ||
+		(num_events_in_wait_list != 0 && event_wait_list == nil) ||
+		int(num_events_in_wait_list) != len(event_wait_list) {
+		return CL_INVALID_EVENT_WAIT_LIST
 	}
 
 	var c_event C.cl_event
-	var c_ret C.cl_int
+	var c_errcode_ret C.cl_int
 
 	if num_events_in_wait_list != 0 {
 		var c_event_wait_list []C.cl_event
@@ -134,7 +138,7 @@ func CLEnqueueWriteBuffer(command_queue CL_command_queue,
 			c_event_wait_list[i] = event_wait_list[i].cl_event
 		}
 
-		c_ret = C.clEnqueueWriteBuffer(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueWriteBuffer(command_queue.cl_command_queue,
 			buffer.cl_mem,
 			C.cl_bool(blocking_write),
 			C.size_t(offset),
@@ -144,7 +148,7 @@ func CLEnqueueWriteBuffer(command_queue CL_command_queue,
 			&c_event_wait_list[0],
 			&c_event)
 	} else {
-		c_ret = C.clEnqueueWriteBuffer(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueWriteBuffer(command_queue.cl_command_queue,
 			buffer.cl_mem,
 			C.cl_bool(blocking_write),
 			C.size_t(offset),
@@ -159,7 +163,7 @@ func CLEnqueueWriteBuffer(command_queue CL_command_queue,
 		event.cl_event = c_event
 	}
 
-	return CL_int(c_ret)
+	return CL_int(c_errcode_ret)
 }
 
 func CLEnqueueCopyBuffer(command_queue CL_command_queue,
@@ -172,12 +176,14 @@ func CLEnqueueCopyBuffer(command_queue CL_command_queue,
 	event_wait_list []CL_event,
 	event *CL_event) CL_int {
 
-	if num_events_in_wait_list != 0 && len(event_wait_list) != int(num_events_in_wait_list) {
-		return CL_INVALID_VALUE
+	if (num_events_in_wait_list == 0 && event_wait_list != nil) ||
+		(num_events_in_wait_list != 0 && event_wait_list == nil) ||
+		int(num_events_in_wait_list) != len(event_wait_list) {
+		return CL_INVALID_EVENT_WAIT_LIST
 	}
 
 	var c_event C.cl_event
-	var c_ret C.cl_int
+	var c_errcode_ret C.cl_int
 
 	if num_events_in_wait_list != 0 {
 		var c_event_wait_list []C.cl_event
@@ -186,7 +192,7 @@ func CLEnqueueCopyBuffer(command_queue CL_command_queue,
 			c_event_wait_list[i] = event_wait_list[i].cl_event
 		}
 
-		c_ret = C.clEnqueueCopyBuffer(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueCopyBuffer(command_queue.cl_command_queue,
 			src_buffer.cl_mem,
 			dst_buffer.cl_mem,
 			C.size_t(src_offset),
@@ -196,7 +202,7 @@ func CLEnqueueCopyBuffer(command_queue CL_command_queue,
 			&c_event_wait_list[0],
 			&c_event)
 	} else {
-		c_ret = C.clEnqueueCopyBuffer(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueCopyBuffer(command_queue.cl_command_queue,
 			src_buffer.cl_mem,
 			dst_buffer.cl_mem,
 			C.size_t(src_offset),
@@ -211,7 +217,7 @@ func CLEnqueueCopyBuffer(command_queue CL_command_queue,
 		event.cl_event = c_event
 	}
 
-	return CL_int(c_ret)
+	return CL_int(c_errcode_ret)
 }
 
 func CLEnqueueReadBufferRect(command_queue CL_command_queue,
@@ -229,8 +235,10 @@ func CLEnqueueReadBufferRect(command_queue CL_command_queue,
 	event_wait_list []CL_event,
 	event *CL_event) CL_int {
 
-	if num_events_in_wait_list != 0 && len(event_wait_list) != int(num_events_in_wait_list) {
-		return CL_INVALID_VALUE
+	if (num_events_in_wait_list == 0 && event_wait_list != nil) ||
+		(num_events_in_wait_list != 0 && event_wait_list == nil) ||
+		int(num_events_in_wait_list) != len(event_wait_list) {
+		return CL_INVALID_EVENT_WAIT_LIST
 	}
 
 	var c_buffer_origin [3]C.size_t
@@ -244,7 +252,7 @@ func CLEnqueueReadBufferRect(command_queue CL_command_queue,
 	}
 
 	var c_event C.cl_event
-	var c_ret C.cl_int
+	var c_errcode_ret C.cl_int
 
 	if num_events_in_wait_list != 0 {
 		var c_event_wait_list []C.cl_event
@@ -253,7 +261,7 @@ func CLEnqueueReadBufferRect(command_queue CL_command_queue,
 			c_event_wait_list[i] = event_wait_list[i].cl_event
 		}
 
-		c_ret = C.clEnqueueReadBufferRect(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueReadBufferRect(command_queue.cl_command_queue,
 			buffer.cl_mem,
 			C.cl_bool(blocking_read),
 			&c_buffer_origin[0],
@@ -268,7 +276,7 @@ func CLEnqueueReadBufferRect(command_queue CL_command_queue,
 			&c_event_wait_list[0],
 			&c_event)
 	} else {
-		c_ret = C.clEnqueueReadBufferRect(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueReadBufferRect(command_queue.cl_command_queue,
 			buffer.cl_mem,
 			C.cl_bool(blocking_read),
 			&c_buffer_origin[0],
@@ -288,7 +296,7 @@ func CLEnqueueReadBufferRect(command_queue CL_command_queue,
 		event.cl_event = c_event
 	}
 
-	return CL_int(c_ret)
+	return CL_int(c_errcode_ret)
 }
 
 func CLEnqueueWriteBufferRect(command_queue CL_command_queue,
@@ -306,8 +314,10 @@ func CLEnqueueWriteBufferRect(command_queue CL_command_queue,
 	event_wait_list []CL_event,
 	event *CL_event) CL_int {
 
-	if num_events_in_wait_list != 0 && len(event_wait_list) != int(num_events_in_wait_list) {
-		return CL_INVALID_VALUE
+	if (num_events_in_wait_list == 0 && event_wait_list != nil) ||
+		(num_events_in_wait_list != 0 && event_wait_list == nil) ||
+		int(num_events_in_wait_list) != len(event_wait_list) {
+		return CL_INVALID_EVENT_WAIT_LIST
 	}
 
 	var c_buffer_origin [3]C.size_t
@@ -321,7 +331,7 @@ func CLEnqueueWriteBufferRect(command_queue CL_command_queue,
 	}
 
 	var c_event C.cl_event
-	var c_ret C.cl_int
+	var c_errcode_ret C.cl_int
 
 	if num_events_in_wait_list != 0 {
 		var c_event_wait_list []C.cl_event
@@ -330,7 +340,7 @@ func CLEnqueueWriteBufferRect(command_queue CL_command_queue,
 			c_event_wait_list[i] = event_wait_list[i].cl_event
 		}
 
-		c_ret = C.clEnqueueWriteBufferRect(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueWriteBufferRect(command_queue.cl_command_queue,
 			buffer.cl_mem,
 			C.cl_bool(blocking_write),
 			&c_buffer_origin[0],
@@ -345,7 +355,7 @@ func CLEnqueueWriteBufferRect(command_queue CL_command_queue,
 			&c_event_wait_list[0],
 			&c_event)
 	} else {
-		c_ret = C.clEnqueueWriteBufferRect(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueWriteBufferRect(command_queue.cl_command_queue,
 			buffer.cl_mem,
 			C.cl_bool(blocking_write),
 			&c_buffer_origin[0],
@@ -365,7 +375,7 @@ func CLEnqueueWriteBufferRect(command_queue CL_command_queue,
 		event.cl_event = c_event
 	}
 
-	return CL_int(c_ret)
+	return CL_int(c_errcode_ret)
 }
 
 func CLEnqueueCopyBufferRect(command_queue CL_command_queue,
@@ -382,8 +392,10 @@ func CLEnqueueCopyBufferRect(command_queue CL_command_queue,
 	event_wait_list []CL_event,
 	event *CL_event) CL_int {
 
-	if num_events_in_wait_list != 0 && len(event_wait_list) != int(num_events_in_wait_list) {
-		return CL_INVALID_VALUE
+	if (num_events_in_wait_list == 0 && event_wait_list != nil) ||
+		(num_events_in_wait_list != 0 && event_wait_list == nil) ||
+		int(num_events_in_wait_list) != len(event_wait_list) {
+		return CL_INVALID_EVENT_WAIT_LIST
 	}
 
 	var c_src_origin [3]C.size_t
@@ -397,7 +409,7 @@ func CLEnqueueCopyBufferRect(command_queue CL_command_queue,
 	}
 
 	var c_event C.cl_event
-	var c_ret C.cl_int
+	var c_errcode_ret C.cl_int
 
 	if num_events_in_wait_list != 0 {
 		var c_event_wait_list []C.cl_event
@@ -406,7 +418,7 @@ func CLEnqueueCopyBufferRect(command_queue CL_command_queue,
 			c_event_wait_list[i] = event_wait_list[i].cl_event
 		}
 
-		c_ret = C.clEnqueueCopyBufferRect(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueCopyBufferRect(command_queue.cl_command_queue,
 			src_buffer.cl_mem,
 			dst_buffer.cl_mem,
 			&c_src_origin[0],
@@ -420,7 +432,7 @@ func CLEnqueueCopyBufferRect(command_queue CL_command_queue,
 			&c_event_wait_list[0],
 			&c_event)
 	} else {
-		c_ret = C.clEnqueueCopyBufferRect(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueCopyBufferRect(command_queue.cl_command_queue,
 			src_buffer.cl_mem,
 			dst_buffer.cl_mem,
 			&c_src_origin[0],
@@ -439,7 +451,7 @@ func CLEnqueueCopyBufferRect(command_queue CL_command_queue,
 		event.cl_event = c_event
 	}
 
-	return CL_int(c_ret)
+	return CL_int(c_errcode_ret)
 }
 
 func CLEnqueueMapBuffer(command_queue CL_command_queue,
@@ -453,9 +465,12 @@ func CLEnqueueMapBuffer(command_queue CL_command_queue,
 	event *CL_event,
 	errcode_ret *CL_int) unsafe.Pointer {
 
-	if num_events_in_wait_list != 0 && len(event_wait_list) != int(num_events_in_wait_list) {
+	if (num_events_in_wait_list == 0 && event_wait_list != nil) ||
+		(num_events_in_wait_list != 0 && event_wait_list == nil) ||
+		int(num_events_in_wait_list) != len(event_wait_list) {
+
 		if errcode_ret != nil {
-			*errcode_ret = CL_INVALID_VALUE
+			*errcode_ret = CL_INVALID_EVENT_WAIT_LIST
 		}
 		return nil
 	}
@@ -497,6 +512,7 @@ func CLEnqueueMapBuffer(command_queue CL_command_queue,
 	if event != nil {
 		event.cl_event = c_event
 	}
+
 	if errcode_ret != nil {
 		*errcode_ret = CL_int(c_errcode_ret)
 	}

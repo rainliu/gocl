@@ -21,34 +21,28 @@ func CLGetSupportedImageFormats(context CL_context,
 	image_formats []CL_image_format,
 	num_image_formats *CL_uint) CL_int {
 
-	var ret C.cl_int
-
 	if (num_entries == 0 || image_formats == nil) && num_image_formats == nil {
-		ret = C.clGetSupportedImageFormats(context.cl_context,
-			C.cl_mem_flags(flags),
-			C.cl_mem_object_type(image_type),
-			0,
-			nil,
-			nil)
+		return CL_INVALID_VALUE
 	} else {
-		var num C.cl_uint
+		var c_num_image_formats C.cl_uint
+		var c_errcode_ret C.cl_int
 
 		if num_entries == 0 || image_formats == nil {
-			ret = C.clGetSupportedImageFormats(context.cl_context,
+			c_errcode_ret = C.clGetSupportedImageFormats(context.cl_context,
 				C.cl_mem_flags(flags),
 				C.cl_mem_object_type(image_type),
-				0,
+				C.cl_uint(num_entries),
 				nil,
-				&num)
+				&c_num_image_formats)
 		} else {
 			c_image_formats := make([]C.cl_image_format, len(image_formats))
-			ret = C.clGetSupportedImageFormats(context.cl_context,
+			c_errcode_ret = C.clGetSupportedImageFormats(context.cl_context,
 				C.cl_mem_flags(flags),
 				C.cl_mem_object_type(image_type),
 				C.cl_uint(num_entries),
 				&c_image_formats[0],
-				&num)
-			if ret == C.CL_SUCCESS {
+				&c_num_image_formats)
+			if c_errcode_ret == C.CL_SUCCESS {
 				for i := 0; i < len(image_formats); i++ {
 					image_formats[i].Image_channel_data_type = CL_channel_type(c_image_formats[i].image_channel_data_type)
 					image_formats[i].Image_channel_order = CL_channel_order(c_image_formats[i].image_channel_order)
@@ -57,15 +51,15 @@ func CLGetSupportedImageFormats(context CL_context,
 		}
 
 		if num_image_formats != nil {
-			*num_image_formats = CL_uint(num)
+			*num_image_formats = CL_uint(c_num_image_formats)
 		}
-	}
 
-	return CL_int(ret)
+		return CL_int(c_errcode_ret)
+	}
 }
 
 func CLEnqueueMapImage(command_queue CL_command_queue,
-	buffer CL_mem,
+	image CL_mem,
 	blocking_map CL_bool,
 	map_flags CL_map_flags,
 	origin [3]CL_size_t,
@@ -77,9 +71,12 @@ func CLEnqueueMapImage(command_queue CL_command_queue,
 	event *CL_event,
 	errcode_ret *CL_int) unsafe.Pointer {
 
-	if num_events_in_wait_list != 0 && len(event_wait_list) != int(num_events_in_wait_list) {
+	if (num_events_in_wait_list == 0 && event_wait_list != nil) ||
+		(num_events_in_wait_list != 0 && event_wait_list == nil) ||
+		int(num_events_in_wait_list) != len(event_wait_list) {
+
 		if errcode_ret != nil {
-			*errcode_ret = CL_INVALID_VALUE
+			*errcode_ret = CL_INVALID_EVENT_WAIT_LIST
 		}
 		return nil
 	}
@@ -103,7 +100,7 @@ func CLEnqueueMapImage(command_queue CL_command_queue,
 		}
 
 		c_ptr_ret = C.clEnqueueMapImage(command_queue.cl_command_queue,
-			buffer.cl_mem,
+			image.cl_mem,
 			C.cl_bool(blocking_map),
 			C.cl_map_flags(map_flags),
 			&c_origin[0],
@@ -116,7 +113,7 @@ func CLEnqueueMapImage(command_queue CL_command_queue,
 			&c_errcode_ret)
 	} else {
 		c_ptr_ret = C.clEnqueueMapImage(command_queue.cl_command_queue,
-			buffer.cl_mem,
+			image.cl_mem,
 			C.cl_bool(blocking_map),
 			C.cl_map_flags(map_flags),
 			&c_origin[0],
@@ -149,13 +146,15 @@ func CLEnqueueCopyImageToBuffer(command_queue CL_command_queue,
 	event_wait_list []CL_event,
 	event *CL_event) CL_int {
 
-	if num_events_in_wait_list != 0 && len(event_wait_list) != int(num_events_in_wait_list) {
-		return CL_INVALID_VALUE
+	if (num_events_in_wait_list == 0 && event_wait_list != nil) ||
+		(num_events_in_wait_list != 0 && event_wait_list == nil) ||
+		int(num_events_in_wait_list) != len(event_wait_list) {
+		return CL_INVALID_EVENT_WAIT_LIST
 	}
 
-	var c_event C.cl_event
-	var c_ret C.cl_int
 	var c_origin, c_region [3]C.size_t
+	var c_event C.cl_event
+	var c_errcode_ret C.cl_int
 
 	for i := 0; i < 3; i++ {
 		c_origin[i] = C.size_t(src_origin[i])
@@ -168,7 +167,7 @@ func CLEnqueueCopyImageToBuffer(command_queue CL_command_queue,
 			c_event_wait_list[i] = event_wait_list[i].cl_event
 		}
 
-		c_ret = C.clEnqueueCopyImageToBuffer(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueCopyImageToBuffer(command_queue.cl_command_queue,
 			src_image.cl_mem,
 			dst_buffer.cl_mem,
 			&c_origin[0],
@@ -178,7 +177,7 @@ func CLEnqueueCopyImageToBuffer(command_queue CL_command_queue,
 			&c_event_wait_list[0],
 			&c_event)
 	} else {
-		c_ret = C.clEnqueueCopyImageToBuffer(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueCopyImageToBuffer(command_queue.cl_command_queue,
 			src_image.cl_mem,
 			dst_buffer.cl_mem,
 			&c_origin[0],
@@ -193,7 +192,7 @@ func CLEnqueueCopyImageToBuffer(command_queue CL_command_queue,
 		event.cl_event = c_event
 	}
 
-	return CL_int(c_ret)
+	return CL_int(c_errcode_ret)
 }
 
 func CLEnqueueCopyBufferToImage(command_queue CL_command_queue,
@@ -206,13 +205,15 @@ func CLEnqueueCopyBufferToImage(command_queue CL_command_queue,
 	event_wait_list []CL_event,
 	event *CL_event) CL_int {
 
-	if num_events_in_wait_list != 0 && len(event_wait_list) != int(num_events_in_wait_list) {
-		return CL_INVALID_VALUE
+	if (num_events_in_wait_list == 0 && event_wait_list != nil) ||
+		(num_events_in_wait_list != 0 && event_wait_list == nil) ||
+		int(num_events_in_wait_list) != len(event_wait_list) {
+		return CL_INVALID_EVENT_WAIT_LIST
 	}
 
-	var c_event C.cl_event
-	var c_ret C.cl_int
 	var c_origin, c_region [3]C.size_t
+	var c_event C.cl_event
+	var c_errcode_ret C.cl_int
 
 	for i := 0; i < 3; i++ {
 		c_origin[i] = C.size_t(dst_origin[i])
@@ -225,7 +226,7 @@ func CLEnqueueCopyBufferToImage(command_queue CL_command_queue,
 			c_event_wait_list[i] = event_wait_list[i].cl_event
 		}
 
-		c_ret = C.clEnqueueCopyBufferToImage(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueCopyBufferToImage(command_queue.cl_command_queue,
 			src_buffer.cl_mem,
 			dst_image.cl_mem,
 			C.size_t(src_offset),
@@ -235,7 +236,7 @@ func CLEnqueueCopyBufferToImage(command_queue CL_command_queue,
 			&c_event_wait_list[0],
 			&c_event)
 	} else {
-		c_ret = C.clEnqueueCopyBufferToImage(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueCopyBufferToImage(command_queue.cl_command_queue,
 			src_buffer.cl_mem,
 			dst_image.cl_mem,
 			C.size_t(src_offset),
@@ -250,7 +251,7 @@ func CLEnqueueCopyBufferToImage(command_queue CL_command_queue,
 		event.cl_event = c_event
 	}
 
-	return CL_int(c_ret)
+	return CL_int(c_errcode_ret)
 }
 
 func CLEnqueueReadImage(command_queue CL_command_queue,
@@ -265,13 +266,15 @@ func CLEnqueueReadImage(command_queue CL_command_queue,
 	event_wait_list []CL_event,
 	event *CL_event) CL_int {
 
-	if num_events_in_wait_list != 0 && len(event_wait_list) != int(num_events_in_wait_list) {
-		return CL_INVALID_VALUE
+	if (num_events_in_wait_list == 0 && event_wait_list != nil) ||
+		(num_events_in_wait_list != 0 && event_wait_list == nil) ||
+		int(num_events_in_wait_list) != len(event_wait_list) {
+		return CL_INVALID_EVENT_WAIT_LIST
 	}
 
-	var c_event C.cl_event
-	var c_ret C.cl_int
 	var c_origin, c_region [3]C.size_t
+	var c_event C.cl_event
+	var c_errcode_ret C.cl_int
 
 	for i := 0; i < 3; i++ {
 		c_origin[i] = C.size_t(origin[i])
@@ -284,7 +287,7 @@ func CLEnqueueReadImage(command_queue CL_command_queue,
 			c_event_wait_list[i] = event_wait_list[i].cl_event
 		}
 
-		c_ret = C.clEnqueueReadImage(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueReadImage(command_queue.cl_command_queue,
 			image.cl_mem,
 			C.cl_bool(blocking_read),
 			&c_origin[0],
@@ -296,7 +299,7 @@ func CLEnqueueReadImage(command_queue CL_command_queue,
 			&c_event_wait_list[0],
 			&c_event)
 	} else {
-		c_ret = C.clEnqueueReadImage(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueReadImage(command_queue.cl_command_queue,
 			image.cl_mem,
 			C.cl_bool(blocking_read),
 			&c_origin[0],
@@ -313,7 +316,7 @@ func CLEnqueueReadImage(command_queue CL_command_queue,
 		event.cl_event = c_event
 	}
 
-	return CL_int(c_ret)
+	return CL_int(c_errcode_ret)
 }
 
 func CLEnqueueWriteImage(command_queue CL_command_queue,
@@ -328,13 +331,15 @@ func CLEnqueueWriteImage(command_queue CL_command_queue,
 	event_wait_list []CL_event,
 	event *CL_event) CL_int {
 
-	if num_events_in_wait_list != 0 && len(event_wait_list) != int(num_events_in_wait_list) {
-		return CL_INVALID_VALUE
+	if (num_events_in_wait_list == 0 && event_wait_list != nil) ||
+		(num_events_in_wait_list != 0 && event_wait_list == nil) ||
+		int(num_events_in_wait_list) != len(event_wait_list) {
+		return CL_INVALID_EVENT_WAIT_LIST
 	}
 
-	var c_event C.cl_event
-	var c_ret C.cl_int
 	var c_origin, c_region [3]C.size_t
+	var c_event C.cl_event
+	var c_errcode_ret C.cl_int
 
 	for i := 0; i < 3; i++ {
 		c_origin[i] = C.size_t(origin[i])
@@ -347,7 +352,7 @@ func CLEnqueueWriteImage(command_queue CL_command_queue,
 			c_event_wait_list[i] = event_wait_list[i].cl_event
 		}
 
-		c_ret = C.clEnqueueWriteImage(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueWriteImage(command_queue.cl_command_queue,
 			image.cl_mem,
 			C.cl_bool(blocking_write),
 			&c_origin[0],
@@ -359,7 +364,7 @@ func CLEnqueueWriteImage(command_queue CL_command_queue,
 			&c_event_wait_list[0],
 			&c_event)
 	} else {
-		c_ret = C.clEnqueueWriteImage(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueWriteImage(command_queue.cl_command_queue,
 			image.cl_mem,
 			C.cl_bool(blocking_write),
 			&c_origin[0],
@@ -376,7 +381,7 @@ func CLEnqueueWriteImage(command_queue CL_command_queue,
 		event.cl_event = c_event
 	}
 
-	return CL_int(c_ret)
+	return CL_int(c_errcode_ret)
 }
 
 func CLEnqueueCopyImage(command_queue CL_command_queue,
@@ -389,13 +394,15 @@ func CLEnqueueCopyImage(command_queue CL_command_queue,
 	event_wait_list []CL_event,
 	event *CL_event) CL_int {
 
-	if num_events_in_wait_list != 0 && len(event_wait_list) != int(num_events_in_wait_list) {
-		return CL_INVALID_VALUE
+	if (num_events_in_wait_list == 0 && event_wait_list != nil) ||
+		(num_events_in_wait_list != 0 && event_wait_list == nil) ||
+		int(num_events_in_wait_list) != len(event_wait_list) {
+		return CL_INVALID_EVENT_WAIT_LIST
 	}
 
-	var c_event C.cl_event
-	var c_ret C.cl_int
 	var c_src_origin, c_dst_origin, c_region [3]C.size_t
+	var c_event C.cl_event
+	var c_errcode_ret C.cl_int
 
 	for i := 0; i < 3; i++ {
 		c_src_origin[i] = C.size_t(src_origin[i])
@@ -409,7 +416,7 @@ func CLEnqueueCopyImage(command_queue CL_command_queue,
 			c_event_wait_list[i] = event_wait_list[i].cl_event
 		}
 
-		c_ret = C.clEnqueueCopyImage(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueCopyImage(command_queue.cl_command_queue,
 			src_image.cl_mem,
 			dst_image.cl_mem,
 			&c_src_origin[0],
@@ -419,7 +426,7 @@ func CLEnqueueCopyImage(command_queue CL_command_queue,
 			&c_event_wait_list[0],
 			&c_event)
 	} else {
-		c_ret = C.clEnqueueCopyImage(command_queue.cl_command_queue,
+		c_errcode_ret = C.clEnqueueCopyImage(command_queue.cl_command_queue,
 			src_image.cl_mem,
 			dst_image.cl_mem,
 			&c_src_origin[0],
@@ -434,7 +441,7 @@ func CLEnqueueCopyImage(command_queue CL_command_queue,
 		event.cl_event = c_event
 	}
 
-	return CL_int(c_ret)
+	return CL_int(c_errcode_ret)
 }
 
 func CLGetImageInfo(image CL_mem,
@@ -443,33 +450,28 @@ func CLGetImageInfo(image CL_mem,
 	param_value *interface{},
 	param_value_size_ret *CL_size_t) CL_int {
 
-	var ret C.cl_int
-
 	if (param_value_size == 0 || param_value == nil) && param_value_size_ret == nil {
-		ret = C.clGetImageInfo(image.cl_mem,
-			C.cl_image_info(param_name),
-			0,
-			nil,
-			nil)
+		return CL_INVALID_VALUE
 	} else {
-		var size_ret C.size_t
+		var c_param_value_size_ret C.size_t
+		var c_errcode_ret C.cl_int
 
 		if param_value_size == 0 || param_value == nil {
-			ret = C.clGetImageInfo(image.cl_mem,
+			c_errcode_ret = C.clGetImageInfo(image.cl_mem,
 				C.cl_image_info(param_name),
-				0,
+				C.size_t(param_value_size),
 				nil,
-				&size_ret)
+				&c_param_value_size_ret)
 		} else {
 			switch param_name {
 			case CL_IMAGE_FORMAT:
 
 				var value C.cl_image_format
-				ret = C.clGetImageInfo(image.cl_mem,
+				c_errcode_ret = C.clGetImageInfo(image.cl_mem,
 					C.cl_image_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 				*param_value = CL_image_format{CL_channel_order(value.image_channel_order),
 					CL_channel_type(value.image_channel_data_type)}
@@ -479,25 +481,49 @@ func CLGetImageInfo(image CL_mem,
 				CL_IMAGE_SLICE_PITCH,
 				CL_IMAGE_HEIGHT,
 				CL_IMAGE_WIDTH,
-				CL_IMAGE_DEPTH:
+				CL_IMAGE_DEPTH,
+				CL_IMAGE_ARRAY_SIZE:
 
 				var value C.size_t
-				ret = C.clGetImageInfo(image.cl_mem,
+				c_errcode_ret = C.clGetImageInfo(image.cl_mem,
 					C.cl_image_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 				*param_value = CL_size_t(value)
+
+			case CL_IMAGE_BUFFER:
+
+				var value C.cl_mem
+				c_errcode_ret = C.clGetImageInfo(image.cl_mem,
+					C.cl_image_info(param_name),
+					C.size_t(param_value_size),
+					unsafe.Pointer(&value),
+					&c_param_value_size_ret)
+
+				*param_value = CL_mem{value}
+
+			case CL_IMAGE_NUM_MIP_LEVELS,
+				CL_IMAGE_NUM_SAMPLES:
+				var value C.cl_uint
+				c_errcode_ret = C.clGetImageInfo(image.cl_mem,
+					C.cl_image_info(param_name),
+					C.size_t(param_value_size),
+					unsafe.Pointer(&value),
+					&c_param_value_size_ret)
+
+				*param_value = CL_uint(value)
+
 			default:
 				return CL_INVALID_VALUE
 			}
 		}
 
 		if param_value_size_ret != nil {
-			*param_value_size_ret = CL_size_t(size_ret)
+			*param_value_size_ret = CL_size_t(c_param_value_size_ret)
 		}
-	}
 
-	return CL_int(ret)
+		return CL_int(c_errcode_ret)
+	}
 }

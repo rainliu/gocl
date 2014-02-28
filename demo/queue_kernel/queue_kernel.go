@@ -77,7 +77,7 @@ func main() {
 	}
 
 	/* Build program */
-	err = cl.CLBuildProgram(program, 1, device[:], "", nil, nil)
+	err = cl.CLBuildProgram(program, 1, device[:], nil, nil, nil)
 	if err < 0 {
 		/* Find size of log and print to std output */
 		cl.CLGetProgramBuildInfo(program, device[0], cl.CL_PROGRAM_BUILD_LOG,
@@ -92,7 +92,7 @@ func main() {
 	}
 
 	/* Create the kernel */
-	kernel = cl.CLCreateKernel(program, "blank", &err)
+	kernel = cl.CLCreateKernel(program, []byte("blank"), &err)
 	if err < 0 {
 		println("Couldn't create the kernel")
 		return

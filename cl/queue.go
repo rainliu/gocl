@@ -47,67 +47,61 @@ func CLGetCommandQueueInfo(command_queue CL_command_queue,
 	param_value *interface{},
 	param_value_size_ret *CL_size_t) CL_int {
 
-	var ret C.cl_int
-
 	if (param_value_size == 0 || param_value == nil) && param_value_size_ret == nil {
-		ret = C.clGetCommandQueueInfo(command_queue.cl_command_queue,
-			C.cl_command_queue_info(param_name),
-			0,
-			nil,
-			nil)
+		return CL_INVALID_VALUE
 	} else {
-		var size_ret C.size_t
+		var c_param_value_size_ret C.size_t
+		var c_errcode_ret C.cl_int
 
 		if param_value_size == 0 || param_value == nil {
-			ret = C.clGetCommandQueueInfo(command_queue.cl_command_queue,
+			c_errcode_ret = C.clGetCommandQueueInfo(command_queue.cl_command_queue,
 				C.cl_command_queue_info(param_name),
-				0,
+				C.size_t(param_value_size),
 				nil,
-				&size_ret)
+				&c_param_value_size_ret)
 		} else {
 			switch param_name {
 			case CL_QUEUE_CONTEXT:
 				var value C.cl_context
 
-				ret = C.clGetCommandQueueInfo(command_queue.cl_command_queue,
+				c_errcode_ret = C.clGetCommandQueueInfo(command_queue.cl_command_queue,
 					C.cl_command_queue_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 				*param_value = CL_context{value}
 
 			case CL_QUEUE_DEVICE:
 				var value C.cl_device_id
 
-				ret = C.clGetCommandQueueInfo(command_queue.cl_command_queue,
+				c_errcode_ret = C.clGetCommandQueueInfo(command_queue.cl_command_queue,
 					C.cl_command_queue_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 				*param_value = CL_device_id{value}
 
 			case CL_QUEUE_REFERENCE_COUNT:
-				//CL_QUEUE_SIZE: //OPENCL 2.0
 				var value C.cl_uint
 
-				ret = C.clGetCommandQueueInfo(command_queue.cl_command_queue,
+				c_errcode_ret = C.clGetCommandQueueInfo(command_queue.cl_command_queue,
 					C.cl_command_queue_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 				*param_value = CL_uint(value)
 
 			case CL_QUEUE_PROPERTIES:
 				var value C.cl_command_queue_properties
 
-				ret = C.clGetCommandQueueInfo(command_queue.cl_command_queue,
+				c_errcode_ret = C.clGetCommandQueueInfo(command_queue.cl_command_queue,
 					C.cl_command_queue_info(param_name),
 					C.size_t(param_value_size),
 					unsafe.Pointer(&value),
-					&size_ret)
+					&c_param_value_size_ret)
 
 				*param_value = CL_command_queue_properties(value)
 			default:
@@ -116,12 +110,11 @@ func CLGetCommandQueueInfo(command_queue CL_command_queue,
 		}
 
 		if param_value_size_ret != nil {
-			*param_value_size_ret = CL_size_t(size_ret)
+			*param_value_size_ret = CL_size_t(c_param_value_size_ret)
 		}
 
+		return CL_int(c_errcode_ret)
 	}
-
-	return CL_int(ret)
 }
 
 func CLFlush(command_queue CL_command_queue) CL_int {
