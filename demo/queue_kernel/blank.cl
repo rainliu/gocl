@@ -1,2 +1,0 @@
-__kernel void blank() {
-}
