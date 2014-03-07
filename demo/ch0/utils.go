@@ -4,7 +4,63 @@ import (
    "fmt"
    "gocl/cl"
    "os"
+   "image"
+   "image/color"
+   "image/png"
+   "errors"
 )
+
+
+func Read_image_data(filename string) (data []uint16, w, h cl.CL_size_t, err error){
+   reader, err1 := os.Open(filename)
+   if err1 != nil {
+       return nil, 0, 0, errors.New("Can't read input image file")
+   }
+   defer reader.Close()
+   m, _, err2 := image.Decode(reader)
+   if err2 != nil {
+      return nil, 0, 0, errors.New("Can't decode input image file")
+   }
+
+   bounds := m.Bounds()
+   
+   w = cl.CL_size_t(bounds.Max.X - bounds.Min.X);
+   h = cl.CL_size_t(bounds.Max.Y - bounds.Min.Y);
+
+   /* Allocate memory and read image data */
+   data = make([]uint16, h * w)
+   for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+      for x := bounds.Min.X; x < bounds.Max.X; x++ {
+         r, _, _, _ := m.At(x, y).RGBA()
+         data[(y-bounds.Min.Y)*int(w)+(x-bounds.Min.X)] = uint16(r)
+      }
+   }
+
+   return data, w, h, err
+}
+
+func Write_image_data(filename string, data []uint16, w, h cl.CL_size_t) error {
+   writer, err := os.Create(filename)
+   if err != nil {
+      return errors.New("Can't create output image file")
+   }
+   defer writer.Close()
+
+   m := image.NewGray16(image.Rect(0, 0, int(w), int(h)))
+   for y := 0; y < int(h); y++ {
+      for x := 0; x < int(w); x++ {
+         m.Set(x, y, color.Gray16{data[y*int(w)+x]})
+      }
+   }
+   
+   err = png.Encode(writer, m)
+   if err != nil {
+      return errors.New("Can't encode output image file")
+   }
+
+   return nil
+}
+
 
 /* Find a GPU or CPU associated with the first available platform */
 func Create_device() []cl.CL_device_id {
