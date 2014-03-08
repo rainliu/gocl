@@ -27,15 +27,15 @@ import (
 
 type CL_evt_notify func(event CL_event, event_command_exec_status CL_int, user_data unsafe.Pointer)
 
-var evt_notify map[CL_event]CL_evt_notify;
+var evt_notify map[C.cl_event]CL_evt_notify;
 
 func init(){
-	evt_notify = make(map[CL_event]CL_evt_notify)
+	evt_notify = make(map[C.cl_event]CL_evt_notify)
 }
 
 //export go_evt_notify
 func go_evt_notify(event C.cl_event, event_command_exec_status C.cl_int, user_data unsafe.Pointer) {
-	evt_notify[CL_event{event}](CL_event{event}, CL_int(event_command_exec_status), user_data)
+	evt_notify[event](CL_event{event}, CL_int(event_command_exec_status), user_data)
 }
 
 func CLCreateUserEvent(context CL_context,
@@ -162,14 +162,12 @@ func CLSetEventCallback(event CL_event,
 	user_data unsafe.Pointer) CL_int {
 
 	if pfn_notify != nil {
-		evt_notify[event] = pfn_notify
+		evt_notify[event.cl_event] = pfn_notify
 
 		return CL_int(C.CLSetEventCallback(event.cl_event,
 			C.cl_int(command_exec_callback_type),
 			user_data))
 	} else {
-		//evt_notify[event] = nil
-
 		return CL_int(C.clSetEventCallback(event.cl_event,
 			C.cl_int(command_exec_callback_type),
 			nil,

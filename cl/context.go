@@ -148,8 +148,6 @@ func CLCreateContextFromType(properties []CL_context_properties,
 				&c_errcode_ret)
 
 		} else {
-			//ctx_notify = nil
-
 			c_context = C.clCreateContextFromType(c_properties_ptr,
 				C.cl_device_type(device_type),
 				nil,

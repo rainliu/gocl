@@ -31,15 +31,15 @@ import (
 
 type CL_prg_notify func(program CL_program, user_data unsafe.Pointer)
 
-var prg_notify map[CL_program]CL_prg_notify
+var prg_notify map[C.cl_program]CL_prg_notify
 
 func init(){
-	prg_notify = make(map[CL_program]CL_prg_notify)
+	prg_notify = make(map[C.cl_program]CL_prg_notify)
 }
 
 //export go_prg_notify
 func go_prg_notify(program C.cl_program, user_data unsafe.Pointer) {
-	prg_notify[CL_program{program}](CL_program{program}, user_data)
+	prg_notify[program](CL_program{program}, user_data)
 }
 
 func CLCreateProgramWithSource(context CL_context,
@@ -193,7 +193,7 @@ func CLBuildProgram(program CL_program,
 	}
 
 	if pfn_notify != nil {
-		prg_notify[program] = pfn_notify
+		prg_notify[program.cl_program] = pfn_notify
 
 		c_errcode_ret = C.CLBuildProgram(program.cl_program,
 			C.cl_uint(num_devices),
@@ -201,8 +201,6 @@ func CLBuildProgram(program CL_program,
 			c_options,
 			user_data)
 	} else {
-		//prg_notify = nil
-
 		c_errcode_ret = C.clBuildProgram(program.cl_program,
 			C.cl_uint(num_devices),
 			&c_devices[0],
