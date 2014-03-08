@@ -25,11 +25,15 @@ import (
 
 type CL_mem_notify func(memobj CL_mem, user_data unsafe.Pointer)
 
-var mem_notify CL_mem_notify
+var mem_notify map[CL_mem]CL_mem_notify
+
+func init(){
+	mem_notify = make(map[CL_mem]CL_mem_notify)
+}
 
 //export go_mem_notify
 func go_mem_notify(memobj C.cl_mem, user_data unsafe.Pointer) {
-	mem_notify(CL_mem{memobj}, user_data)
+	mem_notify[CL_mem{memobj}](CL_mem{memobj}, user_data)
 }
 
 func CLRetainMemObject(memobj CL_mem) CL_int {
@@ -45,12 +49,12 @@ func CLSetMemObjectDestructorCallback(memobj CL_mem,
 	user_data unsafe.Pointer) CL_int {
 
 	if pfn_notify != nil {
-		mem_notify = pfn_notify
+		mem_notify[memobj] = pfn_notify
 
 		return CL_int(C.CLSetMemObjectDestructorCallback(memobj.cl_mem, user_data))
 
 	} else {
-		mem_notify = nil
+		//mem_notify = nil
 
 		return CL_int(C.clSetMemObjectDestructorCallback(memobj.cl_mem, nil, nil))
 	}

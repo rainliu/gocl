@@ -34,11 +34,15 @@ import "unsafe"
 
 type CL_ctx_notify func(errinfo string, private_info unsafe.Pointer, cb int, user_data unsafe.Pointer)
 
-var ctx_notify CL_ctx_notify
+var ctx_notify map[unsafe.Pointer]CL_ctx_notify
+
+func init(){
+	ctx_notify = make(map[unsafe.Pointer]CL_ctx_notify)
+}
 
 //export go_ctx_notify
 func go_ctx_notify(errinfo *C.char, private_info unsafe.Pointer, cb C.int, user_data unsafe.Pointer) {
-	ctx_notify(C.GoString(errinfo), private_info, int(cb), user_data)
+	ctx_notify[user_data](C.GoString(errinfo), private_info, int(cb), user_data)
 }
 
 func CLCreateContext(properties []CL_context_properties,
@@ -81,7 +85,7 @@ func CLCreateContext(properties []CL_context_properties,
 		}
 
 		if pfn_notify != nil {
-			ctx_notify = pfn_notify
+			ctx_notify[user_data] = pfn_notify
 
 			c_context = C.CLCreateContext(c_properties_ptr,
 				C.cl_uint(len(c_devices)),
@@ -90,7 +94,7 @@ func CLCreateContext(properties []CL_context_properties,
 				&c_errcode_ret)
 
 		} else {
-			ctx_notify = nil
+			//ctx_notify = nil
 
 			c_context = C.clCreateContext(c_properties_ptr,
 				C.cl_uint(len(c_devices)),
@@ -136,7 +140,7 @@ func CLCreateContextFromType(properties []CL_context_properties,
 		}
 
 		if pfn_notify != nil {
-			ctx_notify = pfn_notify
+			ctx_notify[user_data] = pfn_notify
 
 			c_context = C.CLCreateContextFromType(c_properties_ptr,
 				C.cl_device_type(device_type),
@@ -144,7 +148,7 @@ func CLCreateContextFromType(properties []CL_context_properties,
 				&c_errcode_ret)
 
 		} else {
-			ctx_notify = nil
+			//ctx_notify = nil
 
 			c_context = C.clCreateContextFromType(c_properties_ptr,
 				C.cl_device_type(device_type),
