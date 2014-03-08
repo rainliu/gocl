@@ -183,7 +183,7 @@ func CLReleaseEvent(event CL_event) CL_int {
 	return CL_int(C.clReleaseEvent(event.cl_event))
 }
 
-func CLGEtEventProfilingInfo(event CL_event,
+func CLGetEventProfilingInfo(event CL_event,
 	param_name CL_profiling_info,
 	param_value_size CL_size_t,
 	param_value *interface{},
