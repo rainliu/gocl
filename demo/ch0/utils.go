@@ -142,3 +142,33 @@ func Build_program(context cl.CL_context, device []cl.CL_device_id,
 
    return &program;
 }
+
+
+/* Create program from a file and compile it */
+func Load_programsource(filename string) ([][]byte, []cl.CL_size_t) {
+   var program_buffer [1][]byte
+   var program_size [1]cl.CL_size_t
+   
+   /* Read each program file and place content into buffer array */
+   program_handle, err1 := os.Open(filename)
+   if err1 != nil {
+      fmt.Printf("Couldn't find the program file %s\n", filename)
+      return nil,nil
+   }
+   defer program_handle.Close()
+
+   fi, err2 := program_handle.Stat()
+   if err2 != nil {
+      fmt.Printf("Couldn't find the program stat\n")
+      return nil,nil
+   }
+   program_size[0] = cl.CL_size_t(fi.Size())
+   program_buffer[0] = make([]byte, program_size[0])
+   read_size, err3 := program_handle.Read(program_buffer[0])
+   if err3 != nil || cl.CL_size_t(read_size) != program_size[0] {
+      fmt.Printf("read file error or file size wrong\n")
+      return nil,nil
+   }
+
+   return program_buffer[:], program_size[:];
+}
