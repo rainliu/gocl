@@ -16,7 +16,7 @@ AMD ATI should include them with their APP SDK: http://developer.amd.com/resourc
 
 For NVIDIA, these are included in the CUDA SDK: https://developer.nvidia.com/opencl
 
-The locations of the library and include file can be supplied by way of environment variables, for exampe: 
+The locations of the library and include file can be supplied by way of environment variables, for example: 
 
 export CGO_LDFLAGS=-L$AMDAPPSDKROOT/lib/x86_64 (or null for NVIDIA)
 
