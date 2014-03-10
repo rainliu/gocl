@@ -28,7 +28,7 @@ To build OpenCL 1.1 compliance:
 
 go build/install -tags 'opencl1.1' gocl/cl
 
-go build/install -tags 'opencl1.1' gocl/demo/opencl1p1/ch(x)
+go build/install -tags 'opencl1.1' gocl/demo/opencl1p1/ch(x)         (Examples in "OpenCL in Action")
 
 go test -tags 'opencl1.1' gocl/test
 
@@ -38,6 +38,6 @@ To build OpenCL 1.2 compliance:
 
 go build/install -tags 'opencl1.2' gocl/cl
 
-go build/install -tags 'opencl1.2' gocl/demo/opencl1p2/chapter(x)
+go build/install -tags 'opencl1.2' gocl/demo/opencl1p2/chapter(x)    (Examples in "Heterogeneous Computing with OpenCL, 2nd Edition")
 
 go test -tags 'opencl1.2' gocl/test
