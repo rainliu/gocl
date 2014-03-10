@@ -22,15 +22,22 @@ export CGO_LDFLAGS=-L$AMDAPPSDKROOT/lib/x86_64 (or null for NVIDIA)
 
 export CGO_CFLAGS=-I$AMDAPPSDKROOT/include (or $NVSDKCOMPUTE_ROOT/OpenCL/common/inc for NVIDIA)
 
+===============================================
 
 To build OpenCL 1.1 compliance: 
 
 go build/install -tags 'opencl1.1' gocl/cl
 
+go build/install -tags 'opencl1.1' gocl/demo/opencl1p1/ch(x)
+
 go test -tags 'opencl1.1' gocl/test
+
+===============================================
 
 To build OpenCL 1.2 compliance: 
 
 go build/install -tags 'opencl1.2' gocl/cl
+
+go build/install -tags 'opencl1.2' gocl/demo/opencl1p2/chapter(x)
 
 go test -tags 'opencl1.2' gocl/test
