@@ -17,7 +17,7 @@ static cl_context CLCreateContext(	const cl_context_properties *  	properties,
 					                cl_uint                  		num_devices,
 					                const cl_device_id *     		devices,
 					                void *                   		user_data,
-					                cl_int *                 		errcode_ret){
+					                cl_int *                 		errcode_ret){			            
 	return clCreateContext(properties, num_devices, devices, c_ctx_notify, user_data, errcode_ret);
 }
 
@@ -25,7 +25,6 @@ static cl_context CLCreateContextFromType(	const cl_context_properties *  	prope
 					                		cl_device_type     				device_type,
 					                		void *                   		user_data,
 					                		cl_int *                 		errcode_ret){
-
     return clCreateContextFromType(properties, device_type, c_ctx_notify, user_data, errcode_ret);
 }
 */
@@ -42,7 +41,9 @@ func init(){
 
 //export go_ctx_notify
 func go_ctx_notify(errinfo *C.char, private_info unsafe.Pointer, cb C.int, user_data unsafe.Pointer) {
-	ctx_notify[user_data](C.GoString(errinfo), private_info, int(cb), user_data)
+	var c_user_data []unsafe.Pointer
+	c_user_data = *(*[]unsafe.Pointer)(user_data)
+	ctx_notify[c_user_data[1]](C.GoString(errinfo), private_info, int(cb), c_user_data[0])
 }
 
 func CLCreateContext(properties []CL_context_properties,
@@ -85,17 +86,20 @@ func CLCreateContext(properties []CL_context_properties,
 		}
 
 		if pfn_notify != nil {
-			ctx_notify[user_data] = pfn_notify
+			var c_user_data []unsafe.Pointer
+			c_user_data  = make([]unsafe.Pointer, 2)
+			c_user_data[0] = user_data
+			c_user_data[1] = unsafe.Pointer(&pfn_notify);
+
+			ctx_notify[c_user_data[1]] = pfn_notify
 
 			c_context = C.CLCreateContext(c_properties_ptr,
 				C.cl_uint(len(c_devices)),
 				c_devices_ptr,
-				user_data,
+				unsafe.Pointer(&c_user_data),
 				&c_errcode_ret)
 
 		} else {
-			//ctx_notify = nil
-
 			c_context = C.clCreateContext(c_properties_ptr,
 				C.cl_uint(len(c_devices)),
 				c_devices_ptr,
@@ -140,11 +144,16 @@ func CLCreateContextFromType(properties []CL_context_properties,
 		}
 
 		if pfn_notify != nil {
-			ctx_notify[user_data] = pfn_notify
+			var c_user_data []unsafe.Pointer
+			c_user_data  = make([]unsafe.Pointer, 2)
+			c_user_data[0] = user_data
+			c_user_data[1] = unsafe.Pointer(&pfn_notify);
+
+			ctx_notify[c_user_data[1]] = pfn_notify
 
 			c_context = C.CLCreateContextFromType(c_properties_ptr,
 				C.cl_device_type(device_type),
-				user_data,
+				unsafe.Pointer(&c_user_data),
 				&c_errcode_ret)
 
 		} else {
