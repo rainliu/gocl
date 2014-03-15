@@ -10,22 +10,6 @@ import (
     "gocl/demo/ch0"
 )
 
-// This function takes a positive integer and rounds it up to
-// the nearest multiple of another provided integer
-func roundUp( value,  multiple uint32) uint32{
-
-  // Determine how far past the nearest multiple the value is
-  remainder := value % multiple;
-
-  // Add the difference to make the value a multiple
-  if(remainder != 0) {
-      value += (multiple-remainder);
-  }
-
-  return value;
-}
-
-
 func chk( status cl.CL_int, cmd string) {
 
    if status != cl.CL_SUCCESS {
