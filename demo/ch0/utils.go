@@ -14,7 +14,7 @@ import (
 func Read_image_data(filename string) (data []uint16, w, h cl.CL_size_t, err error){
    reader, err1 := os.Open(filename)
    if err1 != nil {
-       return nil, 0, 0, errors.New("Can't read input image file")
+       return nil, 0, 0, errors.New("Can't read input image file: "+filename)
    }
    defer reader.Close()
    m, _, err2 := image.Decode(reader)
