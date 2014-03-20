@@ -230,4 +230,14 @@ func main() {
       }
    }
    fmt.Printf("Mismatch Pixel number/Total pixel number = %d/%d\n", failed, imageWidth*imageHeight);
+
+       // Free OpenCL resources
+    cl.CLReleaseKernel(kernel);
+    cl.CLReleaseProgram(*program);
+    cl.CLReleaseCommandQueue(queue);
+    cl.CLReleaseMemObject(d_inputImage);
+    cl.CLReleaseMemObject(d_outputImage);
+    cl.CLReleaseMemObject(d_filter);
+    cl.CLReleaseSampler(sampler)
+    cl.CLReleaseContext(context);
 }

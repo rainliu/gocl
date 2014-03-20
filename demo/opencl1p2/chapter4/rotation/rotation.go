@@ -117,4 +117,12 @@ func main() {
       outputpixels[i]=uint16(outputImage[i])
    }
    ch0.Write_image_data(outputFile, outputpixels, imageWidth, imageHeight);
+
+   // Free OpenCL resources
+    cl.CLReleaseKernel(kernel);
+    cl.CLReleaseProgram(*program);
+    cl.CLReleaseCommandQueue(queue);
+    cl.CLReleaseMemObject(d_input);
+    cl.CLReleaseMemObject(d_output);
+    cl.CLReleaseContext(context);
 }
