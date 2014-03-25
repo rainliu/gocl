@@ -10,7 +10,7 @@ http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/
 
 http://www.khronos.org/registry/cl/sdk/1.2/docs/man/xhtml/
 
-In order to build this, make sure you have the required drivers and SDK installed for your graphics card. You will need at least and opencl.lib:
+In order to build this, make sure you have the required drivers and SDK installed for your graphics card. You will need at least opencl.lib:
 
 AMD ATI should include them with their APP SDK: http://developer.amd.com/tools-and-sdks/heterogeneous-computing/amd-accelerated-parallel-processing-app-sdk/
 
