@@ -1,7 +1,7 @@
 gocl
 ====
 
-Go OpenCL (GOCL) Binding
+Go OpenCL (GOCL) Binding (http://www.gocl.org)
 
 
 Library documentation: 
