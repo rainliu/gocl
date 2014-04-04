@@ -37,5 +37,5 @@ func DisplayPlatformInfo(id cl.CL_platform_id,
 		return
 	}
 
-	fmt.Printf("\t%s:\t%v\n", str, info)
+	fmt.Printf("\t%-24s: %v\n", str, info)
 }

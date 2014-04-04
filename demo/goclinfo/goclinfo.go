@@ -97,7 +97,8 @@ func main() {
             DisplayDeviceInfo(devices[j],
                 cl.CL_DEVICE_PROFILE,
                 "CL_DEVICE_PROFILE")
-
+			
+			fmt.Printf("\n")
         }
     }
 }

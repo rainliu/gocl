@@ -199,7 +199,7 @@ func DisplayDeviceInfo(id cl.CL_device_id,
 	default:
 	}
 
-	fmt.Printf("\t\t%s:\t%v\n", str, info)
+	fmt.Printf("\t\t%-20s: %v\n", str, info)
 }
 
 func appendBitfield(info, value cl.CL_bitfield, name string, str *string) {
