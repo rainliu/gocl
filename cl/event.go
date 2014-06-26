@@ -1,4 +1,4 @@
-// +build opencl1.1 opencl1.2
+// +build CL11 CL12
 
 package cl
 
@@ -27,9 +27,9 @@ import (
 
 type CL_evt_notify func(event CL_event, event_command_exec_status CL_int, user_data unsafe.Pointer)
 
-var evt_notify map[C.cl_event]CL_evt_notify;
+var evt_notify map[C.cl_event]CL_evt_notify
 
-func init(){
+func init() {
 	evt_notify = make(map[C.cl_event]CL_evt_notify)
 }
 

@@ -1,4 +1,4 @@
-// +build opencl1.1 opencl1.2
+// +build CL11 CL12
 
 package cl
 
@@ -17,7 +17,7 @@ static cl_context CLCreateContext(	const cl_context_properties *  	properties,
 					                cl_uint                  		num_devices,
 					                const cl_device_id *     		devices,
 					                void *                   		user_data,
-					                cl_int *                 		errcode_ret){			            
+					                cl_int *                 		errcode_ret){
 	return clCreateContext(properties, num_devices, devices, c_ctx_notify, user_data, errcode_ret);
 }
 
@@ -35,7 +35,7 @@ type CL_ctx_notify func(errinfo string, private_info unsafe.Pointer, cb int, use
 
 var ctx_notify map[unsafe.Pointer]CL_ctx_notify
 
-func init(){
+func init() {
 	ctx_notify = make(map[unsafe.Pointer]CL_ctx_notify)
 }
 
@@ -87,9 +87,9 @@ func CLCreateContext(properties []CL_context_properties,
 
 		if pfn_notify != nil {
 			var c_user_data []unsafe.Pointer
-			c_user_data  = make([]unsafe.Pointer, 2)
+			c_user_data = make([]unsafe.Pointer, 2)
 			c_user_data[0] = user_data
-			c_user_data[1] = unsafe.Pointer(&pfn_notify);
+			c_user_data[1] = unsafe.Pointer(&pfn_notify)
 
 			ctx_notify[c_user_data[1]] = pfn_notify
 
@@ -145,9 +145,9 @@ func CLCreateContextFromType(properties []CL_context_properties,
 
 		if pfn_notify != nil {
 			var c_user_data []unsafe.Pointer
-			c_user_data  = make([]unsafe.Pointer, 2)
+			c_user_data = make([]unsafe.Pointer, 2)
 			c_user_data[0] = user_data
-			c_user_data[1] = unsafe.Pointer(&pfn_notify);
+			c_user_data[1] = unsafe.Pointer(&pfn_notify)
 
 			ctx_notify[c_user_data[1]] = pfn_notify
 

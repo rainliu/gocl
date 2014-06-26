@@ -1,4 +1,4 @@
-// +build opencl1.1 opencl1.2
+// +build CL11 CL12
 
 package cl
 
@@ -27,7 +27,7 @@ type CL_mem_notify func(memobj CL_mem, user_data unsafe.Pointer)
 
 var mem_notify map[C.cl_mem]CL_mem_notify
 
-func init(){
+func init() {
 	mem_notify = make(map[C.cl_mem]CL_mem_notify)
 }
 

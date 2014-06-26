@@ -1,4 +1,4 @@
-// +build opencl1.1 opencl1.2
+// +build CL11 CL12
 
 package cl
 

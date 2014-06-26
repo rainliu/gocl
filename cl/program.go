@@ -1,4 +1,4 @@
-// +build opencl1.1 opencl1.2
+// +build CL11 CL12
 
 package cl
 
@@ -34,7 +34,7 @@ type CL_prg_notify func(program CL_program, user_data unsafe.Pointer)
 
 var prg_notify map[C.cl_program]CL_prg_notify
 
-func init(){
+func init() {
 	prg_notify = make(map[C.cl_program]CL_prg_notify)
 }
 
