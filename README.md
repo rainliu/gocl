@@ -26,18 +26,18 @@ export CGO_CFLAGS=-I$AMDAPPSDKROOT/include (or $NVSDKCOMPUTE_ROOT/OpenCL/common/
 
 To build OpenCL 1.1 compliance: 
 
-go build/install -tags 'CL11' gocl/cl
+go build/install -tags 'cl11' gocl/cl
 
-go build/install -tags 'CL11' gocl/demo/opencl1p1/ch(x)         (Examples in "OpenCL in Action")
+go build/install -tags 'cl11' gocl/demo/opencl1p1/ch(x)         (Examples in "OpenCL in Action")
 
-go test -tags 'CL11' gocl/test
+go test -tags 'cl11' gocl/test
 
 ===============================================
 
 To build OpenCL 1.2 compliance: 
 
-go build/install -tags 'CL12' gocl/cl
+go build/install -tags 'cl12' gocl/cl
 
-go build/install -tags 'CL12' gocl/demo/opencl1p2/chapter(x)    (Examples in "Heterogeneous Computing with OpenCL, 2nd Edition")
+go build/install -tags 'cl12' gocl/demo/opencl1p2/chapter(x)    (Examples in "Heterogeneous Computing with OpenCL, 2nd Edition")
 
-go test -tags 'CL12' gocl/test
+go test -tags 'cl12' gocl/test
