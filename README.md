@@ -18,9 +18,9 @@ For NVIDIA, these are included in the CUDA SDK: https://developer.nvidia.com/ope
 
 The locations of the library and include file can be supplied by way of environment variables, for example: 
 
-export CGO_LDFLAGS=-L$AMDAPPSDKROOT/lib/x86_64 (or null for NVIDIA)
+export CGO_LDFLAGS=-L$AMDAPPSDKROOT/lib/x86_64
 
-export CGO_CFLAGS=-I$AMDAPPSDKROOT/include (or $NVSDKCOMPUTE_ROOT/OpenCL/common/inc for NVIDIA)
+export CGO_CFLAGS=-I$GOPATH/src/gocl/cl/CL     				(gocl/cl/CL have the latest OpenCL 2.0 include files from https://www.khronos.org/registry/cl/)
 
 ===============================================
 
