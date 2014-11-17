@@ -1,2 +1,2 @@
-__kernel void blank() {
+__kernel void blank(void) {
 }
