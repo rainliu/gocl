@@ -4,7 +4,7 @@ package cl
 
 /*
 #cgo CFLAGS: -I CL
-#cgo linux LDFLAGS: -lOpenCL
+#cgo !darwin LDFLAGS: -lOpenCL
 #cgo darwin LDFLAGS: -framework OpenCL
 
 #include "CL/opencl.h"
