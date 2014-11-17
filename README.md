@@ -24,11 +24,18 @@ export CGO_CFLAGS=-I$GOPATH/src/gocl/cl     				(gocl/cl/CL have the latest Open
 
 ===============================================
 
-In gocl/cl/*.go files, please change #cgo LDFLAGS according to your OS:
+In gocl/cl/*.go files, #cgo LDFLAGS according to your OS:
 
-for Mac OSX:  "#cgo LDFLAGS: -framework OpenCL"
+for Linux/Windows:  "#cgo LDFLAGS: -lOpenCL"
 
-for Linux :   "#cgo LDFLAGS: -lOpenCL"
+for Mac OSX:  		"#cgo LDFLAGS: -framework OpenCL"
+
+
+Now it is handled by the following code:
+
+#cgo !darwin LDFLAGS: -lOpenCL
+
+#cgo darwin LDFLAGS: -framework OpenCL
 
 ===============================================
 
