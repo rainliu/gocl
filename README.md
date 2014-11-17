@@ -33,9 +33,9 @@ for Mac OSX:  		"#cgo LDFLAGS: -framework OpenCL"
 
 Now it is handled by the following code:
 
-#cgo !darwin LDFLAGS: -lOpenCL
+"#cgo !darwin LDFLAGS: -lOpenCL"
 
-#cgo darwin LDFLAGS: -framework OpenCL
+"#cgo darwin LDFLAGS: -framework OpenCL"
 
 ===============================================
 
