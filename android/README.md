@@ -34,6 +34,6 @@ GOCL on Android
 
 # Install Go.Mobile
 1. go get -d -t golang.org/x/mobile/...
-2. cd /gopath/src/golang.org/x/mobile/example/basic
-3. "build android: GO_ENABLED=1 GOOS=android GOARCH=arm GOARM=7 go build -tags="cl11" -ldflags="-shared" -o jni/armeabi/libbasic.so"
-4. "build darwin:  CC=clang go build -tags 'cl11' gocl/cl"
+2. "cd $GOPATH/src/golang.org/x/mobile/example/basic"
+3. build android: GO_ENABLED=1 GOOS=android GOARCH=arm GOARM=7 go build -tags="cl11" -ldflags="-shared" -o jni/armeabi/libbasic.so
+4. build darwin:  CC=clang go build -tags 'cl11' gocl/cl
