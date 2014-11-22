@@ -30,13 +30,10 @@ GOCL on Android
 2. "CC=clang ./make.bash"
 3. "CC_FOR_TARGET=$NDK_ROOT/bin/arm-linux-androideabi-gcc CGO_ENABLED=1 GOOS=android GOARCH=arm GOARM=7 ./make.bash"
 4. "go env | grep CC="
-5. "build android: CGO_ENABLED=1 GOOS=android GOARCH=arm GOARM=7 go build -ldflags="-shared" -o jni/armeabi/libbasic.so"
-6. "build darwin:  CC=clang go build -tags 'cl12' gocl/cl"
 
-# Copy the local version of go.mobile to GOPATH.
-ADD . /gopath/src/golang.org/x/mobile
 
-# Install dependencies. This will not overwrite the local copy.
-RUN go get -d -t golang.org/x/mobile/...
-
-WORKDIR /gopath/src/golang.org/x/mobile
+# Install Go.Mobile
+1. go get -d -t golang.org/x/mobile/...
+2. cd /gopath/src/golang.org/x/mobile/example/basic
+3. "build android: GO_ENABLED=1 GOOS=android GOARCH=arm GOARM=7 go build -tags="cl11" -ldflags="-shared" -o jni/armeabi/libbasic.so"
+4. "build darwin:  CC=clang go build -tags 'cl11' gocl/cl"
