@@ -43,4 +43,6 @@ GOCL on Android
 2. "copy gocl/android/goclinfo into $GOPATH/src/golang.org/x/mobile/example/"
 3. "cd $GOPATH/src/golang.org/x/mobile/goclinfo/"
 4. "./make.bash"
-5. If you can see Green background and Blue triangle, then OpenCL program is successfully running in your android device. Otherwise you will see Red background or crash.
+5. "copy gocl/android/lib/* into your rooted Nexus 5 with Android 4.4.4 /system/lib/"
+6. "install $GOPATH/src/golang.org/x/mobile/goclinfo/bin/goclinfo-debug.apk into your android device"
+7. If you can see Green background and Blue triangle, then OpenCL program is successfully running in your android device. Otherwise you will see Red background or crash. At lease my rooted Nexus 5 with Android 4.4.4 works.
