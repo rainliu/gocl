@@ -2,18 +2,18 @@ GOCL on Android
 ======
 
 # Install Ant.
-install  http://archive.apache.org/dist/ant/binaries/apache-ant-1.9.2-bin.tar.gz to /usr/local
-1. "export ANT_HOME=/usr/local/apache-ant"
+0. install  http://archive.apache.org/dist/ant/binaries/apache-ant-1.9.2-bin.tar.gz to /usr/local
+2. "export ANT_HOME=/usr/local/apache-ant"
 
 # Install Android SDK.
-install http://dl.google.com/android/android-sdk_r23.0.2-darwin.tgz to /usr/local
+0. install http://dl.google.com/android/android-sdk_r23.0.2-darwin.tgz to /usr/local
 1. "export ANDROID_HOME=/usr/local/android-sdk"
 2. "$ANDROID_HOME/tools/android update sdk --no-ui --all --filter build-tools-19.1.0" 
 3. "$ANDROID_HOME/tools/android update sdk --no-ui --all --filter platform-tools" 
 4. "$ANDROID_HOME/tools/android update sdk --no-ui --all --filter android-19"
 
 # Install Android NDK.
-install http://dl.google.com/android/ndk/android-ndk-r9d-darwin-x86_64.tar.bz2 to /usr/local
+0. install http://dl.google.com/android/ndk/android-ndk-r9d-darwin-x86_64.tar.bz2 to /usr/local
 1. "export NDK_ROOT=/usr/local/android-ndk"
 2. "copy gocl/android/include/CL/*.* into $NDK_ROOT/platform/android-19/arch-arm/usr/include"
 3. "copy gocl/android/lib/*.* into $NDK_ROOT/platform/android-19/arch-arm/usr/lib"
