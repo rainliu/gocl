@@ -37,3 +37,10 @@ GOCL on Android
 2. "cd $GOPATH/src/golang.org/x/mobile/example/basic"
 3. build android: GO_ENABLED=1 GOOS=android GOARCH=arm GOARM=7 go build -tags="cl11" -ldflags="-shared" -o jni/armeabi/libbasic.so
 4. build darwin:  CC=clang go build -tags 'cl11' gocl/cl
+
+# Install GOCL into Go.Mobile
+1. "copy gocl/cl into $GOPATH/src/golang.org/x/mobile/"
+2. "copy gocl/android/goclinfo into $GOPATH/src/golang.org/x/mobile/example/"
+3. "cd $GOPATH/src/golang.org/x/mobile/goclinfo/"
+4. "./make.bash"
+5. If you can see Green background and Blue triangle, then OpenCL program is successfully running in your android device. Otherwise you will see Red background or crash.
