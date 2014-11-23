@@ -45,23 +45,25 @@ GOCL on Android
 4. "./make.bash"
 5. "copy gocl/android/lib/* into your rooted Nexus 5 with Android 4.4.4 /system/lib/"
 6. "install $GOPATH/src/golang.org/x/mobile/goclinfo/bin/goclinfo-debug.apk into your android device"
-7. If you can see Green background and Blue triangle, then OpenCL program is successfully running in your android device. Otherwise you will see Red background or crash. At lease my rooted Nexus 5 with Android 4.4.4 works. Or, if you use "$ adb shell
-# logcat", you may see the following log inforamtion:
+7. If you can see Green background and Blue triangle, then OpenCL program is successfully running in your android device. Otherwise you will see Red background or crash. At lease my rooted Nexus 5 with Android 4.4.4 works. Or, if you use <br />
+"$ adb shell<br />
+ # logcat", <br />
+you may see the following log inforamtion:<br />
 
-a. I/GoStdio ( 6212): Number of platforms: 	1
-b. I/GoStdio ( 6212): 	CL_PLATFORM_PROFILE     : EMBEDDED_PROFILE
-c. I/GoStdio ( 6212): 	CL_PLATFORM_VERSION     : OpenCL 1.1 QUALCOMM build:  ()
-d. I/GoStdio ( 6212): Build Date: 11/06/13 Wed
-e. I/GoStdio ( 6212): Local Branch: hammerhead_klp
-f. I/GoStdio ( 6212): Remote Branch: 
-g. I/GoStdio ( 6212): 	CL_PLATFORM_VENDOR      : QUALCOMM
-h. I/GoStdio ( 6212): 	CL_PLATFORM_EXTENSIONS  :  
-i. I/GoStdio ( 6212): 	Number of devices: 	2
-j. I/GoStdio ( 6212): 		CL_DEVICE_TYPE      : CL_DEVICE_TYPE_GPU
-k. I/GoStdio ( 6212): 		CL_DEVICE_NAME      : QUALCOMM Adreno(TM)
-l. I/GoStdio ( 6212): 		CL_DEVICE_VENDOR    : QUALCOMM
-m. I/GoStdio ( 6212): 		CL_DEVICE_PROFILE   : EMBEDDED_PROFILE
-n. I/GoStdio ( 6212): 		CL_DEVICE_TYPE      : CL_DEVICE_TYPE_CPU
-o. I/GoStdio ( 6212): 		CL_DEVICE_NAME      : QUALCOMM Krait(TM)
-p. I/GoStdio ( 6212): 		CL_DEVICE_VENDOR    : QUALCOMM
-q. I/GoStdio ( 6212): 		CL_DEVICE_PROFILE   : EMBEDDED_PROFILE
+a. I/GoStdio ( 6212): Number of platforms: 	1<br />
+b. I/GoStdio ( 6212): 	CL_PLATFORM_PROFILE     : EMBEDDED_PROFILE<br />
+c. I/GoStdio ( 6212): 	CL_PLATFORM_VERSION     : OpenCL 1.1 QUALCOMM build:  ()<br />
+d. I/GoStdio ( 6212): Build Date: 11/06/13 Wed<br />
+e. I/GoStdio ( 6212): Local Branch: hammerhead_klp<br />
+f. I/GoStdio ( 6212): Remote Branch: <br />
+g. I/GoStdio ( 6212): 	CL_PLATFORM_VENDOR      : QUALCOMM<br />
+h. I/GoStdio ( 6212): 	CL_PLATFORM_EXTENSIONS  :  <br />
+i. I/GoStdio ( 6212): 	Number of devices: 	2<br />
+j. I/GoStdio ( 6212): 		CL_DEVICE_TYPE      : CL_DEVICE_TYPE_GPU<br />
+k. I/GoStdio ( 6212): 		CL_DEVICE_NAME      : QUALCOMM Adreno(TM)<br />
+l. I/GoStdio ( 6212): 		CL_DEVICE_VENDOR    : QUALCOMM<br />
+m. I/GoStdio ( 6212): 		CL_DEVICE_PROFILE   : EMBEDDED_PROFILE<br />
+n. I/GoStdio ( 6212): 		CL_DEVICE_TYPE      : CL_DEVICE_TYPE_CPU<br />
+o. I/GoStdio ( 6212): 		CL_DEVICE_NAME      : QUALCOMM Krait(TM)<br />
+p. I/GoStdio ( 6212): 		CL_DEVICE_VENDOR    : QUALCOMM<br />
+q. I/GoStdio ( 6212): 		CL_DEVICE_PROFILE   : EMBEDDED_PROFILE<br />
