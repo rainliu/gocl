@@ -9,7 +9,7 @@ set -e
 
 ./make.bash
 
-adb install -r bin/GOCLInfo.apk
+adb install -r bin/goclinfo-debug.apk
 
 adb shell am start -a android.intent.action.MAIN \
 	-n com.example.goclinfo/android.app.NativeActivity
