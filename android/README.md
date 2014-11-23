@@ -45,4 +45,23 @@ GOCL on Android
 4. "./make.bash"
 5. "copy gocl/android/lib/* into your rooted Nexus 5 with Android 4.4.4 /system/lib/"
 6. "install $GOPATH/src/golang.org/x/mobile/goclinfo/bin/goclinfo-debug.apk into your android device"
-7. If you can see Green background and Blue triangle, then OpenCL program is successfully running in your android device. Otherwise you will see Red background or crash. At lease my rooted Nexus 5 with Android 4.4.4 works.
+7. If you can see Green background and Blue triangle, then OpenCL program is successfully running in your android device. Otherwise you will see Red background or crash. At lease my rooted Nexus 5 with Android 4.4.4 works. Or, if you use "$ adb shell
+# logcat"
+
+"I/GoStdio ( 6212): Number of platforms: 	1
+I/GoStdio ( 6212): 	CL_PLATFORM_PROFILE     : EMBEDDED_PROFILE
+I/GoStdio ( 6212): 	CL_PLATFORM_VERSION     : OpenCL 1.1 QUALCOMM build:  ()
+I/GoStdio ( 6212): Build Date: 11/06/13 Wed
+I/GoStdio ( 6212): Local Branch: hammerhead_klp
+I/GoStdio ( 6212): Remote Branch: 
+I/GoStdio ( 6212): 	CL_PLATFORM_VENDOR      : QUALCOMM
+I/GoStdio ( 6212): 	CL_PLATFORM_EXTENSIONS  :  
+I/GoStdio ( 6212): 	Number of devices: 	2
+I/GoStdio ( 6212): 		CL_DEVICE_TYPE      : CL_DEVICE_TYPE_GPU
+I/GoStdio ( 6212): 		CL_DEVICE_NAME      : QUALCOMM Adreno(TM)
+I/GoStdio ( 6212): 		CL_DEVICE_VENDOR    : QUALCOMM
+I/GoStdio ( 6212): 		CL_DEVICE_PROFILE   : EMBEDDED_PROFILE
+I/GoStdio ( 6212): 		CL_DEVICE_TYPE      : CL_DEVICE_TYPE_CPU
+I/GoStdio ( 6212): 		CL_DEVICE_NAME      : QUALCOMM Krait(TM)
+I/GoStdio ( 6212): 		CL_DEVICE_VENDOR    : QUALCOMM
+I/GoStdio ( 6212): 		CL_DEVICE_PROFILE   : EMBEDDED_PROFILE"

@@ -21,8 +21,7 @@ import (
 
 var (
         numPlatforms cl.CL_uint
-        platformIds []cl.CL_platform_id
-    
+        
         program  gl.Program
         position gl.Attrib
         offset   gl.Uniform
@@ -60,6 +59,7 @@ func initGL() {
         touchLoc = geom.Point{geom.Width / 2, geom.Height / 2}
 }
 
+/*
 func initCL(){
     var errNum cl.CL_int
     //var context cl.CL_context
@@ -83,7 +83,7 @@ func initCL(){
     }
 
     log.Printf("Number of platforms: \t%d\n", numPlatforms)
-}
+}*/
 
 func touch(t event.Touch) {
         touchLoc = t.Loc
