@@ -1,0 +1,1 @@
+/Users/yliu/Projects/src/golang.org/x/mobile/bind/java/Seq.java
