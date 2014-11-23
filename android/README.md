@@ -50,20 +50,20 @@ GOCL on Android
  # logcat", <br />
 you may see the following log inforamtion:<br />
 
-a. I/GoStdio ( 6212): Number of platforms: 	1<br />
-b. I/GoStdio ( 6212): 	CL_PLATFORM_PROFILE     : EMBEDDED_PROFILE<br />
-c. I/GoStdio ( 6212): 	CL_PLATFORM_VERSION     : OpenCL 1.1 QUALCOMM build:  ()<br />
-d. I/GoStdio ( 6212): Build Date: 11/06/13 Wed<br />
-e. I/GoStdio ( 6212): Local Branch: hammerhead_klp<br />
-f. I/GoStdio ( 6212): Remote Branch: <br />
-g. I/GoStdio ( 6212): 	CL_PLATFORM_VENDOR      : QUALCOMM<br />
-h. I/GoStdio ( 6212): 	CL_PLATFORM_EXTENSIONS  :  <br />
-i. I/GoStdio ( 6212): 	Number of devices: 	2<br />
-j. I/GoStdio ( 6212): 		CL_DEVICE_TYPE      : CL_DEVICE_TYPE_GPU<br />
-k. I/GoStdio ( 6212): 		CL_DEVICE_NAME      : QUALCOMM Adreno(TM)<br />
-l. I/GoStdio ( 6212): 		CL_DEVICE_VENDOR    : QUALCOMM<br />
-m. I/GoStdio ( 6212): 		CL_DEVICE_PROFILE   : EMBEDDED_PROFILE<br />
-n. I/GoStdio ( 6212): 		CL_DEVICE_TYPE      : CL_DEVICE_TYPE_CPU<br />
-o. I/GoStdio ( 6212): 		CL_DEVICE_NAME      : QUALCOMM Krait(TM)<br />
-p. I/GoStdio ( 6212): 		CL_DEVICE_VENDOR    : QUALCOMM<br />
-q. I/GoStdio ( 6212): 		CL_DEVICE_PROFILE   : EMBEDDED_PROFILE<br />
+I/GoStdio ( 6212): Number of platforms: 	1<br />
+I/GoStdio ( 6212): 	CL_PLATFORM_PROFILE     : EMBEDDED_PROFILE<br />
+I/GoStdio ( 6212): 	CL_PLATFORM_VERSION     : OpenCL 1.1 QUALCOMM build:  ()<br />
+I/GoStdio ( 6212): Build Date: 11/06/13 Wed<br />
+I/GoStdio ( 6212): Local Branch: hammerhead_klp<br />
+I/GoStdio ( 6212): Remote Branch: <br />
+I/GoStdio ( 6212): 	CL_PLATFORM_VENDOR      : QUALCOMM<br />
+I/GoStdio ( 6212): 	CL_PLATFORM_EXTENSIONS  :  <br />
+I/GoStdio ( 6212): 	Number of devices: 	2<br />
+I/GoStdio ( 6212): 		CL_DEVICE_TYPE      : CL_DEVICE_TYPE_GPU<br />
+I/GoStdio ( 6212): 		CL_DEVICE_NAME      : QUALCOMM Adreno(TM)<br />
+I/GoStdio ( 6212): 		CL_DEVICE_VENDOR    : QUALCOMM<br />
+I/GoStdio ( 6212): 		CL_DEVICE_PROFILE   : EMBEDDED_PROFILE<br />
+I/GoStdio ( 6212): 		CL_DEVICE_TYPE      : CL_DEVICE_TYPE_CPU<br />
+I/GoStdio ( 6212): 		CL_DEVICE_NAME      : QUALCOMM Krait(TM)<br />
+I/GoStdio ( 6212): 		CL_DEVICE_VENDOR    : QUALCOMM<br />
+I/GoStdio ( 6212): 		CL_DEVICE_PROFILE   : EMBEDDED_PROFILE<br />
