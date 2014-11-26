@@ -110,6 +110,9 @@ typedef struct _cl_image_desc {
     size_t                  image_slice_pitch;
     cl_uint                 num_mip_levels;
     cl_uint                 num_samples;
+#ifdef __GNUC__
+    __extension__   /* Prevents warnings about anonymous union in -pedantic builds */
+#endif
     union {
       cl_mem                  buffer;
       cl_mem                  mem_object;
@@ -388,6 +391,7 @@ typedef struct _cl_buffer_region {
 #define CL_MEM_HOST_NO_ACCESS                       (1 << 9)
 #define CL_MEM_SVM_FINE_GRAIN_BUFFER                (1 << 10)   /* used by cl_svm_mem_flags only */
 #define CL_MEM_SVM_ATOMICS                          (1 << 11)   /* used by cl_svm_mem_flags only */
+#define CL_MEM_KERNEL_READ_AND_WRITE                (1 << 12)
 
 /* cl_mem_migration_flags - bitfield */
 #define CL_MIGRATE_MEM_OBJECT_HOST                  (1 << 0)
