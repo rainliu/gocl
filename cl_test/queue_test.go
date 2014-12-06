@@ -1,4 +1,4 @@
-package main
+package cl_test
 
 import (
 	"gocl/cl"
@@ -6,23 +6,22 @@ import (
 	"testing"
 )
 
-func TestKernel(t *testing.T) {
+func TestQueue(t *testing.T) {
 
 	/* Host/device data structures */
 	var platform [1]cl.CL_platform_id
 	var device [1]cl.CL_device_id
 	var context cl.CL_context
+	var queue cl.CL_command_queue
 	var err cl.CL_int
 
-	/* Program data structures */
+	/* Program/kernel data structures */
 	var program cl.CL_program
 	var program_buffer [1][]byte
 	var program_log interface{}
 	var program_size [1]cl.CL_size_t
 	var log_size cl.CL_size_t
-	var kernels []cl.CL_kernel
-	var found bool
-	var i, num_kernels cl.CL_uint
+	var kernel cl.CL_kernel
 
 	/* Access the first installed platform */
 	err = cl.CLGetPlatformIDs(1, platform[:], nil)
@@ -46,7 +45,7 @@ func TestKernel(t *testing.T) {
 	}
 
 	/* Read each program file and place content into buffer array */
-	program_handle, err1 := os.Open("test.cl")
+	program_handle, err1 := os.Open("blank.cl")
 	if err1 != nil {
 		t.Errorf("Couldn't find the program file")
 	}
@@ -63,7 +62,7 @@ func TestKernel(t *testing.T) {
 		t.Errorf("read file error or file size wrong")
 	}
 
-	/* Create a program containing all program content */
+	/* Create program from file */
 	program = cl.CLCreateProgramWithSource(context, 1,
 		program_buffer[:], program_size[:], &err)
 	if err < 0 {
@@ -84,50 +83,29 @@ func TestKernel(t *testing.T) {
 		//free(program_log);
 	}
 
-	/* Find out how many kernels are in the source file */
-	err = cl.CLCreateKernelsInProgram(program, 0, nil, &num_kernels)
+	/* Create the kernel */
+	kernel = cl.CLCreateKernel(program, []byte("blank"), &err)
 	if err < 0 {
-		t.Errorf("Couldn't find any kernels")
+		t.Errorf("Couldn't create the kernel")
+	}
+
+	/* Create the command queue */
+	queue = cl.CLCreateCommandQueue(context, device[0], 0, &err)
+	if err < 0 {
+		t.Errorf("Couldn't create the command queue")
+	}
+
+	/* Enqueue the kernel execution command */
+	err = cl.CLEnqueueTask(queue, kernel, 0, nil, nil)
+	if err < 0 {
+		t.Errorf("Couldn't enqueue the kernel execution command")
 	} else {
-		t.Logf("num_kernels = %d\n", num_kernels)
+		t.Logf("Successfully queued kernel.\n")
 	}
 
-	/* Create a kernel for each function */
-	kernels = make([]cl.CL_kernel, num_kernels)
-	err = cl.CLCreateKernelsInProgram(program, num_kernels, kernels, nil)
-	if err < 0 {
-		t.Errorf("Couldn't create kernels")
-	}
-
-	/* Search for the named kernel */
-	for i = 0; i < num_kernels; i++ {
-		var kernel_name_size cl.CL_size_t
-		var kernel_name interface{}
-
-		err = cl.CLGetKernelInfo(kernels[i], cl.CL_KERNEL_FUNCTION_NAME,
-			0, nil, &kernel_name_size)
-		if err < 0 {
-			t.Errorf("Couldn't get kernel size of name, errcode=%d\n", err)
-		}
-		err = cl.CLGetKernelInfo(kernels[i], cl.CL_KERNEL_FUNCTION_NAME,
-			kernel_name_size, &kernel_name, nil)
-		if err < 0 {
-			t.Errorf("Couldn't get kernel info of name, errcode=%d\n", err)
-		}
-		if kernel_name.(string) == "mult" {
-			found = true
-			t.Logf("Found mult kernel at index %d.\n", i)
-			break
-		}
-	}
-	if !found {
-		t.Errorf("Not found mult kernel\n")
-	}
-
-	for i = 0; i < num_kernels; i++ {
-		cl.CLReleaseKernel(kernels[i])
-	}
-
+	/* Deallocate resources */
+	cl.CLReleaseCommandQueue(queue)
+	cl.CLReleaseKernel(kernel)
 	cl.CLReleaseProgram(program)
 	cl.CLReleaseContext(context)
 }

@@ -1,4 +1,4 @@
-package main
+package cl_test
 
 import (
 	"gocl/cl"

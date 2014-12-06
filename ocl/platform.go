@@ -15,48 +15,59 @@ func NewPlatform(platform_id cl.CL_platform_id) *Platform {
 	return this
 }
 
-func (this *Platform) Get() cl.CL_platform_id {
+func (this *Platform) GetInfo(param_name cl.CL_platform_info) (string, error) {
+	/* Extension data */
+	var param_value interface{}
+	var param_size cl.CL_size_t
+	var errCode cl.CL_int
+
+	/* Find size of extension data */
+	errCode = cl.CLGetPlatformInfo(this.platform_id,
+		param_name, 0, nil, &param_size)
+	if errCode != cl.CL_SUCCESS {
+		return "", errors.New("GetInfo failure with errcode_ret " + string(errCode))
+	}
+
+	/* Access extension data */
+	errCode = cl.CLGetPlatformInfo(this.platform_id,
+		param_name, param_size, &param_value, nil)
+	if errCode != cl.CL_SUCCESS {
+		return "", errors.New("GetInfo failure with errcode_ret " + string(errCode))
+	}
+
+	return param_value.(string), nil
+}
+
+func (this *Platform) GetID() cl.CL_platform_id {
 	return this.platform_id
 }
 
-func (this *Platform) IsHost() bool {
-	return false
-}
-
-func (this *Platform) GetInfo(param_name cl.CL_platform_info) (string, error) {
-	return "", nil
-}
-
-func (this *Platform) HasExtension(extension string) bool {
-	return false
-}
-
-func (this *Platform) GetDevices() ([]Device, error) {
+func (this *Platform) GetDevices(device_type cl.CL_device_type) ([]Device, error) {
 	return nil, nil
 }
 
 func GetPlatforms() ([]Platform, error) {
 	var platforms []Platform
-	var platformIDs []cl.CL_platform_id
-	var num_platforms cl.CL_uint
-	var err cl.CL_int
+	var platformIds []cl.CL_platform_id
+	var numPlatforms cl.CL_uint
+	var errCode cl.CL_int
 
-	err = cl.CLGetPlatformIDs(1, nil, &num_platforms)
-	if err != cl.CL_SUCCESS {
-		return nil, errors.New("GetPlatformIDs failure with errcode_ret " + string(err))
+	errCode = cl.CLGetPlatformIDs(0, nil, &numPlatforms)
+	if errCode != cl.CL_SUCCESS {
+		return nil, errors.New("GetPlatformIDs failure with errcode_ret " + string(errCode))
 	}
 
-	platformIDs = make([]cl.CL_platform_id, num_platforms)
+	platformIds = make([]cl.CL_platform_id, numPlatforms)
 
-	err = cl.CLGetPlatformIDs(num_platforms, platformIDs, nil)
-	if err != cl.CL_SUCCESS {
-		return nil, errors.New("GetPlatformIDs failure with errcode_ret " + string(err))
+	errCode = cl.CLGetPlatformIDs(numPlatforms, platformIds, nil)
+	if errCode != cl.CL_SUCCESS {
+		return nil, errors.New("GetPlatformIDs failure with errcode_ret " + string(errCode))
 	}
 
-	platforms = make([]Platform, num_platforms)
+	platforms = make([]Platform, numPlatforms)
 
-	for i := cl.CL_uint(0); i < num_platforms; i++ {
-		platforms[i].platform_id = platformIDs[i]
+	for i := cl.CL_uint(0); i < numPlatforms; i++ {
+		platforms[i].platform_id = platformIds[i]
 	}
 
 	return platforms, nil
