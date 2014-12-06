@@ -31,7 +31,7 @@ go build/install -tags 'cl11' gocl/cl
 
 go build/install -tags 'cl11' gocl/demo/opencl1p1/ch(x)         (Examples in "OpenCL in Action")
 
-go test -tags 'cl11' gocl/test
+go test -tags 'cl11' gocl/cl_test
 
 ===============================================
 
@@ -41,4 +41,4 @@ go build/install -tags 'cl12' gocl/cl
 
 go build/install -tags 'cl12' gocl/demo/opencl1p2/chapter(x)    (Examples in "Heterogeneous Computing with OpenCL, 2nd Edition")
 
-go test -tags 'cl12' gocl/test
+go test -tags 'cl12' gocl/cl_test
