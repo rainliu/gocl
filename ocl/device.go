@@ -7,21 +7,15 @@ import (
 	"gocl/cl"
 )
 
-type Device struct {
+type device struct {
 	device_id cl.CL_device_id
 }
 
-func NewDevice(device_id cl.CL_device_id) *Device {
-	this := &Device{}
-	this.device_id = device_id
-	return this
-}
-
-func (this *Device) GetID() cl.CL_device_id {
+func (this *device) GetID() cl.CL_device_id {
 	return this.device_id
 }
 
-func (this *Device) GetInfo(param_name cl.CL_device_info) (interface{}, error) {
+func (this *device) GetInfo(param_name cl.CL_device_info) (interface{}, error) {
 	/* param data */
 	var param_value interface{}
 	var param_size cl.CL_size_t

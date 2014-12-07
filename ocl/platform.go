@@ -7,21 +7,21 @@ import (
 	"gocl/cl"
 )
 
-type Platform struct {
+type Platform interface {
+	GetID() cl.CL_platform_id
+	GetInfo(param_name cl.CL_platform_info) (string, error)
+	GetDevices(deviceType cl.CL_device_type) ([]Device, error)
+}
+
+type platform struct {
 	platform_id cl.CL_platform_id
 }
 
-func NewPlatform(platform_id cl.CL_platform_id) *Platform {
-	this := &Platform{}
-	this.platform_id = platform_id
-	return this
-}
-
-func (this *Platform) GetID() cl.CL_platform_id {
+func (this *platform) GetID() cl.CL_platform_id {
 	return this.platform_id
 }
 
-func (this *Platform) GetInfo(param_name cl.CL_platform_info) (string, error) {
+func (this *platform) GetInfo(param_name cl.CL_platform_info) (string, error) {
 	/* param data */
 	var param_value interface{}
 	var param_size cl.CL_size_t
@@ -40,7 +40,7 @@ func (this *Platform) GetInfo(param_name cl.CL_platform_info) (string, error) {
 	return param_value.(string), nil
 }
 
-func (this *Platform) GetDevices(deviceType cl.CL_device_type) ([]Device, error) {
+func (this *platform) GetDevices(deviceType cl.CL_device_type) ([]Device, error) {
 	var devices []Device
 	var deviceIds []cl.CL_device_id
 	var numDevices cl.CL_uint
@@ -59,7 +59,7 @@ func (this *Platform) GetDevices(deviceType cl.CL_device_type) ([]Device, error)
 
 	devices = make([]Device, numDevices)
 	for i := cl.CL_uint(0); i < numDevices; i++ {
-		devices[i].device_id = deviceIds[i]
+		devices[i] = &device{deviceIds[i]}
 	}
 
 	return devices, nil
@@ -84,7 +84,7 @@ func GetPlatforms() ([]Platform, error) {
 
 	platforms = make([]Platform, numPlatforms)
 	for i := cl.CL_uint(0); i < numPlatforms; i++ {
-		platforms[i].platform_id = platformIds[i]
+		platforms[i] = &platform{platformIds[i]}
 	}
 
 	return platforms, nil
