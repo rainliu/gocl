@@ -38,7 +38,15 @@ func (this *device) GetInfo(param_name cl.CL_device_info) (interface{}, error) {
 func (this *device) CreateContext(properties []cl.CL_context_properties,
 	pfn_notify cl.CL_ctx_notify,
 	user_data unsafe.Pointer) (Context, error) {
-	//var errCode CL_int
+	var deviceIds [1]cl.CL_device_id
+	var errCode cl.CL_int
 
-	return nil, nil
+	deviceIds[0] = this.device_id
+
+	/* Create the context */
+	if context_id := cl.CLCreateContext(properties, 1, deviceIds[:], pfn_notify, user_data, &errCode); errCode != cl.CL_SUCCESS {
+		return nil, errors.New("CreateContext failure with errcode_ret " + string(errCode))
+	} else {
+		return &context{context_id}, nil
+	}
 }

@@ -22,18 +22,36 @@ func CreateContext(properties []cl.CL_context_properties,
 	devices []Device,
 	pfn_notify cl.CL_ctx_notify,
 	user_data unsafe.Pointer) (Context, error) {
-	//var errCode cl.CL_int
+	var numDevices cl.CL_uint
+	var deviceIds []cl.CL_device_id
+	var errCode cl.CL_int
 
-	return nil, nil
+	numDevices = cl.CL_uint(len(devices))
+	deviceIds = make([]cl.CL_device_id, numDevices)
+	for i := cl.CL_uint(0); i < numDevices; i++ {
+		deviceIds[i] = devices[i].GetID()
+	}
+
+	/* Create the context */
+	if context_id := cl.CLCreateContext(properties, numDevices, deviceIds, pfn_notify, user_data, &errCode); errCode != cl.CL_SUCCESS {
+		return nil, errors.New("CreateContext failure with errcode_ret " + string(errCode))
+	} else {
+		return &context{context_id}, nil
+	}
 }
 
 func CreateContextFromType(properties []cl.CL_context_properties,
 	device_type cl.CL_device_type,
 	pfn_notify cl.CL_ctx_notify,
 	user_data unsafe.Pointer) (Context, error) {
-	//var errCode cl.CL_int
+	var errCode cl.CL_int
 
-	return nil, nil
+	/* Create the context */
+	if context_id := cl.CLCreateContextFromType(properties, device_type, pfn_notify, user_data, &errCode); errCode != cl.CL_SUCCESS {
+		return nil, errors.New("CreateContext failure with errcode_ret " + string(errCode))
+	} else {
+		return &context{context_id}, nil
+	}
 }
 
 func (this *context) GetInfo(param_name cl.CL_context_info) (interface{}, error) {
