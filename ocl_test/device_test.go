@@ -35,7 +35,7 @@ func TestDevice(t *testing.T) {
 			t.Errorf("Failed to find OpenCL device info %s.\n", "CL_DEVICE_NAME")
 			return
 		} else {
-			t.Logf("\t%s:\t %s\n", "CL_DEVICE_NAME", param_value.(string))
+			t.Logf("\t%s:\t %v\n", "CL_DEVICE_NAME", param_value)
 		}
 
 		if param_value, err = devices[i].GetInfo(cl.CL_DEVICE_TYPE); err != nil {

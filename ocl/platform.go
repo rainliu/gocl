@@ -9,7 +9,7 @@ import (
 
 type Platform interface {
 	GetID() cl.CL_platform_id
-	GetInfo(param_name cl.CL_platform_info) (string, error)
+	GetInfo(param_name cl.CL_platform_info) (interface{}, error)
 	GetDevices(deviceType cl.CL_device_type) ([]Device, error)
 }
 
@@ -21,7 +21,7 @@ func (this *platform) GetID() cl.CL_platform_id {
 	return this.platform_id
 }
 
-func (this *platform) GetInfo(param_name cl.CL_platform_info) (string, error) {
+func (this *platform) GetInfo(param_name cl.CL_platform_info) (interface{}, error) {
 	/* param data */
 	var param_value interface{}
 	var param_size cl.CL_size_t
@@ -37,7 +37,7 @@ func (this *platform) GetInfo(param_name cl.CL_platform_info) (string, error) {
 		return "", errors.New("GetInfo failure with errcode_ret " + string(errCode))
 	}
 
-	return param_value.(string), nil
+	return param_value, nil
 }
 
 func (this *platform) GetDevices(deviceType cl.CL_device_type) ([]Device, error) {

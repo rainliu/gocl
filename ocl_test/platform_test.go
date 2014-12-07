@@ -13,7 +13,7 @@ func TestPlatform(t *testing.T) {
 	var err error
 
 	/* Param value */
-	var param_value string
+	var param_value interface{}
 	const icd_ext string = "cl_khr_icd"
 
 	/* Get all installed platforms */
@@ -39,7 +39,7 @@ func TestPlatform(t *testing.T) {
 			return
 		} else {
 			/* Look for ICD extension */
-			if strings.Contains(param_value, icd_ext) {
+			if strings.Contains(param_value.(string), icd_ext) {
 				platform_index = i
 				break
 			}
@@ -58,6 +58,6 @@ func DisplayPlatformInfo(t *testing.T, platform ocl.Platform, param_name cl.CL_p
 	if param_value, err := platform.GetInfo(param_name); err != nil {
 		t.Errorf(err.Error())
 	} else {
-		t.Logf("\t %s:\t %s\n", param_name_str, param_value)
+		t.Logf("\t %s:\t %v\n", param_name_str, param_value)
 	}
 }

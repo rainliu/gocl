@@ -5,6 +5,7 @@ package ocl
 import (
 	"errors"
 	"gocl/cl"
+	"unsafe"
 )
 
 type device struct {
@@ -32,4 +33,12 @@ func (this *device) GetInfo(param_name cl.CL_device_info) (interface{}, error) {
 	}
 
 	return param_value, nil
+}
+
+func (this *device) CreateContext(properties []cl.CL_context_properties,
+	pfn_notify cl.CL_ctx_notify,
+	user_data unsafe.Pointer) (Context, error) {
+	//var errCode CL_int
+
+	return nil, nil
 }
