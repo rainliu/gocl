@@ -86,3 +86,7 @@ func (this *context) Release() error {
 	}
 	return nil
 }
+
+func (this *context) CreateCommandQueue() error {
+	return nil		  	
+}
