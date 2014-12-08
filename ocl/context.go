@@ -62,12 +62,12 @@ func (this *context) GetInfo(param_name cl.CL_context_info) (interface{}, error)
 
 	/* Find size of param data */
 	if errCode = cl.CLGetContextInfo(this.context_id, param_name, 0, nil, &param_size); errCode != cl.CL_SUCCESS {
-		return "", errors.New("GetInfo failure with errcode_ret " + string(errCode))
+		return nil, errors.New("GetInfo failure with errcode_ret " + string(errCode))
 	}
 
 	/* Access param data */
 	if errCode = cl.CLGetContextInfo(this.context_id, param_name, param_size, &param_value, nil); errCode != cl.CL_SUCCESS {
-		return "", errors.New("GetInfo failure with errcode_ret " + string(errCode))
+		return nil, errors.New("GetInfo failure with errcode_ret " + string(errCode))
 	}
 
 	return param_value, nil
