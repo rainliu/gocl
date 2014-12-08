@@ -16,7 +16,7 @@ import (
 )
 
 /*
-func CLCreateCommandQueue(context CL_context,
+func CLCreateCommandQueueWithProperties(context CL_context,
 	device CL_device_id,
 	properties CL_command_queue_properties,
 	errcode_ret *CL_int) CL_command_queue {

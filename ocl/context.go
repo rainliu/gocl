@@ -12,6 +12,8 @@ type Context interface {
 	GetInfo(param_name cl.CL_context_info) (interface{}, error)
 	Retain() error
 	Release() error
+
+	CreateCommandQueue(device Device, properties []cl.CL_command_queue_properties) (CommandQueue, error)
 }
 
 type context struct {
@@ -85,8 +87,4 @@ func (this *context) Release() error {
 		return errors.New("Release failure with errcode_ret " + string(errCode))
 	}
 	return nil
-}
-
-func (this *context) CreateCommandQueue() error {
-	return nil		  	
 }
