@@ -14,6 +14,8 @@ func TestQueue(t *testing.T) {
 	var queue ocl.CommandQueue
 	var err error
 
+	var ref_count interface{}
+
 	/* Identify a platform */
 	if platforms, err = ocl.GetPlatforms(); err != nil {
 		t.Errorf(err.Error())
@@ -41,6 +43,28 @@ func TestQueue(t *testing.T) {
 		return
 	}	
 	defer queue.Release()
+
+	/* Get the reference count */
+	if ref_count, err = queue.GetInfo(cl.CL_QUEUE_REFERENCE_COUNT); err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+	t.Logf("Initial reference count: %d\n", ref_count.(cl.CL_uint))
+
+	/* Update and display the reference count */
+	queue.Retain()
+	if ref_count, err = queue.GetInfo(cl.CL_QUEUE_REFERENCE_COUNT); err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+	t.Logf("Reference count: %d\n", ref_count.(cl.CL_uint))
+
+	queue.Release()
+	if ref_count, err = queue.GetInfo(cl.CL_QUEUE_REFERENCE_COUNT); err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+	t.Logf("Reference count: %d\n", ref_count.(cl.CL_uint))
 
 
 	// /* Program/kernel data structures */

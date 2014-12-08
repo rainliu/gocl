@@ -18,7 +18,7 @@ import (
 /*
 func CLCreateCommandQueueWithProperties(context CL_context,
 	device CL_device_id,
-	properties CL_command_queue_properties,
+	properties []CL_command_queue_properties,
 	errcode_ret *CL_int) CL_command_queue {
 	var c_errcode_ret C.cl_int
 	var c_command_queue C.cl_command_queue
