@@ -8,14 +8,6 @@ import (
 	"unsafe"
 )
 
-type Context interface {
-	GetInfo(param_name cl.CL_context_info) (interface{}, error)
-	Retain() error
-	Release() error
-
-	CreateCommandQueue(device Device, properties []cl.CL_command_queue_properties) (CommandQueue, error)
-}
-
 type context struct {
 	context_id cl.CL_context
 }
@@ -56,6 +48,10 @@ func CreateContextFromType(properties []cl.CL_context_properties,
 	}
 }
 
+func (this *context) GetID() cl.CL_context {
+	return this.context_id
+}
+
 func (this *context) GetInfo(param_name cl.CL_context_info) (interface{}, error) {
 	/* param data */
 	var param_value interface{}
@@ -87,4 +83,16 @@ func (this *context) Release() error {
 		return errors.New("Release failure with errcode_ret " + string(errCode))
 	}
 	return nil
+}
+
+func (this *context) CreateBuffer(flags cl.CL_mem_flags,
+	size cl.CL_size_t,
+	host_ptr unsafe.Pointer) (Buffer, error) {
+	var errCode cl.CL_int
+
+	if memory_id := cl.CLCreateBuffer(this.context_id, flags, size, host_ptr, &errCode); errCode != cl.CL_SUCCESS {
+		return nil, errors.New("CreateBuffer failure with errcode_ret " + string(errCode))
+	} else {
+		return &buffer{memory{memory_id}}, nil
+	}
 }

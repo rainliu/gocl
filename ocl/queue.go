@@ -8,6 +8,7 @@ import (
 )
 
 type CommandQueue interface {
+	GetID() cl.CL_command_queue
 	GetInfo(param_name cl.CL_command_queue_info) (interface{}, error)
 	Retain() error
 	Release() error
@@ -15,6 +16,10 @@ type CommandQueue interface {
 
 type command_queue struct {
 	command_queue_id cl.CL_command_queue
+}
+
+func (this *command_queue) GetID() cl.CL_command_queue {
+	return this.command_queue_id
 }
 
 func (this *command_queue) GetInfo(param_name cl.CL_command_queue_info) (interface{}, error) {
