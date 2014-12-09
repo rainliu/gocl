@@ -1,12 +1,13 @@
 package ocl_test
 
 import (
-	"fmt"
 	"gocl/cl"
 	"gocl/ocl"
 	"testing"
 	"unsafe"
 )
+
+var t2 *testing.T
 
 func TestContext(t *testing.T) {
 	/* Host/device data structures */
@@ -17,6 +18,8 @@ func TestContext(t *testing.T) {
 
 	var ref_count interface{}
 	user_data := []byte("Hello, I am callback")
+
+	t2 = t
 
 	/* Identify a platform */
 	if platforms, err = ocl.GetPlatforms(); err != nil {
@@ -63,5 +66,5 @@ func TestContext(t *testing.T) {
 }
 
 func my_contex_notify(errinfo string, private_info unsafe.Pointer, cb int, user_data unsafe.Pointer) {
-	fmt.Printf("my_contex_notify callback: %s\n", *((*[]byte)(user_data)))
+	t2.Logf("my_contex_notify callback: %s\n", *((*[]byte)(user_data)))
 }

@@ -11,10 +11,6 @@ package cl
 */
 import "C"
 
-import (
-	//"unsafe"
-)
-
 /*
 func CLCreateCommandQueueWithProperties(context CL_context,
 	device CL_device_id,

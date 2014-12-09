@@ -2,7 +2,7 @@ package ocl_test
 
 import (
 	"gocl/cl"
-	"gocl/ocl"	
+	"gocl/ocl"
 	"testing"
 )
 
@@ -41,7 +41,7 @@ func TestQueue(t *testing.T) {
 	if queue, err = context.CreateCommandQueue(devices[0], nil); err != nil {
 		t.Errorf(err.Error())
 		return
-	}	
+	}
 	defer queue.Release()
 
 	/* Get the reference count */
@@ -66,7 +66,6 @@ func TestQueue(t *testing.T) {
 	}
 	t.Logf("Reference count: %d\n", ref_count.(cl.CL_uint))
 
-
 	// /* Program/kernel data structures */
 	// var program cl.CL_program
 	// var program_buffer [1][]byte
@@ -74,8 +73,6 @@ func TestQueue(t *testing.T) {
 	// var program_size [1]cl.CL_size_t
 	// var log_size cl.CL_size_t
 	// var kernel cl.CL_kernel
-
-
 
 	// /* Read each program file and place content into buffer array */
 	// program_handle, err1 := os.Open("blank.cl")
@@ -95,7 +92,7 @@ func TestQueue(t *testing.T) {
 	// 	t.Errorf("read file error or file size wrong")
 	// }
 
-	//  Create program from file 
+	//  Create program from file
 	// program = cl.CLCreateProgramWithSource(context, 1,
 	// 	program_buffer[:], program_size[:], &err)
 	// if err < 0 {
@@ -120,7 +117,7 @@ func TestQueue(t *testing.T) {
 	// kernel = cl.CLCreateKernel(program, []byte("blank"), &err)
 	// if err < 0 {
 	// 	t.Errorf("Couldn't create the kernel")
-	// }	
+	// }
 
 	// /* Enqueue the kernel execution command */
 	// err = cl.CLEnqueueTask(queue, kernel, 0, nil, nil)
@@ -130,7 +127,6 @@ func TestQueue(t *testing.T) {
 	// 	t.Logf("Successfully queued kernel.\n")
 	// }
 
-	
 	//cl.CLReleaseKernel(kernel)
 	//cl.CLReleaseProgram(program)
 }
