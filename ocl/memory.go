@@ -8,6 +8,16 @@ import (
 	"unsafe"
 )
 
+type Memory interface {
+	GetID() cl.CL_mem
+	GetInfo(param_name cl.CL_mem_info) (interface{}, error)
+	Retain() error
+	Release() error
+	
+	SetCallback(pfn_notify cl.CL_mem_notify, user_data unsafe.Pointer) error
+	EnqueueUnmap(queue CommandQueue, mapped_ptr unsafe.Pointer, event_wait_list []Event) (Event, error)
+}
+
 type memory struct {
 	memory_id cl.CL_mem
 }
@@ -57,9 +67,18 @@ func (this *memory) SetCallback(pfn_notify cl.CL_mem_notify, user_data unsafe.Po
 	}
 }
 
-func (this *memory) EnqueueUnmap(queue CommandQueue,
-	mapped_ptr unsafe.Pointer,
-	event_wait_list []cl.CL_event) (cl.CL_event, error) {
-	var event cl.CL_event
-	return event, nil
+func (this *memory) EnqueueUnmap(queue CommandQueue, mapped_ptr unsafe.Pointer, event_wait_list []Event) (Event, error) {	
+	var event_id cl.CL_event
+
+	numEvents := cl.CL_uint(len(event_wait_list))
+	events := make([]cl.CL_event, numEvents)
+	for i:= cl.CL_uint(0); i<numEvents; i++{
+		events[i] = event_wait_list[i].GetID()
+	}
+
+	if errCode := cl.CLEnqueueUnmapMemObject(queue.GetID(), this.memory_id, mapped_ptr, numEvents, events, &event_id); errCode != cl.CL_SUCCESS {
+		return nil, errors.New("EnqueueMarkerWithWaitList failure with errcode_ret " + string(errCode))
+	} else {
+		return &event{event_id}, nil
+	}
 }
