@@ -96,3 +96,13 @@ func (this *context) CreateBuffer(flags cl.CL_mem_flags,
 		return &buffer{memory{memory_id}}, nil
 	}
 }
+
+func (this *context) CreateEvent() (Event, error) {
+	var errCode cl.CL_int
+
+	if event_id := cl.CLCreateUserEvent(this.context_id, &errCode); errCode != cl.CL_SUCCESS {
+		return nil, errors.New("CreateUserEvent failure with errcode_ret " + string(errCode))
+	} else {
+		return &event{event_id}, nil
+	}
+}

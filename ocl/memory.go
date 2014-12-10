@@ -8,18 +8,6 @@ import (
 	"unsafe"
 )
 
-type Memory interface {
-	GetID() cl.CL_mem
-	GetInfo(param_name cl.CL_mem_info) (interface{}, error)
-	Retain() error
-	Release() error
-
-	SetDestructorCallback(pfn_notify cl.CL_mem_notify, user_data unsafe.Pointer) error
-
-	//to be fix CL_event
-	EnqueueUnmap(queue CommandQueue, mapped_ptr unsafe.Pointer, event_wait_list []cl.CL_event) (cl.CL_event, error)
-}
-
 type memory struct {
 	memory_id cl.CL_mem
 }
@@ -61,9 +49,9 @@ func (this *memory) Release() error {
 	return nil
 }
 
-func (this *memory) SetDestructorCallback(pfn_notify cl.CL_mem_notify, user_data unsafe.Pointer) error {
+func (this *memory) SetCallback(pfn_notify cl.CL_mem_notify, user_data unsafe.Pointer) error {
 	if errCode := cl.CLSetMemObjectDestructorCallback(this.memory_id, pfn_notify, user_data); errCode != cl.CL_SUCCESS {
-		return errors.New("SetDestructorCallback failure with errcode_ret " + string(errCode))
+		return errors.New("SetCallback failure with errcode_ret " + string(errCode))
 	} else {
 		return nil
 	}
