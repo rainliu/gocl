@@ -47,3 +47,17 @@ func (this *command_queue) Release() error {
 	}
 	return nil
 }
+
+func (this *command_queue) Flush() error {
+	if errCode := cl.CLFlush(this.command_queue_id); errCode != cl.CL_SUCCESS {
+		return errors.New("Flush failure with errcode_ret " + string(errCode))
+	}
+	return nil
+}
+
+func (this *command_queue) Finish() error {
+	if errCode := cl.CLFinish(this.command_queue_id); errCode != cl.CL_SUCCESS {
+		return errors.New("Finish failure with errcode_ret " + string(errCode))
+	}
+	return nil
+}

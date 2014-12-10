@@ -11,4 +11,6 @@ type queue1x interface {
 	GetInfo(param_name cl.CL_command_queue_info) (interface{}, error)
 	Retain() error
 	Release() error
+	Flush() error
+	Finish() error
 }
