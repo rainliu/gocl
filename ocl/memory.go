@@ -13,9 +13,12 @@ type Memory interface {
 	GetInfo(param_name cl.CL_mem_info) (interface{}, error)
 	Retain() error
 	Release() error
-	
-	SetCallback(pfn_notify cl.CL_mem_notify, user_data unsafe.Pointer) error
-	EnqueueUnmap(queue CommandQueue, mapped_ptr unsafe.Pointer, event_wait_list []Event) (Event, error)
+
+	SetCallback(pfn_notify cl.CL_mem_notify,
+		user_data unsafe.Pointer) error
+	EnqueueUnmap(queue CommandQueue,
+		mapped_ptr unsafe.Pointer,
+		event_wait_list []Event) (Event, error)
 }
 
 type memory struct {
@@ -67,12 +70,12 @@ func (this *memory) SetCallback(pfn_notify cl.CL_mem_notify, user_data unsafe.Po
 	}
 }
 
-func (this *memory) EnqueueUnmap(queue CommandQueue, mapped_ptr unsafe.Pointer, event_wait_list []Event) (Event, error) {	
+func (this *memory) EnqueueUnmap(queue CommandQueue, mapped_ptr unsafe.Pointer, event_wait_list []Event) (Event, error) {
 	var event_id cl.CL_event
 
 	numEvents := cl.CL_uint(len(event_wait_list))
 	events := make([]cl.CL_event, numEvents)
-	for i:= cl.CL_uint(0); i<numEvents; i++{
+	for i := cl.CL_uint(0); i < numEvents; i++ {
 		events[i] = event_wait_list[i].GetID()
 	}
 

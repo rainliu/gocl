@@ -61,3 +61,71 @@ func (this *command_queue) Finish() error {
 	}
 	return nil
 }
+
+func (this *command_queue) EnqueueCopyBuffer(src_buffer Buffer,
+	dst_buffer Buffer,
+	src_offset cl.CL_size_t,
+	dst_offset cl.CL_size_t,
+	cb cl.CL_size_t,
+	event_wait_list []Event) (Event, error) {
+	var errCode cl.CL_int
+	var event_id cl.CL_event
+
+	numEvents := cl.CL_uint(len(event_wait_list))
+	events := make([]cl.CL_event, numEvents)
+	for i := cl.CL_uint(0); i < numEvents; i++ {
+		events[i] = event_wait_list[i].GetID()
+	}
+
+	if errCode = cl.CLEnqueueCopyBuffer(this.command_queue_id,
+		src_buffer.GetID(),
+		dst_buffer.GetID(),
+		src_offset,
+		dst_offset,
+		cb,
+		numEvents,
+		events,
+		&event_id); errCode != cl.CL_SUCCESS {
+		return nil, errors.New("EnqueueCopyBuffer failure with errcode_ret " + string(errCode))
+	} else {
+		return &event{event_id}, nil
+	}
+}
+
+func (this *command_queue) EnqueueCopyBufferRect(src_buffer Buffer,
+	dst_buffer Buffer,
+	src_origin [3]cl.CL_size_t,
+	dst_origin [3]cl.CL_size_t,
+	region [3]cl.CL_size_t,
+	src_row_pitch cl.CL_size_t,
+	src_slice_pitch cl.CL_size_t,
+	dst_row_pitch cl.CL_size_t,
+	dst_slice_pitch cl.CL_size_t,
+	event_wait_list []Event) (Event, error) {
+	var errCode cl.CL_int
+	var event_id cl.CL_event
+
+	numEvents := cl.CL_uint(len(event_wait_list))
+	events := make([]cl.CL_event, numEvents)
+	for i := cl.CL_uint(0); i < numEvents; i++ {
+		events[i] = event_wait_list[i].GetID()
+	}
+
+	if errCode = cl.CLEnqueueCopyBufferRect(this.command_queue_id,
+		src_buffer.GetID(),
+		dst_buffer.GetID(),
+		src_origin,
+		dst_origin,
+		region,
+		src_row_pitch,
+		src_slice_pitch,
+		dst_row_pitch,
+		dst_slice_pitch,
+		numEvents,
+		events,
+		&event_id); errCode != cl.CL_SUCCESS {
+		return nil, errors.New("EnqueueCopyBufferRect failure with errcode_ret " + string(errCode))
+	} else {
+		return &event{event_id}, nil
+	}
+}
