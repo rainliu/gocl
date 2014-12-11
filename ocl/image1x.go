@@ -2,6 +2,6 @@
 
 package ocl
 
-type image struct {
-	memory
+type image1x interface {
+	Memory
 }
