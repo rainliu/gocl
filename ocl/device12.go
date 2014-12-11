@@ -5,7 +5,6 @@ package ocl
 import (
 	"errors"
 	"gocl/cl"
-	"unsafe"
 )
 
 type Device interface {
