@@ -30,4 +30,23 @@ type queue1x interface {
 		dst_row_pitch cl.CL_size_t,
 		dst_slice_pitch cl.CL_size_t,
 		event_wait_list []Event) (Event, error)
+
+	EnqueueCopyImage(src_image Image,
+		dst_image Image,
+		src_origin [3]cl.CL_size_t,
+		dst_origin [3]cl.CL_size_t,
+		region [3]cl.CL_size_t,
+		event_wait_list []Event) (Event, error)
+	EnqueueCopyImageToBuffer(src_image Image,
+		dst_buffer Buffer,
+		src_origin [3]cl.CL_size_t,
+		region [3]cl.CL_size_t,
+		dst_offset cl.CL_size_t,
+		event_wait_list []Event) (Event, error)
+	EnqueueCopyBufferToImage(src_buffer Buffer,
+		dst_image Image,
+		src_offset cl.CL_size_t,
+		dst_origin [3]cl.CL_size_t,
+		region [3]cl.CL_size_t,
+		event_wait_list []Event) (Event, error)
 }

@@ -85,9 +85,7 @@ func (this *context) Release() error {
 	return nil
 }
 
-func (this *context) CreateBuffer(flags cl.CL_mem_flags,
-	size cl.CL_size_t,
-	host_ptr unsafe.Pointer) (Buffer, error) {
+func (this *context) CreateBuffer(flags cl.CL_mem_flags, size cl.CL_size_t, host_ptr unsafe.Pointer) (Buffer, error) {
 	var errCode cl.CL_int
 
 	if memory_id := cl.CLCreateBuffer(this.context_id, flags, size, host_ptr, &errCode); errCode != cl.CL_SUCCESS {
@@ -105,4 +103,34 @@ func (this *context) CreateEvent() (Event, error) {
 	} else {
 		return &event{event_id}, nil
 	}
+}
+
+func (this *context) GetSupportedImageFormats(flags cl.CL_mem_flags, image_type cl.CL_mem_object_type) ([]cl.CL_image_format, error) {
+	var numImageFormats cl.CL_uint
+	var imageFormats []cl.CL_image_format
+	var errCode cl.CL_int
+
+	/* Find size of param data */
+	if errCode = cl.CLGetSupportedImageFormats(this.context_id,
+		flags,
+		image_type,
+		0,
+		nil,
+		&numImageFormats); errCode != cl.CL_SUCCESS {
+		return nil, errors.New("GetSupportedImageFormats failure with errcode_ret " + string(errCode))
+	}
+
+	imageFormats = make([]cl.CL_image_format, numImageFormats)
+
+	/* Access param data */
+	if errCode = cl.CLGetSupportedImageFormats(this.context_id,
+		flags,
+		image_type,
+		numImageFormats,
+		imageFormats,
+		nil); errCode != cl.CL_SUCCESS {
+		return nil, errors.New("GetSupportedImageFormats failure with errcode_ret " + string(errCode))
+	}
+
+	return imageFormats, nil
 }

@@ -14,9 +14,13 @@ type context1x interface {
 	Retain() error
 	Release() error
 
-	CreateCommandQueue(device Device, properties []cl.CL_command_queue_properties) (CommandQueue, error)
 	CreateBuffer(flags cl.CL_mem_flags, size cl.CL_size_t, host_ptr unsafe.Pointer) (Buffer, error)
 	CreateEvent() (Event, error)
+	GetSupportedImageFormats(flags cl.CL_mem_flags, image_type cl.CL_mem_object_type) ([]cl.CL_image_format, error)
+
+	//cl1x only, not in cl20
+	CreateCommandQueue(device Device, properties []cl.CL_command_queue_properties) (CommandQueue, error)
+	CreateSampler(normalized_coords cl.CL_bool, addressing_mode cl.CL_addressing_mode, filter_mode cl.CL_filter_mode) (Sampler, error)
 }
 
 func (this *context) CreateCommandQueue(device Device,
@@ -34,5 +38,17 @@ func (this *context) CreateCommandQueue(device Device,
 		return nil, errors.New("CreateCommandQueue failure with errcode_ret " + string(errCode))
 	} else {
 		return &command_queue{command_queue_id}, nil
+	}
+}
+
+func (this *context) CreateSampler(normalized_coords cl.CL_bool,
+	addressing_mode cl.CL_addressing_mode,
+	filter_mode cl.CL_filter_mode) (Sampler, error) {
+	var errCode cl.CL_int
+
+	if sampler_id := cl.CLCreateSampler(this.context_id, normalized_coords, addressing_mode, filter_mode, &errCode); errCode != cl.CL_SUCCESS {
+		return nil, errors.New("CreateSampler failure with errcode_ret " + string(errCode))
+	} else {
+		return &sampler{sampler_id}, nil
 	}
 }

@@ -127,6 +127,13 @@ func CLEnqueueMapImage(command_queue CL_command_queue,
 			&c_errcode_ret)
 	}
 
+	if image_row_pitch != nil {
+		*image_row_pitch = CL_size_t(c_image_row_pitch)
+	}
+	if image_slice_pitch != nil {
+		*image_slice_pitch = CL_size_t(c_image_slice_pitch)
+	}
+
 	if event != nil {
 		event.cl_event = c_event
 	}

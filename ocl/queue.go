@@ -129,3 +129,93 @@ func (this *command_queue) EnqueueCopyBufferRect(src_buffer Buffer,
 		return &event{event_id}, nil
 	}
 }
+
+func (this *command_queue) EnqueueCopyImage(src_image Image,
+	dst_image Image,
+	src_origin [3]cl.CL_size_t,
+	dst_origin [3]cl.CL_size_t,
+	region [3]cl.CL_size_t,
+	event_wait_list []Event) (Event, error) {
+	var errCode cl.CL_int
+	var event_id cl.CL_event
+
+	numEvents := cl.CL_uint(len(event_wait_list))
+	events := make([]cl.CL_event, numEvents)
+	for i := cl.CL_uint(0); i < numEvents; i++ {
+		events[i] = event_wait_list[i].GetID()
+	}
+
+	if errCode = cl.CLEnqueueCopyImage(this.command_queue_id,
+		src_image.GetID(),
+		dst_image.GetID(),
+		src_origin,
+		dst_origin,
+		region,
+		numEvents,
+		events,
+		&event_id); errCode != cl.CL_SUCCESS {
+		return nil, errors.New("EnqueueCopyImage failure with errcode_ret " + string(errCode))
+	} else {
+		return &event{event_id}, nil
+	}
+}
+
+func (this *command_queue) EnqueueCopyImageToBuffer(src_image Image,
+	dst_buffer Buffer,
+	src_origin [3]cl.CL_size_t,
+	region [3]cl.CL_size_t,
+	dst_offset cl.CL_size_t,
+	event_wait_list []Event) (Event, error) {
+	var errCode cl.CL_int
+	var event_id cl.CL_event
+
+	numEvents := cl.CL_uint(len(event_wait_list))
+	events := make([]cl.CL_event, numEvents)
+	for i := cl.CL_uint(0); i < numEvents; i++ {
+		events[i] = event_wait_list[i].GetID()
+	}
+
+	if errCode = cl.CLEnqueueCopyImageToBuffer(this.command_queue_id,
+		src_image.GetID(),
+		dst_buffer.GetID(),
+		src_origin,
+		region,
+		dst_offset,
+		numEvents,
+		events,
+		&event_id); errCode != cl.CL_SUCCESS {
+		return nil, errors.New("EnqueueCopyImageToBuffer failure with errcode_ret " + string(errCode))
+	} else {
+		return &event{event_id}, nil
+	}
+}
+
+func (this *command_queue) EnqueueCopyBufferToImage(src_buffer Buffer,
+	dst_image Image,
+	src_offset cl.CL_size_t,
+	dst_origin [3]cl.CL_size_t,
+	region [3]cl.CL_size_t,
+	event_wait_list []Event) (Event, error) {
+	var errCode cl.CL_int
+	var event_id cl.CL_event
+
+	numEvents := cl.CL_uint(len(event_wait_list))
+	events := make([]cl.CL_event, numEvents)
+	for i := cl.CL_uint(0); i < numEvents; i++ {
+		events[i] = event_wait_list[i].GetID()
+	}
+
+	if errCode = cl.CLEnqueueCopyBufferToImage(this.command_queue_id,
+		src_buffer.GetID(),
+		dst_image.GetID(),
+		src_offset,
+		dst_origin,
+		region,
+		numEvents,
+		events,
+		&event_id); errCode != cl.CL_SUCCESS {
+		return nil, errors.New("EnqueueCopyBufferToImage failure with errcode_ret " + string(errCode))
+	} else {
+		return &event{event_id}, nil
+	}
+}
