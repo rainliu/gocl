@@ -27,13 +27,22 @@ export CGO_LDFLAGS=-L$OPENCLSDKROOT/lib/x86     			(or null for NVIDIA and Mac O
 
 export CGO_CFLAGS=-I$GOPATH/src/gocl/android/include     	(gocl/android/include/CL have the latest OpenCL 2.0 include files from https://www.khronos.org/registry/cl/)
 
+===============================================
+
+To build OpenCL 1.1/1.2/2.0 compliance C-style binding (replacing 'clxx' with 'cl11'/'cl12'/'cl20'):
+
+go build -tags 'clxx' gocl/cl
+
+go test -v -tags 'clxx' gocl/cl_test
+
+go install -tags 'clxx' gocl/cl_demo/opencl1p1/ch(x)   		(Examples in "OpenCL in Action")
+
+go install -tags 'clxx' gocl/cl_demo/opencl1p2/chapter(x)	(Examples in "Heterogeneous Computing with OpenCL, 2nd Edition")
 
 ===============================================
 
-To build OpenCL 1.1/1.2/2.0 compliance by replace 'clxx' with 'cl11'/'cl12'/'cl20'
+To build OpenCL 1.1/1.2/2.0 compliance OO-style binding (replacing 'clxx' with 'cl11'/'cl12'/'cl20'):
 
-go build/install -tags 'clxx' gocl/cl
+go build -tags 'clxx' gocl/ocl
 
-go build/install -tags 'clxx' gocl/cl_demo/opencl1p1/ch(x)         (Examples in "OpenCL in Action")
-
-go test -v -tags 'clxx' gocl/cl_test
+go test -v -tags 'clxx' gocl/ocl_test
