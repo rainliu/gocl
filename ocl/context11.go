@@ -44,7 +44,7 @@ func (this *context) CreateImage2D(flags cl.CL_mem_flags,
 		image_row_pitch,
 		host_ptr,
 		&errCode); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("CreateImage2D failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("CreateImage2D failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &image{memory{memory_id}}, nil
 	}
@@ -70,7 +70,7 @@ func (this *context) CreateImage3D(flags cl.CL_mem_flags,
 		image_slice_pitch,
 		host_ptr,
 		&errCode); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("CreateImage3D failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("CreateImage3D failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &image{memory{memory_id}}, nil
 	}

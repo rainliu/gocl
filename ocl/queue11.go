@@ -19,7 +19,7 @@ type CommandQueue interface {
 func (this *command_queue) EnqueueMarker() (Event, error) {
 	var event_id cl.CL_event
 	if errCode := cl.CLEnqueueMarker(this.command_queue_id, &event_id); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("EnqueueMarker failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("EnqueueMarker failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &event{event_id}, nil
 	}
@@ -27,7 +27,7 @@ func (this *command_queue) EnqueueMarker() (Event, error) {
 
 func (this *command_queue) EnqueueBarrier() error {
 	if errCode := cl.CLEnqueueBarrier(this.command_queue_id); errCode != cl.CL_SUCCESS {
-		return fmt.Errorf("EnqueueBarrier failure with errcode_ret %d", errCode)
+		return fmt.Errorf("EnqueueBarrier failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return nil
 	}
@@ -41,7 +41,7 @@ func (this *command_queue) EnqueueWaitForEvents(event_wait_list []Event) error {
 	}
 
 	if errCode := cl.CLEnqueueWaitForEvents(this.command_queue_id, numEvents, events); errCode != cl.CL_SUCCESS {
-		return fmt.Errorf("EnqueueWaitForEvents failure with errcode_ret %d", errCode)
+		return fmt.Errorf("EnqueueWaitForEvents failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return nil
 	}

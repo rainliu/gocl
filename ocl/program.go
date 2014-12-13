@@ -24,12 +24,12 @@ func (this *program) GetInfo(param_name cl.CL_program_info) (interface{}, error)
 
 	/* Find size of param data */
 	if errCode = cl.CLGetProgramInfo(this.program_id, param_name, 0, nil, &param_size); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	}
 
 	/* Access param data */
 	if errCode = cl.CLGetProgramInfo(this.program_id, param_name, param_size, &param_value, nil); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	}
 
 	return param_value, nil
@@ -37,14 +37,14 @@ func (this *program) GetInfo(param_name cl.CL_program_info) (interface{}, error)
 
 func (this *program) Retain() error {
 	if errCode := cl.CLRetainProgram(this.program_id); errCode != cl.CL_SUCCESS {
-		return fmt.Errorf("Retain failure with errcode_ret %d", errCode)
+		return fmt.Errorf("Retain failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	}
 	return nil
 }
 
 func (this *program) Release() error {
 	if errCode := cl.CLReleaseProgram(this.program_id); errCode != cl.CL_SUCCESS {
-		return fmt.Errorf("Release failure with errcode_ret %d", errCode)
+		return fmt.Errorf("Release failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	}
 	return nil
 }
@@ -61,7 +61,7 @@ func (this *program) Build(devices []Device,
 	}
 
 	if errCode := cl.CLBuildProgram(this.program_id, numDevices, deviceIds, options, pfn_notify, user_data); errCode != cl.CL_SUCCESS {
-		return fmt.Errorf("Build failure with errcode_ret %d", errCode)
+		return fmt.Errorf("Build failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	}
 	return nil
 }
@@ -74,12 +74,12 @@ func (this *program) GetBuildInfo(device Device, param_name cl.CL_program_build_
 
 	/* Find size of param data */
 	if errCode = cl.CLGetProgramBuildInfo(this.program_id, device.GetID(), param_name, 0, nil, &param_size); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("GetBuildInfo failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("GetBuildInfo failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	}
 
 	/* Access param data */
 	if errCode = cl.CLGetProgramBuildInfo(this.program_id, device.GetID(), param_name, param_size, &param_value, nil); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("GetBuildInfo failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("GetBuildInfo failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	}
 
 	return param_value, nil

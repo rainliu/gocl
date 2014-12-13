@@ -22,7 +22,7 @@ func (this *buffer) CreateSubBuffer(flags cl.CL_mem_flags,
 		buffer_create_type,
 		buffer_create_info,
 		&errCode); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("CreateSubBuffer failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("CreateSubBuffer failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &buffer{memory{memory_id}}, nil
 	}
@@ -52,7 +52,7 @@ func (this *buffer) EnqueueRead(queue CommandQueue,
 		numEvents,
 		events,
 		&event_id); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("EnqueueRead failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("EnqueueRead failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &event{event_id}, nil
 	}
@@ -82,7 +82,7 @@ func (this *buffer) EnqueueWrite(queue CommandQueue,
 		numEvents,
 		events,
 		&event_id); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("EnqueueWrite failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("EnqueueWrite failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &event{event_id}, nil
 	}
@@ -122,7 +122,7 @@ func (this *buffer) EnqueueReadRect(queue CommandQueue,
 		numEvents,
 		events,
 		&event_id); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("EnqueueReadRect failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("EnqueueReadRect failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &event{event_id}, nil
 	}
@@ -162,7 +162,7 @@ func (this *buffer) EnqueueWriteRect(queue CommandQueue,
 		numEvents,
 		events,
 		&event_id); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("EnqueueWriteRect failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("EnqueueWriteRect failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &event{event_id}, nil
 	}
@@ -193,7 +193,7 @@ func (this *buffer) EnqueueMap(queue CommandQueue,
 		events,
 		&event_id,
 		&errCode); errCode != cl.CL_SUCCESS {
-		return nil, nil, fmt.Errorf("EnqueueMap failure with errcode_ret %d", errCode)
+		return nil, nil, fmt.Errorf("EnqueueMap failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return mapped_ptr, &event{event_id}, nil
 	}

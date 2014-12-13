@@ -44,7 +44,7 @@ func (this *buffer) EnqueueFill(queue CommandQueue,
 		numEvents,
 		events,
 		&event_id); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("EnqueueFill failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("EnqueueFill failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &event{event_id}, nil
 	}

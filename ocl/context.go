@@ -28,7 +28,7 @@ func CreateContext(properties []cl.CL_context_properties,
 
 	/* Create the context */
 	if context_id := cl.CLCreateContext(properties, numDevices, deviceIds, pfn_notify, user_data, &errCode); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("CreateContext failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("CreateContext failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &context{context_id}, nil
 	}
@@ -42,7 +42,7 @@ func CreateContextFromType(properties []cl.CL_context_properties,
 
 	/* Create the context */
 	if context_id := cl.CLCreateContextFromType(properties, device_type, pfn_notify, user_data, &errCode); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("CreateContext failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("CreateContext failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &context{context_id}, nil
 	}
@@ -60,12 +60,12 @@ func (this *context) GetInfo(param_name cl.CL_context_info) (interface{}, error)
 
 	/* Find size of param data */
 	if errCode = cl.CLGetContextInfo(this.context_id, param_name, 0, nil, &param_size); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	}
 
 	/* Access param data */
 	if errCode = cl.CLGetContextInfo(this.context_id, param_name, param_size, &param_value, nil); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	}
 
 	return param_value, nil
@@ -73,14 +73,14 @@ func (this *context) GetInfo(param_name cl.CL_context_info) (interface{}, error)
 
 func (this *context) Retain() error {
 	if errCode := cl.CLRetainContext(this.context_id); errCode != cl.CL_SUCCESS {
-		return fmt.Errorf("Retain failure with errcode_ret %d", errCode)
+		return fmt.Errorf("Retain failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	}
 	return nil
 }
 
 func (this *context) Release() error {
 	if errCode := cl.CLReleaseContext(this.context_id); errCode != cl.CL_SUCCESS {
-		return fmt.Errorf("Release failure with errcode_ret %d", errCode)
+		return fmt.Errorf("Release failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	}
 	return nil
 }
@@ -89,7 +89,7 @@ func (this *context) CreateBuffer(flags cl.CL_mem_flags, size cl.CL_size_t, host
 	var errCode cl.CL_int
 
 	if memory_id := cl.CLCreateBuffer(this.context_id, flags, size, host_ptr, &errCode); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("CreateBuffer failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("CreateBuffer failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &buffer{memory{memory_id}}, nil
 	}
@@ -99,7 +99,7 @@ func (this *context) CreateEvent() (Event, error) {
 	var errCode cl.CL_int
 
 	if event_id := cl.CLCreateUserEvent(this.context_id, &errCode); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("CreateUserEvent failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("CreateUserEvent failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &event{event_id}, nil
 	}
@@ -117,7 +117,7 @@ func (this *context) GetSupportedImageFormats(flags cl.CL_mem_flags, image_type 
 		0,
 		nil,
 		&numImageFormats); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("GetSupportedImageFormats failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("GetSupportedImageFormats failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	}
 
 	imageFormats = make([]cl.CL_image_format, numImageFormats)
@@ -129,7 +129,7 @@ func (this *context) GetSupportedImageFormats(flags cl.CL_mem_flags, image_type 
 		numImageFormats,
 		imageFormats,
 		nil); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("GetSupportedImageFormats failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("GetSupportedImageFormats failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	}
 
 	return imageFormats, nil
@@ -141,7 +141,7 @@ func (this *context) CreateProgramWithSource(count cl.CL_uint,
 	var errCode cl.CL_int
 
 	if program_id := cl.CLCreateProgramWithSource(this.context_id, count, strings, lengths, &errCode); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("CreateProgramWithSource failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("CreateProgramWithSource failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &program{program_id}, nil
 	}
@@ -160,7 +160,7 @@ func (this *context) CreateProgramWithBinary(devices []Device,
 	}
 
 	if program_id := cl.CLCreateProgramWithBinary(this.context_id, numDevices, deviceIds, lengths, binaries, binary_status, &errCode); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("CreateProgramWithBinary failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("CreateProgramWithBinary failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &program{program_id}, nil
 	}

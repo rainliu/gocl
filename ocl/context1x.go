@@ -49,7 +49,7 @@ func (this *context) CreateCommandQueue(device Device,
 	}
 
 	if command_queue_id := cl.CLCreateCommandQueue(this.context_id, device.GetID(), property, &errCode); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("CreateCommandQueue failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("CreateCommandQueue failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &command_queue{command_queue_id}, nil
 	}
@@ -61,7 +61,7 @@ func (this *context) CreateSampler(normalized_coords cl.CL_bool,
 	var errCode cl.CL_int
 
 	if sampler_id := cl.CLCreateSampler(this.context_id, normalized_coords, addressing_mode, filter_mode, &errCode); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("CreateSampler failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("CreateSampler failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &sampler{sampler_id}, nil
 	}

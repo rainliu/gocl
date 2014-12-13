@@ -37,7 +37,7 @@ func (this *context) CreateImage(flags cl.CL_mem_flags,
 		image_desc,
 		host_ptr,
 		&errCode); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("CreateImage failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("CreateImage failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &image{memory{memory_id}}, nil
 	}
@@ -54,7 +54,7 @@ func (this *context) CreateProgramWithBuiltInKernels(devices []Device,
 	}
 
 	if program_id := cl.CLCreateProgramWithBuiltInKernels(this.context_id, numDevices, deviceIds, kernel_names, &errCode); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("CreateProgramWithBuiltInKernels failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("CreateProgramWithBuiltInKernels failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &program{program_id}, nil
 	}
@@ -80,7 +80,7 @@ func (this *context) LinkProgram(devices []Device,
 	}
 
 	if program_id := cl.CLLinkProgram(this.context_id, numDevices, deviceIds, options, numInputPrograms, inputPrograms, pfn_notify, user_data, &errCode); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("LinkProgram failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("LinkProgram failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &program{program_id}, nil
 	}

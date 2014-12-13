@@ -24,13 +24,13 @@ func (this *device) CreateSubDevices(properties []cl.CL_device_partition_propert
 
 	/* Determine number of connected devices */
 	if errCode = cl.CLCreateSubDevices(this.device_id, properties, 0, nil, &numDevices); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("CreateSubDevices failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("CreateSubDevices failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	}
 
 	/* Access connected devices */
 	deviceIds = make([]cl.CL_device_id, numDevices)
 	if errCode = cl.CLCreateSubDevices(this.device_id, properties, numDevices, deviceIds, nil); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("CreateSubDevices failure with errcode_ret %d", errCode)
+		return nil, fmt.Errorf("CreateSubDevices failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	}
 
 	devices = make([]Device, numDevices)
@@ -43,14 +43,14 @@ func (this *device) CreateSubDevices(properties []cl.CL_device_partition_propert
 
 func (this *device) Retain() error {
 	if errCode := cl.CLRetainDevice(this.device_id); errCode != cl.CL_SUCCESS {
-		return fmt.Errorf("Retain failure with errcode_ret %d", errCode)
+		return fmt.Errorf("Retain failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	}
 	return nil
 }
 
 func (this *device) Release() error {
 	if errCode := cl.CLReleaseDevice(this.device_id); errCode != cl.CL_SUCCESS {
-		return fmt.Errorf("Release failure with errcode_ret %d", errCode)
+		return fmt.Errorf("Release failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	}
 	return nil
 }

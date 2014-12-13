@@ -40,7 +40,7 @@ func (this *program) Compile(devices []Device,
 	}
 
 	if errCode := cl.CLCompileProgram(this.program_id, numDevices, deviceIds, options, numInputHeaders, inputHeaders, header_include_names, pfn_notify, user_data); errCode != cl.CL_SUCCESS {
-		return fmt.Errorf("Compile failure with errcode_ret %d", errCode)
+		return fmt.Errorf("Compile failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
 	}
 	return nil
 }
