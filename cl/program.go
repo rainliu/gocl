@@ -12,7 +12,7 @@ package cl
 #include <stdlib.h>
 
 extern void go_prg_notify(cl_program program, void *user_data);
-static void CL_CALLBACK c_prg_notify(cl_program program, void *user_data) {
+static void CL_CALLBACK c_prg_build_notify(cl_program program, void *user_data) {
 	go_prg_notify(program, user_data);
 }
 
@@ -22,7 +22,7 @@ static cl_int CLBuildProgram(cl_program program,
 							const char *options,
 							void *user_data){
 
-    return clBuildProgram(program, num_devices, devices, options, c_prg_notify, user_data);
+    return clBuildProgram(program, num_devices, devices, options, c_prg_build_notify, user_data);
 }
 */
 import "C"
