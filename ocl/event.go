@@ -3,8 +3,8 @@
 package ocl
 
 import (
-	"errors"
-	"gocl/cl"	
+	"fmt"
+	"gocl/cl"
 	"unsafe"
 )
 
@@ -35,12 +35,12 @@ func (this *event) GetInfo(param_name cl.CL_event_info) (interface{}, error) {
 
 	/* Find size of param data */
 	if errCode = cl.CLGetEventInfo(this.event_id, param_name, 0, nil, &param_size); errCode != cl.CL_SUCCESS {
-		return nil, errors.New("GetInfo failure with errcode_ret " + string(errCode))
+		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d", errCode)
 	}
 
 	/* Access param data */
 	if errCode = cl.CLGetEventInfo(this.event_id, param_name, param_size, &param_value, nil); errCode != cl.CL_SUCCESS {
-		return nil, errors.New("GetInfo failure with errcode_ret " + string(errCode))
+		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d", errCode)
 	}
 
 	return param_value, nil
@@ -48,14 +48,14 @@ func (this *event) GetInfo(param_name cl.CL_event_info) (interface{}, error) {
 
 func (this *event) Retain() error {
 	if errCode := cl.CLRetainEvent(this.event_id); errCode != cl.CL_SUCCESS {
-		return errors.New("Retain failure with errcode_ret " + string(errCode))
+		return fmt.Errorf("Retain failure with errcode_ret %d", errCode)
 	}
 	return nil
 }
 
 func (this *event) Release() error {
 	if errCode := cl.CLReleaseEvent(this.event_id); errCode != cl.CL_SUCCESS {
-		return errors.New("Release failure with errcode_ret " + string(errCode))
+		return fmt.Errorf("Release failure with errcode_ret %d", errCode)
 	}
 	return nil
 }
@@ -64,7 +64,7 @@ func (this *event) SetCallback(command_exec_callback_type cl.CL_int,
 	pfn_notify cl.CL_evt_notify,
 	user_data unsafe.Pointer) error {
 	if errCode := cl.CLSetEventCallback(this.event_id, command_exec_callback_type, pfn_notify, user_data); errCode != cl.CL_SUCCESS {
-		return errors.New("SetCallback failure with errcode_ret " + string(errCode))
+		return fmt.Errorf("SetCallback failure with errcode_ret %d", errCode)
 	} else {
 		return nil
 	}
@@ -72,7 +72,7 @@ func (this *event) SetCallback(command_exec_callback_type cl.CL_int,
 
 func (this *event) SetStatus(execution_status cl.CL_int) error {
 	if errCode := cl.CLSetUserEventStatus(this.event_id, execution_status); errCode != cl.CL_SUCCESS {
-		return errors.New("SetStatus failure with errcode_ret " + string(errCode))
+		return fmt.Errorf("SetStatus failure with errcode_ret %d", errCode)
 	} else {
 		return nil
 	}
@@ -86,27 +86,26 @@ func (this *event) GetProfilingInfo(param_name cl.CL_profiling_info) (interface{
 
 	/* Find size of param data */
 	if errCode = cl.CLGetEventProfilingInfo(this.event_id, param_name, 0, nil, &param_size); errCode != cl.CL_SUCCESS {
-		return nil, errors.New("GetProfilingInfo failure with errcode_ret " + string(errCode))
+		return nil, fmt.Errorf("GetProfilingInfo failure with errcode_ret %d", errCode)
 	}
 
 	/* Access param data */
 	if errCode = cl.CLGetEventProfilingInfo(this.event_id, param_name, param_size, &param_value, nil); errCode != cl.CL_SUCCESS {
-		return nil, errors.New("GetProfilingInfo failure with errcode_ret " + string(errCode))
+		return nil, fmt.Errorf("GetProfilingInfo failure with errcode_ret %d", errCode)
 	}
 
 	return param_value, nil
 }
 
-
 func WaitForEvents(event_list []Event) error {
 	numEvents := cl.CL_uint(len(event_list))
 	events := make([]cl.CL_event, numEvents)
-	for i:= cl.CL_uint(0); i<numEvents; i++{
+	for i := cl.CL_uint(0); i < numEvents; i++ {
 		events[i] = event_list[i].GetID()
 	}
 
 	if errCode := cl.CLWaitForEvents(numEvents, events); errCode != cl.CL_SUCCESS {
-		return errors.New("WaitForEvents failure with errcode_ret " + string(errCode))
+		return fmt.Errorf("WaitForEvents failure with errcode_ret %d", errCode)
 	} else {
 		return nil
 	}

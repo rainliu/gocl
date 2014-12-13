@@ -3,7 +3,7 @@
 package ocl
 
 import (
-	"errors"
+	"fmt"
 	"gocl/cl"
 	"unsafe"
 )
@@ -40,7 +40,7 @@ func (this *program) Compile(devices []Device,
 	}
 
 	if errCode := cl.CLCompileProgram(this.program_id, numDevices, deviceIds, options, numInputHeaders, inputHeaders, header_include_names, pfn_notify, user_data); errCode != cl.CL_SUCCESS {
-		return errors.New("Compile failure with errcode_ret " + string(errCode))
+		return fmt.Errorf("Compile failure with errcode_ret %d", errCode)
 	}
 	return nil
 }

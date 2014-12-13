@@ -3,7 +3,7 @@
 package ocl
 
 import (
-	"errors"
+	"fmt"
 	"gocl/cl"
 )
 
@@ -30,12 +30,12 @@ func (this *sampler) GetInfo(param_name cl.CL_sampler_info) (interface{}, error)
 
 	/* Find size of param data */
 	if errCode = cl.CLGetSamplerInfo(this.sampler_id, param_name, 0, nil, &param_size); errCode != cl.CL_SUCCESS {
-		return nil, errors.New("GetInfo failure with errcode_ret " + string(errCode))
+		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d", errCode)
 	}
 
 	/* Access param data */
 	if errCode = cl.CLGetSamplerInfo(this.sampler_id, param_name, param_size, &param_value, nil); errCode != cl.CL_SUCCESS {
-		return nil, errors.New("GetInfo failure with errcode_ret " + string(errCode))
+		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d", errCode)
 	}
 
 	return param_value, nil
@@ -43,14 +43,14 @@ func (this *sampler) GetInfo(param_name cl.CL_sampler_info) (interface{}, error)
 
 func (this *sampler) Retain() error {
 	if errCode := cl.CLRetainSampler(this.sampler_id); errCode != cl.CL_SUCCESS {
-		return errors.New("Retain failure with errcode_ret " + string(errCode))
+		return fmt.Errorf("Retain failure with errcode_ret %d", errCode)
 	}
 	return nil
 }
 
 func (this *sampler) Release() error {
 	if errCode := cl.CLReleaseSampler(this.sampler_id); errCode != cl.CL_SUCCESS {
-		return errors.New("Release failure with errcode_ret " + string(errCode))
+		return fmt.Errorf("Release failure with errcode_ret %d", errCode)
 	}
 	return nil
 }

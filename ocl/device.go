@@ -3,7 +3,7 @@
 package ocl
 
 import (
-	"errors"
+	"fmt"
 	"gocl/cl"
 	"unsafe"
 )
@@ -24,12 +24,12 @@ func (this *device) GetInfo(param_name cl.CL_device_info) (interface{}, error) {
 
 	/* Find size of param data */
 	if errCode = cl.CLGetDeviceInfo(this.device_id, param_name, 0, nil, &param_size); errCode != cl.CL_SUCCESS {
-		return nil, errors.New("GetInfo failure with errcode_ret " + string(errCode))
+		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d", errCode)
 	}
 
 	/* Access param data */
 	if errCode = cl.CLGetDeviceInfo(this.device_id, param_name, param_size, &param_value, nil); errCode != cl.CL_SUCCESS {
-		return nil, errors.New("GetInfo failure with errcode_ret " + string(errCode))
+		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d", errCode)
 	}
 
 	return param_value, nil
@@ -45,7 +45,7 @@ func (this *device) CreateContext(properties []cl.CL_context_properties,
 
 	/* Create the context */
 	if context_id := cl.CLCreateContext(properties, 1, deviceIds[:], pfn_notify, user_data, &errCode); errCode != cl.CL_SUCCESS {
-		return nil, errors.New("CreateContext failure with errcode_ret " + string(errCode))
+		return nil, fmt.Errorf("CreateContext failure with errcode_ret %d", errCode)
 	} else {
 		return &context{context_id}, nil
 	}

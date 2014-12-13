@@ -3,7 +3,7 @@
 package ocl
 
 import (
-	"errors"
+	"fmt"
 	"gocl/cl"
 	"unsafe"
 )
@@ -44,7 +44,7 @@ func (this *buffer) EnqueueFill(queue CommandQueue,
 		numEvents,
 		events,
 		&event_id); errCode != cl.CL_SUCCESS {
-		return nil, errors.New("EnqueueFill failure with errcode_ret " + string(errCode))
+		return nil, fmt.Errorf("EnqueueFill failure with errcode_ret %d", errCode)
 	} else {
 		return &event{event_id}, nil
 	}
