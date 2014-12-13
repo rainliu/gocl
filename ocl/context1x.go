@@ -14,13 +14,27 @@ type context1x interface {
 	Retain() error
 	Release() error
 
-	CreateBuffer(flags cl.CL_mem_flags, size cl.CL_size_t, host_ptr unsafe.Pointer) (Buffer, error)
+	CreateBuffer(flags cl.CL_mem_flags,
+		size cl.CL_size_t,
+		host_ptr unsafe.Pointer) (Buffer, error)
 	CreateEvent() (Event, error)
-	GetSupportedImageFormats(flags cl.CL_mem_flags, image_type cl.CL_mem_object_type) ([]cl.CL_image_format, error)
+	CreateProgramWithSource(count cl.CL_uint,
+		strings [][]byte,
+		lengths []cl.CL_size_t) (Program, error)
+	CreateProgramWithBinary(devices []Device,
+		lengths []cl.CL_size_t,
+		binaries [][]byte,
+		binary_status []cl.CL_int) (Program, error)
+
+	GetSupportedImageFormats(flags cl.CL_mem_flags,
+		image_type cl.CL_mem_object_type) ([]cl.CL_image_format, error)
 
 	//cl1x only, not in cl20
-	CreateCommandQueue(device Device, properties []cl.CL_command_queue_properties) (CommandQueue, error)
-	CreateSampler(normalized_coords cl.CL_bool, addressing_mode cl.CL_addressing_mode, filter_mode cl.CL_filter_mode) (Sampler, error)
+	CreateCommandQueue(device Device,
+		properties []cl.CL_command_queue_properties) (CommandQueue, error)
+	CreateSampler(normalized_coords cl.CL_bool,
+		addressing_mode cl.CL_addressing_mode,
+		filter_mode cl.CL_filter_mode) (Sampler, error)
 }
 
 func (this *context) CreateCommandQueue(device Device,

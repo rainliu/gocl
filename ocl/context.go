@@ -134,3 +134,34 @@ func (this *context) GetSupportedImageFormats(flags cl.CL_mem_flags, image_type 
 
 	return imageFormats, nil
 }
+
+func (this *context) CreateProgramWithSource(count cl.CL_uint,
+	strings [][]byte,
+	lengths []cl.CL_size_t) (Program, error) {
+	var errCode cl.CL_int
+
+	if program_id := cl.CLCreateProgramWithSource(this.context_id, count, strings, lengths, &errCode); errCode != cl.CL_SUCCESS {
+		return nil, errors.New("CreateProgramWithSource failure with errcode_ret " + string(errCode))
+	} else {
+		return &program{program_id}, nil
+	}
+}
+
+func (this *context) CreateProgramWithBinary(devices []Device,
+	lengths []cl.CL_size_t,
+	binaries [][]byte,
+	binary_status []cl.CL_int) (Program, error) {
+	var errCode cl.CL_int
+
+	numDevices := cl.CL_uint(len(devices))
+	deviceIds := make([]cl.CL_device_id, numDevices)
+	for i := cl.CL_uint(0); i < numDevices; i++ {
+		deviceIds[i] = devices[i].GetID()
+	}
+
+	if program_id := cl.CLCreateProgramWithBinary(this.context_id, numDevices, deviceIds, lengths, binaries, binary_status, &errCode); errCode != cl.CL_SUCCESS {
+		return nil, errors.New("CreateProgramWithBinary failure with errcode_ret " + string(errCode))
+	} else {
+		return &program{program_id}, nil
+	}
+}
