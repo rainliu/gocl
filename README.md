@@ -29,20 +29,20 @@ export CGO_CFLAGS=-I$GOPATH/src/gocl/android/include     	(gocl/android/include/
 
 ===============================================
 
-To build OpenCL 1.1/1.2/2.0 compliance C-style binding (replacing 'clxx' with 'cl11'/'cl12'/'cl20'):
+To build OpenCL 1.1/1.2/2.0 compliance C-style binding (replacing "clxx" with "cl11"/"cl12"/"cl20"):
 
-go build -tags 'clxx' gocl/cl
+go build -tags="clxx" gocl/cl
 
-go test -v -tags 'clxx' gocl/cl_test
+go test -v -tags="clxx" gocl/cl_test
 
-go install -tags 'clxx' gocl/cl_demo/opencl1p1/ch(x)   		(Examples in "OpenCL in Action")
+go install -tags="clxx" gocl/cl_demo/opencl1p1/ch(x)   		(Examples in "OpenCL in Action")
 
-go install -tags 'clxx' gocl/cl_demo/opencl1p2/chapter(x)	(Examples in "Heterogeneous Computing with OpenCL, 2nd Edition")
+go install -tags="clxx" gocl/cl_demo/opencl1p2/chapter(x)	(Examples in "Heterogeneous Computing with OpenCL, 2nd Edition")
 
 ===============================================
 
-To build OpenCL 1.1/1.2/2.0 compliance OO-style binding (replacing 'clxx' with 'cl11'/'cl12'/'cl20'):
+To build OpenCL 1.1/1.2/2.0 compliance OO-style binding (replacing "clxx" with "cl11"/"cl12"/"cl20"):
 
-go build -tags 'clxx' gocl/ocl
+go build -tags="clxx" gocl/ocl
 
-go test -v -tags 'clxx' gocl/ocl_test
+go test -v -tags="clxx" gocl/ocl_test
