@@ -19,4 +19,6 @@ type program1x interface {
 		user_data unsafe.Pointer) error
 	GetBuildInfo(device Device,
 		param_name cl.CL_program_build_info) (interface{}, error)
+	CreateKernel(kernel_name []byte) (Kernel, error)
+	CreateKernels() ([]Kernel, error)
 }

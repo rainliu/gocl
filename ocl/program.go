@@ -84,3 +84,38 @@ func (this *program) GetBuildInfo(device Device, param_name cl.CL_program_build_
 
 	return param_value, nil
 }
+
+func (this *program) CreateKernel(kernel_name []byte) (Kernel, error) {
+	var errCode cl.CL_int
+
+	if kernel_id := cl.CLCreateKernel(this.program_id, kernel_name, &errCode); errCode != cl.CL_SUCCESS {
+		return nil, fmt.Errorf("CreateKernel failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+	} else {
+		return &kernel{kernel_id}, nil
+	}
+}
+
+func (this *program) CreateKernels() ([]Kernel, error) {
+	var kernels []Kernel
+	var kernelIds []cl.CL_kernel
+	var numKernels cl.CL_uint
+	var errCode cl.CL_int
+
+	/* Determine number of platforms */
+	if errCode = cl.CLCreateKernelsInProgram(this.program_id, 0, nil, &numKernels); errCode != cl.CL_SUCCESS {
+		return nil, fmt.Errorf("CreateKernels failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+	}
+
+	/* Access platforms */
+	kernelIds = make([]cl.CL_kernel, numKernels)
+	if errCode = cl.CLCreateKernelsInProgram(this.program_id, numKernels, kernelIds, nil); errCode != cl.CL_SUCCESS {
+		return nil, fmt.Errorf("CreateKernels failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+	}
+
+	kernels = make([]Kernel, numKernels)
+	for i := cl.CL_uint(0); i < numKernels; i++ {
+		kernels[i] = &kernel{kernelIds[i]}
+	}
+
+	return kernels, nil
+}
