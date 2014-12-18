@@ -8,6 +8,7 @@ package cl
 #cgo darwin LDFLAGS: -framework OpenCL
 
 #include "CL/opencl.h"
+#include <string.h>
 #include <stdlib.h>
 */
 import "C"

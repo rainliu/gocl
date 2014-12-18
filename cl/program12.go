@@ -8,6 +8,8 @@ package cl
 #cgo darwin LDFLAGS: -framework OpenCL
 
 #include "CL/opencl.h"
+#include <string.h>
+#include <stdlib.h>
 
 extern void go_prg_notify(cl_program program, void *user_data);
 static void CL_CALLBACK c_prg_compile_notify(cl_program program, void *user_data) {
