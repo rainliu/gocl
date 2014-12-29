@@ -62,7 +62,7 @@ typedef cl_bitfield         cl_device_affinity_domain;
 
 typedef intptr_t            cl_context_properties;
 typedef cl_uint             cl_context_info;
-typedef cl_bitfield         cl_queue_properties;
+//typedef cl_bitfield         cl_queue_properties;
 typedef cl_uint             cl_command_queue_info;
 typedef cl_uint             cl_channel_order;
 typedef cl_uint             cl_channel_type;
@@ -703,7 +703,7 @@ clGetContextInfo(cl_context         /* context */,
 extern CL_API_ENTRY cl_command_queue CL_API_CALL
 clCreateCommandQueueWithProperties(cl_context               /* context */,
                                    cl_device_id             /* device */,
-                                   const cl_queue_properties *    /* properties */,
+                                   const cl_command_queue_properties *    /* properties */,
                                    cl_int *                 /* errcode_ret */) CL_API_SUFFIX__VERSION_2_0;
 
 extern CL_API_ENTRY cl_int CL_API_CALL

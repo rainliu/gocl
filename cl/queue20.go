@@ -18,7 +18,7 @@ func CLCreateCommandQueueWithProperties(context CL_context,
 	var c_errcode_ret C.cl_int
 	var c_command_queue C.cl_command_queue
 
-	var c_properites []C.cl_command_queue_properties
+	var c_properties []C.cl_command_queue_properties
 	var c_properties_ptr *C.cl_command_queue_properties
 
 	if properties != nil {

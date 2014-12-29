@@ -17,13 +17,13 @@ func CLCreateSamplerWithProperties(context CL_context,
 	var c_errcode_ret C.cl_int
 	var c_sampler C.cl_sampler
 
-	var c_properites []C.CL_sampler_properties
-	var c_properties_ptr *C.CL_sampler_properties
+	var c_properties []C.cl_sampler_properties
+	var c_properties_ptr *C.cl_sampler_properties
 
 	if properties != nil {
-		c_properties = make([]C.CL_sampler_properties, len(properties))
+		c_properties = make([]C.cl_sampler_properties, len(properties))
 		for i := 0; i < len(properties); i++ {
-			c_properties[i] = C.CL_sampler_properties(properties[i])
+			c_properties[i] = C.cl_sampler_properties(properties[i])
 		}
 		c_properties_ptr = &c_properties[0]
 	} else {

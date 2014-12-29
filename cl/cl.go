@@ -176,6 +176,8 @@ type CL_kernel_work_group_info CL_uint
 type CL_event_info CL_uint
 type CL_command_type CL_uint
 type CL_profiling_info CL_uint
+type CL_sampler_properties CL_bitfield
+type CL_kernel_exec_info CL_uint
 
 type CL_image_format struct {
 	Image_channel_order     CL_channel_order
@@ -602,6 +604,10 @@ const (
 	CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE CL_kernel_work_group_info = C.CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE
 	CL_KERNEL_PRIVATE_MEM_SIZE                   CL_kernel_work_group_info = C.CL_KERNEL_PRIVATE_MEM_SIZE
 	CL_KERNEL_GLOBAL_WORK_SIZE                   CL_kernel_work_group_info = C.CL_KERNEL_GLOBAL_WORK_SIZE
+
+	/* cl_kernel_exec_info */
+	CL_KERNEL_EXEC_INFO_SVM_PTRS              CL_kernel_exec_info = C.CL_KERNEL_EXEC_INFO_SVM_PTRS
+	CL_KERNEL_EXEC_INFO_SVM_FINE_GRAIN_SYSTEM CL_kernel_exec_info = C.CL_KERNEL_EXEC_INFO_SVM_FINE_GRAIN_SYSTEM
 
 	/* cl_event_info  */
 	CL_EVENT_COMMAND_QUEUE            CL_event_info = C.CL_EVENT_COMMAND_QUEUE
