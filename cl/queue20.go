@@ -11,7 +11,6 @@ package cl
 */
 import "C"
 
-/*
 func CLCreateCommandQueueWithProperties(context CL_context,
 	device CL_device_id,
 	properties []CL_command_queue_properties,
@@ -19,9 +18,22 @@ func CLCreateCommandQueueWithProperties(context CL_context,
 	var c_errcode_ret C.cl_int
 	var c_command_queue C.cl_command_queue
 
-	c_command_queue = C.clCreateCommandQueue(context.cl_context,
+	var c_properites []C.cl_command_queue_properties
+	var c_properties_ptr *C.cl_command_queue_properties
+
+	if properties != nil {
+		c_properties = make([]C.cl_command_queue_properties, len(properties))
+		for i := 0; i < len(properties); i++ {
+			c_properties[i] = C.cl_command_queue_properties(properties[i])
+		}
+		c_properties_ptr = &c_properties[0]
+	} else {
+		c_properties_ptr = nil
+	}
+
+	c_command_queue = C.clCreateCommandQueueWithProperties(context.cl_context,
 		device.cl_device_id,
-		C.cl_command_queue_properties(properties),
+		c_properties_ptr,
 		&c_errcode_ret)
 
 	if errcode_ret != nil {
@@ -30,4 +42,3 @@ func CLCreateCommandQueueWithProperties(context CL_context,
 
 	return CL_command_queue{c_command_queue}
 }
-*/
