@@ -46,12 +46,25 @@ static cl_program CLLinkProgram(cl_context context,
 }
 */
 import "C"
-import
+
+import "unsafe"
 
 ///////////////////////////////////////////////
 //OpenCL 1.2
 ///////////////////////////////////////////////
-"unsafe"
+
+var prg_link_notify map[unsafe.Pointer]CL_prg_notify
+
+func init() {
+	prg_link_notify = make(map[unsafe.Pointer]CL_prg_notify)
+}
+
+//export go_prg_link_notify
+func go_prg_link_notify(program C.cl_program, user_data unsafe.Pointer) {
+	var c_user_data []unsafe.Pointer
+	c_user_data = *(*[]unsafe.Pointer)(user_data)
+	prg_link_notify[c_user_data[1]](CL_program{program}, c_user_data[0])
+}
 
 func CLCreateProgramWithBuiltInKernels(context CL_context,
 	num_devices CL_uint,
@@ -160,13 +173,6 @@ func CLCompileProgram(program CL_program,
 	return CL_int(c_errcode_ret)
 }
 
-var prg_link_notify CL_prg_notify
-
-//export go_prg_link_notify
-func go_prg_link_notify(program C.cl_program, user_data unsafe.Pointer) {
-	prg_link_notify(CL_program{program}, user_data)
-}
-
 func CLLinkProgram(context CL_context,
 	num_devices CL_uint,
 	devices []CL_device_id,
@@ -210,7 +216,12 @@ func CLLinkProgram(context CL_context,
 	}
 
 	if pfn_notify != nil {
-		prg_link_notify = pfn_notify
+		var c_user_data []unsafe.Pointer
+		c_user_data = make([]unsafe.Pointer, 2)
+		c_user_data[0] = user_data
+		c_user_data[1] = unsafe.Pointer(&pfn_notify)
+
+		prg_link_notify[c_user_data[1]] = pfn_notify
 
 		c_program_ret = C.CLLinkProgram(context.cl_context,
 			C.cl_uint(num_devices),
@@ -218,7 +229,7 @@ func CLLinkProgram(context CL_context,
 			c_options,
 			C.cl_uint(num_input_programs),
 			&c_input_programs[0],
-			user_data,
+			unsafe.Pointer(&c_user_data),
 			&c_errcode_ret)
 	} else {
 		c_program_ret = C.clLinkProgram(context.cl_context,
