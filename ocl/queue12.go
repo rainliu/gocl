@@ -17,7 +17,7 @@ func (this *command_queue) EnqueueMarkerWithWaitList(event_wait_list []Event) (E
 	}
 
 	if errCode := cl.CLEnqueueMarkerWithWaitList(this.command_queue_id, numEvents, events, &event_id); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("EnqueueMarkerWithWaitList failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("EnqueueMarkerWithWaitList failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &event{event_id}, nil
 	}
@@ -33,7 +33,7 @@ func (this *command_queue) EnqueueBarrierWithWaitList(event_wait_list []Event) (
 	}
 
 	if errCode := cl.CLEnqueueBarrierWithWaitList(this.command_queue_id, numEvents, events, &event_id); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("EnqueueBarrierWithWaitList failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("EnqueueBarrierWithWaitList failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &event{event_id}, nil
 	}
@@ -55,7 +55,7 @@ func (this *command_queue) EnqueueMigrateMemObjects(mem_objects []Memory, flags 
 	}
 
 	if errCode := cl.CLEnqueueMigrateMemObjects(this.command_queue_id, numMemorys, memorys, flags, numEvents, events, &event_id); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("EnqueueMigrateMemObjects failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("EnqueueMigrateMemObjects failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &event{event_id}, nil
 	}

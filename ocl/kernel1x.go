@@ -47,7 +47,7 @@ func (this *kernel) EnqueueTask(queue CommandQueue,
 		numEvents,
 		events,
 		&event_id); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("EnqueueTask failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("EnqueueTask failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &event{event_id}, nil
 	}

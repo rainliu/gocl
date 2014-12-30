@@ -23,12 +23,12 @@ func (this *command_queue) GetInfo(param_name cl.CL_command_queue_info) (interfa
 
 	/* Find size of param data */
 	if errCode = cl.CLGetCommandQueueInfo(this.command_queue_id, param_name, 0, nil, &param_size); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	}
 
 	/* Access param data */
 	if errCode = cl.CLGetCommandQueueInfo(this.command_queue_id, param_name, param_size, &param_value, nil); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	}
 
 	return param_value, nil
@@ -36,28 +36,28 @@ func (this *command_queue) GetInfo(param_name cl.CL_command_queue_info) (interfa
 
 func (this *command_queue) Retain() error {
 	if errCode := cl.CLRetainCommandQueue(this.command_queue_id); errCode != cl.CL_SUCCESS {
-		return fmt.Errorf("Retain failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return fmt.Errorf("Retain failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	}
 	return nil
 }
 
 func (this *command_queue) Release() error {
 	if errCode := cl.CLReleaseCommandQueue(this.command_queue_id); errCode != cl.CL_SUCCESS {
-		return fmt.Errorf("Release failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return fmt.Errorf("Release failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	}
 	return nil
 }
 
 func (this *command_queue) Flush() error {
 	if errCode := cl.CLFlush(this.command_queue_id); errCode != cl.CL_SUCCESS {
-		return fmt.Errorf("Flush failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return fmt.Errorf("Flush failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	}
 	return nil
 }
 
 func (this *command_queue) Finish() error {
 	if errCode := cl.CLFinish(this.command_queue_id); errCode != cl.CL_SUCCESS {
-		return fmt.Errorf("Finish failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return fmt.Errorf("Finish failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	}
 	return nil
 }
@@ -86,7 +86,7 @@ func (this *command_queue) EnqueueCopyBuffer(src_buffer Buffer,
 		numEvents,
 		events,
 		&event_id); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("EnqueueCopyBuffer failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("EnqueueCopyBuffer failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &event{event_id}, nil
 	}
@@ -124,7 +124,7 @@ func (this *command_queue) EnqueueCopyBufferRect(src_buffer Buffer,
 		numEvents,
 		events,
 		&event_id); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("EnqueueCopyBufferRect failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("EnqueueCopyBufferRect failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &event{event_id}, nil
 	}
@@ -154,7 +154,7 @@ func (this *command_queue) EnqueueCopyImage(src_image Image,
 		numEvents,
 		events,
 		&event_id); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("EnqueueCopyImage failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("EnqueueCopyImage failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &event{event_id}, nil
 	}
@@ -184,7 +184,7 @@ func (this *command_queue) EnqueueCopyImageToBuffer(src_image Image,
 		numEvents,
 		events,
 		&event_id); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("EnqueueCopyImageToBuffer failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("EnqueueCopyImageToBuffer failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &event{event_id}, nil
 	}
@@ -214,7 +214,7 @@ func (this *command_queue) EnqueueCopyBufferToImage(src_buffer Buffer,
 		numEvents,
 		events,
 		&event_id); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("EnqueueCopyBufferToImage failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("EnqueueCopyBufferToImage failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &event{event_id}, nil
 	}

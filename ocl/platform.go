@@ -23,12 +23,12 @@ func (this *platform) GetInfo(param_name cl.CL_platform_info) (interface{}, erro
 
 	/* Find size of param data */
 	if errCode = cl.CLGetPlatformInfo(this.platform_id, param_name, 0, nil, &param_size); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	}
 
 	/* Access param data */
 	if errCode = cl.CLGetPlatformInfo(this.platform_id, param_name, param_size, &param_value, nil); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	}
 
 	return param_value, nil
@@ -42,13 +42,13 @@ func (this *platform) GetDevices(deviceType cl.CL_device_type) ([]Device, error)
 
 	/* Determine number of connected devices */
 	if errCode = cl.CLGetDeviceIDs(this.platform_id, deviceType, 0, nil, &numDevices); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("GetDevices failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("GetDevices failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	}
 
 	/* Access connected devices */
 	deviceIds = make([]cl.CL_device_id, numDevices)
 	if errCode = cl.CLGetDeviceIDs(this.platform_id, deviceType, numDevices, deviceIds, nil); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("GetDevices failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("GetDevices failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	}
 
 	devices = make([]Device, numDevices)
@@ -67,13 +67,13 @@ func GetPlatforms() ([]Platform, error) {
 
 	/* Determine number of platforms */
 	if errCode = cl.CLGetPlatformIDs(0, nil, &numPlatforms); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("GetPlatforms failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("GetPlatforms failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	}
 
 	/* Access platforms */
 	platformIds = make([]cl.CL_platform_id, numPlatforms)
 	if errCode = cl.CLGetPlatformIDs(numPlatforms, platformIds, nil); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("GetPlatforms failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("GetPlatforms failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	}
 
 	platforms = make([]Platform, numPlatforms)

@@ -23,12 +23,12 @@ func (this *sampler) GetInfo(param_name cl.CL_sampler_info) (interface{}, error)
 
 	/* Find size of param data */
 	if errCode = cl.CLGetSamplerInfo(this.sampler_id, param_name, 0, nil, &param_size); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	}
 
 	/* Access param data */
 	if errCode = cl.CLGetSamplerInfo(this.sampler_id, param_name, param_size, &param_value, nil); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("GetInfo failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	}
 
 	return param_value, nil
@@ -36,14 +36,14 @@ func (this *sampler) GetInfo(param_name cl.CL_sampler_info) (interface{}, error)
 
 func (this *sampler) Retain() error {
 	if errCode := cl.CLRetainSampler(this.sampler_id); errCode != cl.CL_SUCCESS {
-		return fmt.Errorf("Retain failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return fmt.Errorf("Retain failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	}
 	return nil
 }
 
 func (this *sampler) Release() error {
 	if errCode := cl.CLReleaseSampler(this.sampler_id); errCode != cl.CL_SUCCESS {
-		return fmt.Errorf("Release failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return fmt.Errorf("Release failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	}
 	return nil
 }

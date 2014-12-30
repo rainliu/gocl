@@ -20,12 +20,12 @@ func (this *image) GetImageInfo(param_name cl.CL_image_info) (interface{}, error
 
 	/* Find size of param data */
 	if errCode = cl.CLGetImageInfo(this.memory_id, param_name, 0, nil, &param_size); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("GetImageInfo failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("GetImageInfo failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	}
 
 	/* Access param data */
 	if errCode = cl.CLGetImageInfo(this.memory_id, param_name, param_size, &param_value, nil); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("GetImageInfo failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("GetImageInfo failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	}
 
 	return param_value, nil
@@ -59,7 +59,7 @@ func (this *image) EnqueueRead(queue CommandQueue,
 		numEvents,
 		events,
 		&event_id); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("EnqueueRead failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("EnqueueRead failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &event{event_id}, nil
 	}
@@ -93,7 +93,7 @@ func (this *image) EnqueueWrite(queue CommandQueue,
 		numEvents,
 		events,
 		&event_id); errCode != cl.CL_SUCCESS {
-		return nil, fmt.Errorf("EnqueueWrite failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, fmt.Errorf("EnqueueWrite failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return &event{event_id}, nil
 	}
@@ -128,7 +128,7 @@ func (this *image) EnqueueMap(queue CommandQueue,
 		events,
 		&event_id,
 		&errCode); errCode != cl.CL_SUCCESS {
-		return nil, nil, fmt.Errorf("EnqueueMap failure with errcode_ret %d: %s", errCode, ERROR_CODES_STRINGS[-errCode])
+		return nil, nil, fmt.Errorf("EnqueueMap failure with errcode_ret %d: %s", errCode, cl.ERROR_CODES_STRINGS[-errCode])
 	} else {
 		return mapped_ptr, &event{event_id}, nil
 	}

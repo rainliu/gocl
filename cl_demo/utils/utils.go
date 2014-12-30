@@ -10,6 +10,13 @@ import (
 	"os"
 )
 
+func CHECK_STATUS(status cl.CL_int, reference cl.CL_int, cmd string) {
+	if status != reference {
+		fmt.Printf("%s failed (%d): %s\n", cmd, status, cl.ERROR_CODES_STRINGS[-status])
+		os.Exit(1)
+	}
+}
+
 func Read_image_data(filename string) (data []uint16, w, h cl.CL_size_t, err error) {
 	reader, err1 := os.Open(filename)
 	if err1 != nil {
