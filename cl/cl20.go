@@ -471,7 +471,7 @@ const (
 	CL_MEM_HOST_NO_ACCESS        CL_mem_flags     = C.CL_MEM_HOST_NO_ACCESS
 	CL_MEM_SVM_FINE_GRAIN_BUFFER CL_svm_mem_flags = C.CL_MEM_SVM_FINE_GRAIN_BUFFER /* used by cl_svm_mem_flags only */
 	CL_MEM_SVM_ATOMICS           CL_svm_mem_flags = C.CL_MEM_SVM_ATOMICS           /* used by cl_svm_mem_flags only */
-	CL_MEM_KERNEL_READ_AND_WRITE CL_svm_mem_flags = C.CL_MEM_KERNEL_READ_AND_WRITE
+	CL_MEM_KERNEL_READ_AND_WRITE CL_mem_flags     = C.CL_MEM_KERNEL_READ_AND_WRITE
 
 	/* cl_mem_migration_flags - bitfield */
 	CL_MIGRATE_MEM_OBJECT_HOST              CL_mem_migration_flags = C.CL_MIGRATE_MEM_OBJECT_HOST
@@ -698,10 +698,10 @@ const (
 	CL_COMMAND_SVM_UNMAP            CL_command_type = C.CL_COMMAND_SVM_UNMAP
 
 	/* command execution status */
-	CL_COMPLETE  = C.CL_COMPLETE
-	CL_RUNNING   = C.CL_RUNNING
-	CL_SUBMITTED = C.CL_SUBMITTED
-	CL_QUEUED    = C.CL_QUEUED
+	CL_COMPLETE  CL_int = C.CL_COMPLETE
+	CL_RUNNING   CL_int = C.CL_RUNNING
+	CL_SUBMITTED CL_int = C.CL_SUBMITTED
+	CL_QUEUED    CL_int = C.CL_QUEUED
 
 	/* cl_buffer_create_type  */
 	CL_BUFFER_CREATE_TYPE_REGION CL_buffer_create_type = C.CL_BUFFER_CREATE_TYPE_REGION
