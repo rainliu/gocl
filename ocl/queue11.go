@@ -7,15 +7,6 @@ import (
 	"gocl/cl"
 )
 
-type CommandQueue interface {
-	queue1x
-
-	//cl11
-	EnqueueMarker() (Event, error)
-	EnqueueBarrier() error
-	EnqueueWaitForEvents(event_wait_list []Event) error
-}
-
 func (this *command_queue) EnqueueMarker() (Event, error) {
 	var event_id cl.CL_event
 	if errCode := cl.CLEnqueueMarker(this.command_queue_id, &event_id); errCode != cl.CL_SUCCESS {

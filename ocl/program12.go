@@ -8,18 +8,6 @@ import (
 	"unsafe"
 )
 
-type Program interface {
-	program1x
-
-	//cl12
-	Compile(devices []Device,
-		options []byte,
-		input_headers []Program,
-		header_include_names [][]byte,
-		pfn_notify cl.CL_prg_notify,
-		user_data unsafe.Pointer) error
-}
-
 func (this *program) Compile(devices []Device,
 	options []byte,
 	input_headers []Program,

@@ -8,23 +8,6 @@ import (
 	"unsafe"
 )
 
-type Context interface {
-	context1x
-
-	//cl12
-	CreateImage(flags cl.CL_mem_flags,
-		image_format *cl.CL_image_format,
-		image_desc *cl.CL_image_desc,
-		host_ptr unsafe.Pointer) (Image, error)
-	CreateProgramWithBuiltInKernels(devices []Device,
-		kernel_names []byte) (Program, error)
-	LinkProgram(devices []Device,
-		options []byte,
-		input_programs []Program,
-		pfn_notify cl.CL_prg_notify,
-		user_data unsafe.Pointer) (Program, error)
-}
-
 func (this *context) CreateImage(flags cl.CL_mem_flags,
 	image_format *cl.CL_image_format,
 	image_desc *cl.CL_image_desc,

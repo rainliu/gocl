@@ -8,18 +8,6 @@ import (
 	"unsafe"
 )
 
-type Buffer interface {
-	buffer1x
-
-	//cl12
-	EnqueueFill(queue CommandQueue,
-		pattern unsafe.Pointer,
-		pattern_size cl.CL_size_t,
-		offset cl.CL_size_t,
-		cb cl.CL_size_t,
-		event_wait_list []Event) (Event, error)
-}
-
 func (this *buffer) EnqueueFill(queue CommandQueue,
 	pattern unsafe.Pointer,
 	pattern_size cl.CL_size_t,

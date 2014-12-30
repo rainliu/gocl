@@ -7,14 +7,6 @@ import (
 	"gocl/cl"
 )
 
-type Platform interface {
-	GetID() cl.CL_platform_id
-	GetInfo(param_name cl.CL_platform_info) (interface{}, error)
-	GetDevices(deviceType cl.CL_device_type) ([]Device, error)
-
-	UnloadCompiler() error
-}
-
 type platform struct {
 	platform_id cl.CL_platform_id
 }

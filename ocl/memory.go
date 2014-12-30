@@ -8,19 +8,6 @@ import (
 	"unsafe"
 )
 
-type Memory interface {
-	GetID() cl.CL_mem
-	GetInfo(param_name cl.CL_mem_info) (interface{}, error)
-	Retain() error
-	Release() error
-
-	SetCallback(pfn_notify cl.CL_mem_notify,
-		user_data unsafe.Pointer) error
-	EnqueueUnmap(queue CommandQueue,
-		mapped_ptr unsafe.Pointer,
-		event_wait_list []Event) (Event, error)
-}
-
 type memory struct {
 	memory_id cl.CL_mem
 }

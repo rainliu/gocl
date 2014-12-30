@@ -8,17 +8,6 @@ import (
 	"unsafe"
 )
 
-type Image interface {
-	image1x
-
-	//cl12
-	EnqueueFill(queue CommandQueue,
-		fill_color unsafe.Pointer,
-		origin [3]cl.CL_size_t,
-		region [3]cl.CL_size_t,
-		event_wait_list []Event) (Event, error)
-}
-
 func (this *image) EnqueueFill(queue CommandQueue,
 	fill_color unsafe.Pointer,
 	origin [3]cl.CL_size_t,

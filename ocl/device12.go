@@ -7,15 +7,6 @@ import (
 	"gocl/cl"
 )
 
-type Device interface {
-	device1x
-
-	//cl12
-	CreateSubDevices(properties []cl.CL_device_partition_property) ([]Device, error)
-	Retain() error
-	Release() error
-}
-
 func (this *device) CreateSubDevices(properties []cl.CL_device_partition_property) ([]Device, error) {
 	var numDevices cl.CL_uint
 	var deviceIds []cl.CL_device_id

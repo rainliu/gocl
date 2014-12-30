@@ -7,14 +7,6 @@ import (
 	"gocl/cl"
 )
 
-type Kernel interface {
-	kernel1x
-
-	//cl12
-	GetArgInfo(arg_index cl.CL_uint,
-		param_name cl.CL_kernel_arg_info) (interface{}, error)
-}
-
 func (this *kernel) GetArgInfo(arg_index cl.CL_uint,
 	param_name cl.CL_kernel_arg_info) (interface{}, error) {
 	/* param data */

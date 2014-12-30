@@ -25,6 +25,8 @@ type kernel1x interface {
 		global_work_size []cl.CL_size_t,
 		local_work_size []cl.CL_size_t,
 		event_wait_list []Event) (Event, error)
+
+	//cl1x only, not in cl20
 	EnqueueTask(queue CommandQueue,
 		event_wait_list []Event) (Event, error)
 }

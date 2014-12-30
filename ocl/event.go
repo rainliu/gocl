@@ -8,17 +8,6 @@ import (
 	"unsafe"
 )
 
-type Event interface {
-	GetID() cl.CL_event
-	GetInfo(param_name cl.CL_event_info) (interface{}, error)
-	Retain() error
-	Release() error
-
-	SetStatus(execution_status cl.CL_int) error
-	SetCallback(command_exec_callback_type cl.CL_int, pfn_notify cl.CL_evt_notify, user_data unsafe.Pointer) error
-	GetProfilingInfo(param_name cl.CL_profiling_info) (interface{}, error)
-}
-
 type event struct {
 	event_id cl.CL_event
 }

@@ -7,13 +7,6 @@ import (
 	"gocl/cl"
 )
 
-type Sampler interface {
-	GetID() cl.CL_sampler
-	GetInfo(param_name cl.CL_sampler_info) (interface{}, error)
-	Retain() error
-	Release() error
-}
-
 type sampler struct {
 	sampler_id cl.CL_sampler
 }

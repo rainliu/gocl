@@ -7,15 +7,6 @@ import (
 	"gocl/cl"
 )
 
-type CommandQueue interface {
-	queue1x
-
-	//cl12
-	EnqueueMarkerWithWaitList(event_wait_list []Event) (Event, error)
-	EnqueueBarrierWithWaitList(event_wait_list []Event) (Event, error)
-	EnqueueMigrateMemObjects(mem_objects []Memory, flags cl.CL_mem_migration_flags, event_wait_list []Event) (Event, error)
-}
-
 func (this *command_queue) EnqueueMarkerWithWaitList(event_wait_list []Event) (Event, error) {
 	var event_id cl.CL_event
 
