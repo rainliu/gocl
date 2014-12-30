@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"gocl/cl"
-	"unsafe"
 	"gocl/cl_demo/utils"
+	"unsafe"
 )
 
 func main() {
@@ -24,7 +24,7 @@ func main() {
 	var region cl.CL_buffer_region
 
 	/* Create device and context */
-	device = ch0.Create_device()
+	device = utils.Create_device()
 	context = cl.CLCreateContext(nil, 1, device[:], nil, nil, &err)
 	if err < 0 {
 		println("Couldn't create a context")
