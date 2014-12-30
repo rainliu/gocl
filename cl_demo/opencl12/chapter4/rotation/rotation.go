@@ -7,7 +7,7 @@ import (
    "fmt"
     "unsafe"
     "gocl/cl"
-    "gocl/demo/ch0"
+    "gocl/cl_demo/utils"
 )
 
 func chk( status cl.CL_int, cmd string) {

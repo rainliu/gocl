@@ -4,7 +4,7 @@ import (
    "fmt"
    "gocl/cl"
    "unsafe"
-   "gocl/demo/ch0"
+   "gocl/cl_demo/utils"
    "strings"
 )
 

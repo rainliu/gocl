@@ -4,7 +4,7 @@ package main
 import (
     "unsafe"
     "gocl/cl"
-    "gocl/demo/ch0"
+    "gocl/cl_demo/utils"
 )
 
 func main() {
