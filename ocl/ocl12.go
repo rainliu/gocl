@@ -2,6 +2,11 @@
 
 package ocl
 
+import (
+	"gocl/cl"
+	"unsafe"
+)
+
 type Buffer interface {
 	buffer1x
 

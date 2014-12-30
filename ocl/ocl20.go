@@ -2,6 +2,10 @@
 
 package ocl
 
+import (
+	"gocl/cl"
+	"unsafe"
+)
 
 type Buffer interface {
 	buffer1x
@@ -82,10 +86,8 @@ type CommandQueue interface {
 }
 
 //todo
-type Pipe interface{
-
+type Pipe interface {
 }
 
-type SVM interface{
-	
+type SVM interface {
 }

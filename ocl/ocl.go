@@ -2,6 +2,11 @@
 
 package ocl
 
+import (
+	"gocl/cl"
+	"unsafe"
+)
+
 type Event interface {
 	GetID() cl.CL_event
 	GetInfo(param_name cl.CL_event_info) (interface{}, error)
