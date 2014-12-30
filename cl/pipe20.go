@@ -11,6 +11,8 @@ package cl
 */
 import "C"
 
+import "unsafe"
+
 func CLCreatePipe(context CL_context,
 	flags CL_mem_flags,
 	pipe_packet_size CL_uint,
@@ -77,7 +79,7 @@ func CLGetPipeInfo(pipe CL_mem,
 					unsafe.Pointer(&value),
 					&c_param_value_size_ret)
 
-				*param_value = CL_uint(value)			
+				*param_value = CL_uint(value)
 			default:
 				return CL_INVALID_VALUE
 			}
@@ -90,4 +92,3 @@ func CLGetPipeInfo(pipe CL_mem,
 		return CL_int(c_errcode_ret)
 	}
 }
-

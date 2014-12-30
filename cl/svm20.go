@@ -37,10 +37,16 @@ func init() {
 }
 
 //export go_svm_notify
-func go_svm_notify(command_queue C.cl_command_queue, num_svm_pointers C.cl_uint, svm_pointers []unsafe.Pointer, user_data unsafe.Pointer) {
+func go_svm_notify(command_queue C.cl_command_queue, num_svm_pointers C.cl_uint, svm_pointers *unsafe.Pointer, user_data unsafe.Pointer) {
 	var c_user_data []unsafe.Pointer
 	c_user_data = *(*[]unsafe.Pointer)(user_data)
-	svm_notify[c_user_data[1]](CL_command_queue{command_queue}, CL_uint(num_svm_pointers), svm_pointers, c_user_data[0])
+
+	var c_svm_pointers []unsafe.Pointer
+	c_svm_pointers = make([]unsafe.Pointer, num_svm_pointers)
+	for i := 0; i < int(num_svm_pointers); i++ {
+		c_svm_pointers[i] = unsafe.Pointer(uintptr(unsafe.Pointer(svm_pointers)) + uintptr(i)*unsafe.Sizeof(*svm_pointers))
+	}
+	svm_notify[c_user_data[1]](CL_command_queue{command_queue}, CL_uint(num_svm_pointers), c_svm_pointers, c_user_data[0])
 }
 
 func CLSVMAlloc(context CL_context,
@@ -72,17 +78,19 @@ func CLEnqueueSVMFree(command_queue CL_command_queue,
 		int(num_svm_pointers) != len(svm_pointers) {
 		return CL_INVALID_VALUE
 	}
-	for i := 0; i < len(svm_pointers); i++ {
-		if svm_pointers[i] == nil {
-			return CL_INVALID_VALUE
-		}
-	}
+
 	if (num_events_in_wait_list == 0 && event_wait_list != nil) ||
 		(num_events_in_wait_list != 0 && event_wait_list == nil) ||
 		int(num_events_in_wait_list) != len(event_wait_list) {
 		return CL_INVALID_EVENT_WAIT_LIST
 	}
 
+	for i := 0; i < len(svm_pointers); i++ {
+		if svm_pointers[i] == nil {
+			return CL_INVALID_VALUE
+		}
+	}
+	var c_svm_pointers *unsafe.Pointer
 	var c_event_wait_list []C.cl_event
 	var c_event_wait_list_ptr *C.cl_event
 	var c_event C.cl_event
@@ -98,6 +106,8 @@ func CLEnqueueSVMFree(command_queue CL_command_queue,
 		c_event_wait_list_ptr = nil
 	}
 
+	c_svm_pointers = &svm_pointers[0]
+
 	if pfn_notify != nil {
 		var c_user_data []unsafe.Pointer
 		c_user_data = make([]unsafe.Pointer, 2)
@@ -108,7 +118,7 @@ func CLEnqueueSVMFree(command_queue CL_command_queue,
 
 		c_errcode_ret = C.CLEnqueueSVMFree(command_queue.cl_command_queue,
 			C.cl_uint(num_svm_pointers),
-			svm_pointers,
+			c_svm_pointers,
 			unsafe.Pointer(&c_user_data),
 			C.cl_uint(num_events_in_wait_list),
 			c_event_wait_list_ptr,
@@ -117,7 +127,7 @@ func CLEnqueueSVMFree(command_queue CL_command_queue,
 	} else {
 		c_errcode_ret = C.clEnqueueSVMFree(command_queue.cl_command_queue,
 			C.cl_uint(num_svm_pointers),
-			svm_pointers,
+			c_svm_pointers,
 			nil,
 			nil,
 			C.cl_uint(num_events_in_wait_list),
