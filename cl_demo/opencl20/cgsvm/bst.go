@@ -169,13 +169,26 @@ func main() {
 
 	// Build (compile) the program for the devices with
 	// clBuildProgram()
+	options := "-cl-std=CL2.0"
 	status = cl.CLBuildProgram(program,
 		numDevices,
 		devices,
-		nil,
+		[]byte(options),
 		nil,
 		nil)
-	utils.CHECK_STATUS(status, cl.CL_SUCCESS, "CLBuildProgram")
+	if status != cl.CL_SUCCESS {
+		var program_log interface{}
+		var log_size cl.CL_size_t
+
+		/* Find size of log and print to std output */
+		cl.CLGetProgramBuildInfo(program, devices[0], cl.CL_PROGRAM_BUILD_LOG,
+			0, nil, &log_size)
+		cl.CLGetProgramBuildInfo(program, devices[0], cl.CL_PROGRAM_BUILD_LOG,
+			log_size, &program_log, nil)
+		fmt.Printf("%s\n", program_log)
+		return
+	}
+	//utils.CHECK_STATUS(status, cl.CL_SUCCESS, "CLBuildProgram")
 
 	//-----------------------------------------------------
 	// STEP 7: Create the kernel
