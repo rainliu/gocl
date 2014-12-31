@@ -264,7 +264,17 @@ func main() {
 	utils.CHECK_STATUS(status, cl.CL_SUCCESS, "clFinish")
 
 	//-----------------------------------------------------
-	// STEP 11: Verify the results
+	// STEP 11: Read the output buffer back to the host
+	//-----------------------------------------------------
+	// Use clEnqueueReadBuffer() to read the OpenCL output
+	// buffer (bufferC)
+	// to the host output array (C)
+	//copy the data back to host buffer
+
+	//this demo doesn't need clEnqueueReadBuffer due to SVM
+
+	//-----------------------------------------------------
+	// STEP 12: Verify the results
 	//-----------------------------------------------------
 	// reference implementation
 	svmBinaryTreeCPUReference(cmdQueue,

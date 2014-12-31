@@ -40,10 +40,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 //random varible type. currently uniform and gaussion are supported.
 enum RV_TYPE
-  {
+{
     RV_UNIFORM,
     RV_GAUSSIAN
-  };
+};
 
 /***
  * rng_div:
@@ -54,10 +54,10 @@ int rng_div(int dv, int dr)
   int k = 0;
 
   while(dv > dr)
-    {
-      k++;
-      dv -= dr;
-    }
+  {
+    k++;
+    dv -= dr;
+  }
 
   return k;
 }
@@ -80,17 +80,17 @@ void  rng_init(int seed, __local int *iv)
   iv[0] = seed;
 
   for(j = 1; j < MAX_NTAB; j++)			
-    {
-      //k = seed/IQ;
-      k = rng_div(seed,IQ);
+  {
+    //k = seed/IQ;
+    k = rng_div(seed,IQ);
 
-      seed = IA * (seed - k * IQ) - IR * k;
+    seed = IA * (seed - k * IQ) - IR * k;
       
-      if(seed < 0)
-	seed += IM;
+    if(seed < 0)
+      seed += IM;
 
-      iv[j] = seed;
-    }
+    iv[j] = seed;
+  }
 }
 
 /****
@@ -159,9 +159,9 @@ __kernel void pipe_producer(__write_only pipe float2 rng_pipe,
   
   //initialize random number generator.
   if (lid == 0)
-    {
-      rng_init(seed, iv);
-    }
+  {
+    rng_init(seed, iv);
+  }
   work_group_barrier(CLK_LOCAL_MEM_FENCE|CLK_GLOBAL_MEM_FENCE);
 
   iter   = 0;
@@ -169,47 +169,47 @@ __kernel void pipe_producer(__write_only pipe float2 rng_pipe,
   irn.y  = (lid +1)*(lid +1);
 
   while(iter < pkt_per_thread)
-    {
+  {
 	  //reserve space in pipe for writing random numbers.
-      reserve_id_t rid = work_group_reserve_write_pipe(rng_pipe, szgr);
+    reserve_id_t rid = work_group_reserve_write_pipe(rng_pipe, szgr);
       
      
-      if(is_valid_reserve_id(rid))
-	{
-	  //draw two unifromly distributed rv.
-          irn.x = rng_pm(irn.y, (iv + lid*NTAB));
-	  work_group_barrier(CLK_LOCAL_MEM_FENCE);
+    if(is_valid_reserve_id(rid))
+    {
+      //draw two unifromly distributed rv.
+      irn.x = rng_pm(irn.y, (iv + lid*NTAB));
+      work_group_barrier(CLK_LOCAL_MEM_FENCE);
 
-	  irn.y = rng_pm(irn.x, (iv + lid*NTAB));
-	  work_group_barrier(CLK_LOCAL_MEM_FENCE);
+      irn.y = rng_pm(irn.x, (iv + lid*NTAB));
+      work_group_barrier(CLK_LOCAL_MEM_FENCE);
 
-	  ufrn.x = (float)(irn.x)*AM;
-	  if (ufrn.x > RMAX)
-	    ufrn.x = RMAX;
+      ufrn.x = (float)(irn.x)*AM;
+      if (ufrn.x > RMAX)
+        ufrn.x = RMAX;
 
-	  ufrn.y = (float)(irn.y)*AM;
-	  if (ufrn.y > RMAX)
-	    ufrn.y = RMAX;
+      ufrn.y = (float)(irn.y)*AM;
+      if (ufrn.y > RMAX)
+        ufrn.y = RMAX;
 
-	  //If gaussian distribution is requested, apply box muller transform.
-	  if(rng_type == RV_GAUSSIAN)
+      //If gaussian distribution is requested, apply box muller transform.
+      if(rng_type == RV_GAUSSIAN)
 	    {
 	      gfrn = box_muller(ufrn);
 	    }
-	  else
+      else
 	    {
 	      gfrn = ufrn;
 	    }
 
-	  //write into pipe.
-	  write_pipe(rng_pipe,rid,lid, &gfrn);
-	  work_group_commit_write_pipe(rng_pipe, rid);
-	}
-      
-      work_group_barrier(CLK_GLOBAL_MEM_FENCE);
-
-      iter += 1;
+      //write into pipe.
+      write_pipe(rng_pipe,rid,lid, &gfrn);
+      work_group_commit_write_pipe(rng_pipe, rid);
     }
+      
+    work_group_barrier(CLK_GLOBAL_MEM_FENCE);
+
+    iter += 1;
+  }
 }
 
 /**
@@ -244,13 +244,13 @@ __kernel void pipe_consumer(__read_only pipe float2          rng_pipe,
   laps          = (MAX_HIST_BINS) /szgr;
 
   if(grid == 0)
+  {
+    for(lap = 0; lap < laps; ++lap)
     {
-      for(lap = 0; lap < laps; ++lap)
-	{
-	  bindex = lid + lap*szgr;
-	  hist[bindex] = 0;
-	}
+      bindex = lid + lap*szgr;
+      hist[bindex] = 0;
     }
+  }
 
   work_group_barrier(CLK_GLOBAL_MEM_FENCE);
 
@@ -259,11 +259,11 @@ __kernel void pipe_consumer(__read_only pipe float2          rng_pipe,
       
       
   if(is_valid_reserve_id(rid))
-    {
-      //read random number from the pipe.
-      read_pipe(rng_pipe,rid,lid, &rn);
-      work_group_commit_read_pipe(rng_pipe, rid);
-    }
+  {
+    //read random number from the pipe.
+    read_pipe(rng_pipe,rid,lid, &rn);
+    work_group_commit_read_pipe(rng_pipe, rid);
+  }
   
   //each work-group generates local histogram
   bin_width = (hist_max - hist_min)/(float)(MAX_HIST_BINS);
@@ -273,40 +273,40 @@ __kernel void pipe_consumer(__read_only pipe float2          rng_pipe,
   found     = 0;
 
   for(bindex = 0; bindex < MAX_HIST_BINS; bindex++)
-    {
-      if ((rn.x >= rmin) && (rn.x < rmax))
-	{
-	  found += 1;
-	}
+  {
+    if ((rn.x >= rmin) && (rn.x < rmax))
+  	{
+  	  found += 1;
+  	}
 
-      if ((rn.y >= rmin) && (rn.y < rmax))
-	{
-	  found += 1;
-	}
+    if ((rn.y >= rmin) && (rn.y < rmax))
+  	{
+  	  found += 1;
+  	}
 
-      work_group_barrier(CLK_LOCAL_MEM_FENCE);
-      
-      freq  = work_group_reduce_add(found);
-      if (lid == 0)
-	{
-	  lhist[bindex] = freq;
-	}
+    work_group_barrier(CLK_LOCAL_MEM_FENCE);
+    
+    freq  = work_group_reduce_add(found);
+    if (lid == 0)
+  	{
+  	  lhist[bindex] = freq;
+  	}
 
-      work_group_barrier(CLK_LOCAL_MEM_FENCE);
+    work_group_barrier(CLK_LOCAL_MEM_FENCE);
 
-      rmin  = rmax;
-      rmax  = rmin + bin_width;
-      found = 0;
-    }
+    rmin  = rmax;
+    rmax  = rmin + bin_width;
+    found = 0;
+  }
   
   work_group_barrier(CLK_LOCAL_MEM_FENCE);
 
   //add all local histograms to global histogram
   for(lap = 0; lap < laps; ++lap)
-    {
-      bindex = lid + lap*szgr;
-      atomic_add((volatile __global int *)(hist + bindex), lhist[bindex]);
-    }
+  {
+    bindex = lid + lap*szgr;
+    atomic_add((volatile __global int *)(hist + bindex), lhist[bindex]);
+  }
 
   work_group_barrier(CLK_GLOBAL_MEM_FENCE);
 }
