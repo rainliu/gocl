@@ -35,9 +35,11 @@ go build -tags="clxx" gocl/cl
 
 go test -v -tags="clxx" gocl/cl_test
 
-go install -tags="clxx" gocl/cl_demo/opencl11/ch(x)   		(Examples in "OpenCL in Action")
+go install -tags="cl11" gocl/cl_demo/opencl11/ch(x)   		(Examples in "OpenCL in Action")
 
-go install -tags="clxx" gocl/cl_demo/opencl12/chapter(x)	(Examples in "Heterogeneous Computing with OpenCL, 2nd Edition")
+go install -tags="cl12" gocl/cl_demo/opencl12/chapter(x)	(Examples in "Heterogeneous Computing with OpenCL, 2nd Edition")
+
+go install -tags="cl20" gocl/cl_demo/opencl20/x				(Examples in "AMDAPPSDK and INTELOCLSDK")
 
 ===============================================
 
