@@ -2,7 +2,6 @@
 package main
 
 import (
-	"fmt"
 	"gocl/cl"
 	"gocl/cl_demo/utils"
 	"unsafe"
@@ -10,9 +9,9 @@ import (
 
 const (
 	//constants for urng
-	IA   = 16807             // a
-	IM   = 2147483647        // m
-	AM   = 1.0 / float32(IM) // 1/m - To calculate floating point result
+	IA   = 16807                 // a
+	IM   = 2147483647            // m
+	AM   = 1.0 / cl.CL_float(IM) // 1/m - To calculate floating point result
 	IQ   = 127773
 	IR   = 2836
 	NTAB = 16
@@ -32,8 +31,8 @@ const (
 
 //random varible type. currently uniform and gaussion are supported.
 const (
-	RV_UNIFORM  = 0
-	RV_GAUSSIAN = 1
+	RV_UNIFORM  cl.CL_int = 0
+	RV_GAUSSIAN cl.CL_int = 1
 )
 
 const (
@@ -145,12 +144,12 @@ func main() {
 	consumerGlobalSize := cl.CL_size_t(CONSUMER_GLOBAL_SIZE)
 
 	var samplePipePkt [2]cl.CL_float
-	szPipe := cl.CL_size_t(PIPE_SIZE)
-	szPipePkt := cl.CL_size_t(unsafe.Sizeof(samplePipePkt))
+	szPipe := cl.CL_uint(PIPE_SIZE)
+	szPipePkt := cl.CL_uint(unsafe.Sizeof(samplePipePkt))
 	if szPipe%PRNG_CHANNELS != 0 {
 		szPipe = (szPipe/PRNG_CHANNELS)*PRNG_CHANNELS + PRNG_CHANNELS
 	}
-	consumerGlobalSize = szPipe
+	consumerGlobalSize = cl.CL_size_t(szPipe)
 	pipePktPerThread := cl.CL_int(szPipe) / PRNG_CHANNELS
 	seed := cl.CL_int(SEED)
 	rngType := cl.CL_int(RV_GAUSSIAN)
@@ -210,14 +209,12 @@ func main() {
 	//-----------------------------------------------------
 	// STEP 7: Create the kernel
 	//-----------------------------------------------------
-	var kernel cl.CL_kernel
-
 	// Use clCreateKernel() to create a kernel
-	produceKernel = cl.CLCreateKernel(program, []byte("pipe_producer"), &status)
+	produceKernel := cl.CLCreateKernel(program, []byte("pipe_producer"), &status)
 	utils.CHECK_STATUS(status, cl.CL_SUCCESS, "CLCreateKernel")
 	defer cl.CLReleaseKernel(produceKernel)
 
-	consumeKernel = cl.CLCreateKernel(program, []byte("pipe_consumer"), &status)
+	consumeKernel := cl.CLCreateKernel(program, []byte("pipe_consumer"), &status)
 	utils.CHECK_STATUS(status, cl.CL_SUCCESS, "CLCreateKernel")
 	defer cl.CLReleaseKernel(consumeKernel)
 
@@ -272,7 +269,7 @@ func main() {
 	// clEnqueueNDRangeKernel().
 	// 'globalWorkSize' is the 1D dimension of the
 	// work-items
-	var produceEvt cl.CL_event
+	var produceEvt [1]cl.CL_event
 	status = cl.CLEnqueueNDRangeKernel(commandQueue[0],
 		produceKernel,
 		1,
@@ -281,7 +278,7 @@ func main() {
 		localThreads,
 		0,
 		nil,
-		&produceEvt)
+		&produceEvt[0])
 	utils.CHECK_STATUS(status, cl.CL_SUCCESS, "clEnqueueNDRangeKernel")
 
 	/*
@@ -290,7 +287,7 @@ func main() {
 	   memory consistency of pipe is guaranteed only across
 	   synchronization points.
 	*/
-	status = cl.CLWaitForEvents(1, &produceEvt)
+	status = cl.CLWaitForEvents(1, produceEvt[:])
 	utils.CHECK_STATUS(status, cl.CL_SUCCESS, "clWaitForEvents(produceEvt)")
 
 	//-----------------------------------------------------
@@ -342,7 +339,7 @@ func main() {
 	// clEnqueueNDRangeKernel().
 	// 'globalWorkSize' is the 1D dimension of the
 	// work-items
-	var consumeEvt cl.CL_event
+	var consumeEvt [1]cl.CL_event
 	status = cl.CLEnqueueNDRangeKernel(
 		commandQueue[1],
 		consumeKernel,
@@ -352,7 +349,7 @@ func main() {
 		localThreads,
 		0,
 		nil,
-		&consumeEvt)
+		&consumeEvt[0])
 	utils.CHECK_STATUS(status, cl.CL_SUCCESS, "clEnqueueNDRangeKernel")
 
 	status = cl.CLFlush(commandQueue[0])
@@ -398,7 +395,7 @@ func main() {
 	}
 
 	//CPU side histogram computation
-	CPUReference(seed, histMax, histMin)
+	CPUReference(seed, pipePktPerThread, rngType, cpuHist, histMax, histMin)
 
 	//Compare
 	for bin := 0; bin < MAX_HIST_BINS; bin++ {
@@ -416,7 +413,11 @@ func main() {
 	println("Passed!")
 }
 
-func CPUReference(seed cl.CL_int, histMax, histMin cl.CL_float) {
+func CPUReference(seed cl.CL_int,
+	pipePktPerThread cl.CL_int,
+	rngType cl.CL_int,
+	cpuHist []cl.CL_int,
+	histMax, histMin cl.CL_float) {
 	var pmPRNG PM_PRNG
 	var irn [PRNG_CHANNELS][2]cl.CL_int
 	var frn [PRNG_CHANNELS][2]cl.CL_float
@@ -428,7 +429,7 @@ func CPUReference(seed cl.CL_int, histMax, histMin cl.CL_float) {
 	pmPRNG.rngInit(seed)
 
 	// Put starting values for each channel
-	for ch := 0; ch < PRNG_CHANNELS; ch++ {
+	for ch := cl.CL_int(0); ch < cl.CL_int(PRNG_CHANNELS); ch++ {
 		irn[ch][0] = (ch + 1) * (ch + 1)
 		irn[ch][1] = (ch + 1) * (ch + 1)
 	}
@@ -436,17 +437,17 @@ func CPUReference(seed cl.CL_int, histMax, histMin cl.CL_float) {
 	//compute binWidth
 	binWidth = (histMax - histMin) / cl.CL_float(MAX_HIST_BINS)
 
-	for pkt := 0; pkt < pipePktPerThread; pkt++ {
+	for pkt := cl.CL_int(0); pkt < pipePktPerThread; pkt++ {
 		// Generate random numbers
 		for ch := 0; ch < PRNG_CHANNELS; ch++ {
 			irn[ch][0] = pmPRNG.rngPM(irn[ch][1], cl.CL_int(ch))
 			irn[ch][1] = pmPRNG.rngPM(irn[ch][0], cl.CL_int(ch))
 
-			frn[ch][0] = irn[ch][0] * AM
+			frn[ch][0] = cl.CL_float(irn[ch][0]) * AM
 			if frn[ch][0] > RMAX {
 				frn[ch][0] = cl.CL_float(RMAX)
 			}
-			frn[ch][1] = irn[ch][1] * AM
+			frn[ch][1] = cl.CL_float(irn[ch][1]) * AM
 			if frn[ch][1] > RMAX {
 				frn[ch][1] = cl.CL_float(RMAX)
 			}
@@ -466,7 +467,6 @@ func CPUReference(seed cl.CL_int, histMax, histMin cl.CL_float) {
 			found := 0
 
 			for bindex := 0; (bindex < MAX_HIST_BINS) && (found != 2); bindex++ {
-
 				if (grn[ch][0] >= rmin) && (grn[ch][0] < rmax) {
 					found += 1
 					cpuHist[bindex] += 1

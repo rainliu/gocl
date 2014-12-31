@@ -22,7 +22,7 @@ func (this *PM_PRNG) rngInit(lSeed cl.CL_int) {
 	lSeed ^= MASK
 
 	//fill the shuffling buffer.
-	iv[0] = lSeed
+	this.iv[0] = lSeed
 
 	for j = 1; j < MAX_NTAB; j++ {
 		k = lSeed / IQ
@@ -32,7 +32,7 @@ func (this *PM_PRNG) rngInit(lSeed cl.CL_int) {
 			lSeed += IM
 		}
 
-		iv[j] = lSeed
+		this.iv[j] = lSeed
 	}
 }
 
@@ -42,7 +42,7 @@ func (this *PM_PRNG) rngPM(prn, ch cl.CL_int) cl.CL_int {
 	var nrn cl.CL_int
 
 	j = prn / NDIV
-	nrn = iv[j+ch*NTAB]
+	nrn = this.iv[j+ch*NTAB]
 
 	k = prn / IQ
 	prn = IA*(prn-k*IQ) - IR*k
@@ -51,7 +51,7 @@ func (this *PM_PRNG) rngPM(prn, ch cl.CL_int) cl.CL_int {
 		prn += IM
 	}
 
-	iv[j+ch*NTAB] = prn
+	this.iv[j+ch*NTAB] = prn
 
 	return nrn
 }
@@ -64,11 +64,11 @@ func (this *PM_PRNG) rngPM(prn, ch cl.CL_int) cl.CL_int {
 func boxMuller(u [2]cl.CL_float) [2]cl.CL_float {
 	var g [2]cl.CL_float
 
-	r := cl.CL_float(math.Sqrt(-2 * math.Log(u[0])))
+	r := cl.CL_float(math.Sqrt(-2 * math.Log(float64(u[0]))))
 	theta := cl.CL_float(2.0 * PI * u[1])
 
-	g[0] = cl.CL_float(r * math.Sin(theta))
-	g[1] = cl.CL_float(r * math.Cos(theta))
+	g[0] = r * cl.CL_float(math.Sin(float64(theta)))
+	g[1] = r * cl.CL_float(math.Cos(float64(theta)))
 
 	return g
 }
