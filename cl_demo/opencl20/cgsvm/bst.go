@@ -21,12 +21,16 @@ type node struct {
 	right *node
 }
 
+var sampleNode node
+
 /* search keys */
 type searchKey struct {
 	key        cl.CL_int
 	oclNode    *node
-	nativeNode *nativeNode
+	nativeNode *node
 }
+
+var sampleKey searchKey
 
 func main() {
 	// Use this to check the output of each API call
@@ -120,7 +124,7 @@ func main() {
 	// initialize any device/SVM memory here.
 	svmTreeBuf = cl.CLSVMAlloc(context,
 		cl.CL_MEM_READ_WRITE,
-		cl.CL_size_t(NUMBER_OF_NODES*unsafe.Sizeof(node)),
+		cl.CL_size_t(NUMBER_OF_NODES*unsafe.Sizeof(sampleNode)),
 		0)
 	if nil == svmTreeBuf {
 		println("clSVMAlloc(svmTreeBuf) failed.")
@@ -130,7 +134,7 @@ func main() {
 
 	svmSearchBuf = cl.CLSVMAlloc(context,
 		cl.CL_MEM_READ_WRITE,
-		cl.CL_size_t(NUMBER_OF_SEARCH_KEY*unsafe.Sizeof(searchKey)),
+		cl.CL_size_t(NUMBER_OF_SEARCH_KEY*unsafe.Sizeof(sampleKey)),
 		0)
 	if nil == svmSearchBuf {
 		println("clSVMAlloc(svmSearchBuf) failed.")
@@ -146,7 +150,7 @@ func main() {
 
 	/* if voice is not deliberately muzzled, shout parameters */
 	fmt.Printf("-------------------------------------------------------------------------\n")
-	fmt.Printf("Searching %d keys in a BST having %d Nodes...", NUMBER_OF_SEARCH_KEY, NUMBER_OF_NODES)
+	fmt.Printf("Searching %d keys in a BST having %d Nodes...\n", NUMBER_OF_SEARCH_KEY, NUMBER_OF_NODES)
 	fmt.Printf("-------------------------------------------------------------------------\n")
 
 	//-----------------------------------------------------
@@ -215,7 +219,7 @@ func main() {
 		cl.CL_KERNEL_WORK_GROUP_SIZE,
 		cl.CL_size_t(unsafe.Sizeof(localWorkSize[0])),
 		&kernelWorkGroupSize,
-		NULL)
+		nil)
 	utils.CHECK_STATUS(status, cl.CL_SUCCESS, "CLGetKernelWorkGroupInfo")
 	localWorkSize[0] = kernelWorkGroupSize.(cl.CL_size_t)
 
@@ -250,10 +254,13 @@ func main() {
 	// STEP 11: Verify the results
 	//-----------------------------------------------------
 	// reference implementation
-	svmBinaryTreeCPUReference()
+	svmBinaryTreeCPUReference(cmdQueue,
+		svmRoot,
+		svmTreeBuf,
+		svmSearchBuf)
 
 	// compare the results and see if they match
-	pass := compare(cmdQueue, searchKey)
+	pass := svmCompareResults(cmdQueue, svmSearchBuf)
 	if pass {
 		println("Passed!")
 	} else {
@@ -276,7 +283,7 @@ func cpuCreateBinaryTree(commandQueue cl.CL_command_queue,
 		cl.CL_TRUE, //blocking call
 		cl.CL_MAP_WRITE_INVALIDATE_REGION,
 		svmTreeBuf,
-		cl.CL_size_t(NUMBER_OF_NODES*unsafe.Sizeof(node)),
+		cl.CL_size_t(NUMBER_OF_NODES*unsafe.Sizeof(sampleNode)),
 		0,
 		nil,
 		nil)
@@ -285,7 +292,7 @@ func cpuCreateBinaryTree(commandQueue cl.CL_command_queue,
 	//init node and make bt
 	root = cpuMakeBinaryTree(svmTreeBuf)
 
-	status = clEnqueueSVMUnmap(commandQueue,
+	status = cl.CLEnqueueSVMUnmap(commandQueue,
 		svmTreeBuf,
 		0,
 		nil,
@@ -305,7 +312,7 @@ func cpuMakeBinaryTree(svmTreeBuf unsafe.Pointer) *node {
 
 	// initialize nodes
 	for i := 0; i < NUMBER_OF_NODES; i++ {
-		nextData = (*node)(uintptr(svmTreeBuf) + uintptr(i)*unsafe.Sizeof(node))
+		nextData = (*node)(unsafe.Pointer(uintptr(svmTreeBuf) + uintptr(i)*unsafe.Sizeof(sampleNode)))
 
 		// allocate a random value to node
 		nextData.value = cl.CL_int(r.Int())
@@ -319,7 +326,7 @@ func cpuMakeBinaryTree(svmTreeBuf unsafe.Pointer) *node {
 
 	// iterative tree insert
 	for i := 1; i < NUMBER_OF_NODES; i++ {
-		nextData = (*node)(uintptr(svmTreeBuf) + uintptr(i)*unsafe.Sizeof(node))
+		nextData = (*node)(unsafe.Pointer(uintptr(svmTreeBuf) + uintptr(i)*unsafe.Sizeof(sampleNode)))
 		nextNode = root
 		insertedFlag = false
 
@@ -356,7 +363,7 @@ func cpuInitSearchKeys(commandQueue cl.CL_command_queue,
 		cl.CL_TRUE, //blocking call
 		cl.CL_MAP_WRITE_INVALIDATE_REGION,
 		svmSearchBuf,
-		cl.CL_size_t(NUMBER_OF_SEARCH_KEY*unsafe.Sizeof(searchKey)),
+		cl.CL_size_t(NUMBER_OF_SEARCH_KEY*unsafe.Sizeof(sampleKey)),
 		0,
 		nil,
 		nil)
@@ -366,7 +373,7 @@ func cpuInitSearchKeys(commandQueue cl.CL_command_queue,
 
 	// initialize nodes
 	for i := 0; i < NUMBER_OF_SEARCH_KEY; i++ {
-		nextData = (*searchKey)(uintptr(svmSearchBuf) + uintptr(i)*unsafe.Sizeof(searchKey))
+		nextData = (*searchKey)(unsafe.Pointer(uintptr(svmSearchBuf) + uintptr(i)*unsafe.Sizeof(sampleKey)))
 		// allocate a random value to node
 		nextData.key = cl.CL_int(r.Int())
 		// all pointers are null
@@ -393,7 +400,7 @@ func svmBinaryTreeCPUReference(commandQueue cl.CL_command_queue,
 		cl.CL_TRUE, //blocking call
 		cl.CL_MAP_READ,
 		svmTreeBuf,
-		cl.CL_size_t(NUMBER_OF_NODES*unsafe.Sizeof(node)),
+		cl.CL_size_t(NUMBER_OF_NODES*unsafe.Sizeof(sampleNode)),
 		0,
 		nil,
 		nil)
@@ -403,7 +410,7 @@ func svmBinaryTreeCPUReference(commandQueue cl.CL_command_queue,
 		cl.CL_TRUE, //blocking call
 		cl.CL_MAP_WRITE,
 		svmSearchBuf,
-		cl.CL_size_t(NUMBER_OF_SEARCH_KEY*unsafe.Sizeof(searchKey)),
+		cl.CL_size_t(NUMBER_OF_SEARCH_KEY*unsafe.Sizeof(sampleKey)),
 		0,
 		nil,
 		nil)
@@ -412,7 +419,7 @@ func svmBinaryTreeCPUReference(commandQueue cl.CL_command_queue,
 	for i := 0; i < NUMBER_OF_SEARCH_KEY; i++ {
 		/* search tree */
 		searchNode := svmRoot
-		currKey := (*searchKey)(uintptr(svmSearchBuf) + uintptr(i)*unsafe.Sizeof(searchKey))
+		currKey := (*searchKey)(unsafe.Pointer(uintptr(svmSearchBuf) + uintptr(i)*unsafe.Sizeof(sampleKey)))
 
 		for nil != searchNode {
 			if currKey.key == searchNode.value {
@@ -429,14 +436,14 @@ func svmBinaryTreeCPUReference(commandQueue cl.CL_command_queue,
 		}
 	}
 
-	status = clEnqueueSVMUnmap(commandQueue,
+	status = cl.CLEnqueueSVMUnmap(commandQueue,
 		svmSearchBuf,
 		0,
 		nil,
 		nil)
 	utils.CHECK_STATUS(status, cl.CL_SUCCESS, "clEnqueueSVMUnmap(svmSearchBuf)")
 
-	status = clEnqueueSVMUnmap(commandQueue,
+	status = cl.CLEnqueueSVMUnmap(commandQueue,
 		svmTreeBuf,
 		0,
 		nil,
@@ -444,7 +451,7 @@ func svmBinaryTreeCPUReference(commandQueue cl.CL_command_queue,
 	utils.CHECK_STATUS(status, cl.CL_SUCCESS, "clEnqueueSVMUnmap(svmTreeBuf)")
 }
 
-func compare(commandQueue cl.CL_command_queue,
+func svmCompareResults(commandQueue cl.CL_command_queue,
 	svmSearchBuf unsafe.Pointer) bool {
 	var compare_status bool
 	var status cl.CL_int
@@ -453,15 +460,15 @@ func compare(commandQueue cl.CL_command_queue,
 		cl.CL_TRUE, //blocking call
 		cl.CL_MAP_WRITE_INVALIDATE_REGION,
 		svmSearchBuf,
-		cl.CL_size_t(NUMBER_OF_SEARCH_KEY*unsafe.Sizeof(searchKey)),
+		cl.CL_size_t(NUMBER_OF_SEARCH_KEY*unsafe.Sizeof(sampleKey)),
 		0,
-		NULL,
-		NULL)
+		nil,
+		nil)
 	utils.CHECK_STATUS(status, cl.CL_SUCCESS, "clEnqueueSVMMap(svmSearchBuf)")
 
 	compare_status = true
 	for i := 0; i < NUMBER_OF_SEARCH_KEY; i++ {
-		currKey := (*searchKey)(uintptr(svmSearchBuf) + uintptr(i)*unsafe.Sizeof(searchKey))
+		currKey := (*searchKey)(unsafe.Pointer(uintptr(svmSearchBuf) + uintptr(i)*unsafe.Sizeof(sampleKey)))
 
 		/* compare OCL and native nodes */
 		if currKey.oclNode != currKey.nativeNode {

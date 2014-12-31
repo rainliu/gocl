@@ -50,7 +50,7 @@ func go_svm_notify(command_queue C.cl_command_queue, num_svm_pointers C.cl_uint,
 }
 
 func CLSVMAlloc(context CL_context,
-	flags CL_svm_mem_flags,
+	flags CL_mem_flags,
 	size CL_size_t,
 	alignment CL_uint) unsafe.Pointer {
 	return unsafe.Pointer(C.clSVMAlloc(context.cl_context,

@@ -155,7 +155,8 @@ type CL_command_queue_info CL_uint
 type CL_channel_order CL_uint
 type CL_channel_type CL_uint
 type CL_mem_flags CL_bitfield
-type CL_svm_mem_flags CL_bitfield
+
+//type CL_svm_mem_flags CL_bitfield
 type CL_mem_object_type CL_uint
 type CL_mem_info CL_uint
 type CL_mem_migration_flags CL_bitfield
@@ -466,12 +467,12 @@ const (
 	CL_MEM_ALLOC_HOST_PTR CL_mem_flags = C.CL_MEM_ALLOC_HOST_PTR
 	CL_MEM_COPY_HOST_PTR  CL_mem_flags = C.CL_MEM_COPY_HOST_PTR
 	// reserved
-	CL_MEM_HOST_WRITE_ONLY       CL_mem_flags     = C.CL_MEM_HOST_WRITE_ONLY
-	CL_MEM_HOST_READ_ONLY        CL_mem_flags     = C.CL_MEM_HOST_READ_ONLY
-	CL_MEM_HOST_NO_ACCESS        CL_mem_flags     = C.CL_MEM_HOST_NO_ACCESS
-	CL_MEM_SVM_FINE_GRAIN_BUFFER CL_svm_mem_flags = C.CL_MEM_SVM_FINE_GRAIN_BUFFER /* used by cl_svm_mem_flags only */
-	CL_MEM_SVM_ATOMICS           CL_svm_mem_flags = C.CL_MEM_SVM_ATOMICS           /* used by cl_svm_mem_flags only */
-	CL_MEM_KERNEL_READ_AND_WRITE CL_mem_flags     = C.CL_MEM_KERNEL_READ_AND_WRITE
+	CL_MEM_HOST_WRITE_ONLY       CL_mem_flags = C.CL_MEM_HOST_WRITE_ONLY
+	CL_MEM_HOST_READ_ONLY        CL_mem_flags = C.CL_MEM_HOST_READ_ONLY
+	CL_MEM_HOST_NO_ACCESS        CL_mem_flags = C.CL_MEM_HOST_NO_ACCESS
+	CL_MEM_SVM_FINE_GRAIN_BUFFER CL_mem_flags = C.CL_MEM_SVM_FINE_GRAIN_BUFFER /* used by cl_svm_mem_flags only */
+	CL_MEM_SVM_ATOMICS           CL_mem_flags = C.CL_MEM_SVM_ATOMICS           /* used by cl_svm_mem_flags only */
+	CL_MEM_KERNEL_READ_AND_WRITE CL_mem_flags = C.CL_MEM_KERNEL_READ_AND_WRITE
 
 	/* cl_mem_migration_flags - bitfield */
 	CL_MIGRATE_MEM_OBJECT_HOST              CL_mem_migration_flags = C.CL_MIGRATE_MEM_OBJECT_HOST

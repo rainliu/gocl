@@ -473,9 +473,9 @@ const (
 	CL_MEM_HOST_WRITE_ONLY CL_mem_flags = C.CL_MEM_HOST_WRITE_ONLY
 	CL_MEM_HOST_READ_ONLY  CL_mem_flags = C.CL_MEM_HOST_READ_ONLY
 	CL_MEM_HOST_NO_ACCESS  CL_mem_flags = C.CL_MEM_HOST_NO_ACCESS
-	//CL_MEM_SVM_FINE_GRAIN_BUFFER CL_svm_mem_flags = C.CL_MEM_SVM_FINE_GRAIN_BUFFER /* used by cl_svm_mem_flags only */
-	//CL_MEM_SVM_ATOMICS           CL_svm_mem_flags = C.CL_MEM_SVM_ATOMICS           /* used by cl_svm_mem_flags only */
-	//CL_MEM_KERNEL_READ_AND_WRITE CL_mem_flags     = C.CL_MEM_KERNEL_READ_AND_WRITE
+	//CL_MEM_SVM_FINE_GRAIN_BUFFER CL_mem_flags = C.CL_MEM_SVM_FINE_GRAIN_BUFFER /* used by cl_svm_mem_flags only */
+	//CL_MEM_SVM_ATOMICS           CL_mem_flags = C.CL_MEM_SVM_ATOMICS           /* used by cl_svm_mem_flags only */
+	//CL_MEM_KERNEL_READ_AND_WRITE CL_mem_flags = C.CL_MEM_KERNEL_READ_AND_WRITE
 
 	/* cl_mem_migration_flags - bitfield */
 	CL_MIGRATE_MEM_OBJECT_HOST              CL_mem_migration_flags = C.CL_MIGRATE_MEM_OBJECT_HOST
