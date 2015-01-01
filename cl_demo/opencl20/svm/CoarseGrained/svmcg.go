@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"gocl/cl"
+	"gocl/cl_demo/utils"
 	"math/rand"
+	"unsafe"
 )
 
 // Array of the structures defined below is built and populated
@@ -102,7 +104,7 @@ func svmbasic(size cl.CL_size_t,
 	// The OpenCL kernel uses the aforementioned input arrays to compute
 	// values for the output array.
 
-	output := clSVMAlloc(context, // the context where this memory is supposed to be used
+	output := cl.CLSVMAlloc(context, // the context where this memory is supposed to be used
 		cl.CL_MEM_WRITE_ONLY,
 		size*cl.CL_size_t(unsafe.Sizeof(sampleFloat)), // amount of memory to allocate (in bytes)
 		0) // alignment in bytes (0 means default)
@@ -145,16 +147,16 @@ func svmbasic(size cl.CL_size_t,
 	// Populate data-structures with initial data.
 	r := rand.New(rand.NewSource(99))
 
-	for i := cl.CL_size(0); i < size; i++ {
+	for i := cl.CL_size_t(0); i < size; i++ {
 		inputElement := (*Element)(unsafe.Pointer(uintptr(inputElements) + uintptr(i)*unsafe.Sizeof(sampleElement)))
 		inputFloat := (*cl.CL_float)(unsafe.Pointer(uintptr(inputFloats) + uintptr(i)*unsafe.Sizeof(sampleFloat)))
-		randElement := (*Element)(unsafe.Pointer(uintptr(inputElements) + uintptr(r.Intn(size))*unsafe.Sizeof(sampleElement)))
-		randFloat := (*cl.CL_float)(unsafe.Pointer(uintptr(inputFloats) + uintptr(r.Intn(size))*unsafe.Sizeof(sampleFloat)))
+		randElement := (*Element)(unsafe.Pointer(uintptr(inputElements) + uintptr(r.Intn(int(size)))*unsafe.Sizeof(sampleElement)))
+		randFloat := (*cl.CL_float)(unsafe.Pointer(uintptr(inputFloats) + uintptr(r.Intn(int(size)))*unsafe.Sizeof(sampleFloat)))
 
 		inputElement.internal = &(randElement.value)
 		inputElement.external = randFloat
 		inputElement.value = cl.CL_float(i)
-		inputFloat = cl.CL_float(i + size)
+		*inputFloat = cl.CL_float(i + size)
 	}
 
 	// The following two unmap calls are required in case of coarse-grained SVM only
@@ -203,7 +205,7 @@ func svmbasic(size cl.CL_size_t,
 		kernel,
 		1,
 		nil,
-		globalWorkSize,
+		globalWorkSize[:],
 		nil,
 		0,
 		nil,
@@ -214,10 +216,10 @@ func svmbasic(size cl.CL_size_t,
 	// Mapping is required for coarse-grained SVM only.
 
 	err = cl.CLEnqueueSVMMap(queue,
-		CL_TRUE, // blocking map
-		CL_MAP_READ,
+		cl.CL_TRUE, // blocking map
+		cl.CL_MAP_READ,
 		output,
-		sizeof(float)*size,
+		size*cl.CL_size_t(unsafe.Sizeof(sampleFloat)),
 		0,
 		nil,
 		nil)
@@ -228,13 +230,13 @@ func svmbasic(size cl.CL_size_t,
 	// Validate output state for correctness.
 
 	println("Checking correctness of the output buffer...")
-	for i := cl.CL_size(0); i < size; i++ {
+	for i := cl.CL_size_t(0); i < size; i++ {
 		inputElement := (*Element)(unsafe.Pointer(uintptr(inputElements) + uintptr(i)*unsafe.Sizeof(sampleElement)))
-
+		outputFloat := (*cl.CL_float)(unsafe.Pointer(uintptr(output) + uintptr(i)*unsafe.Sizeof(sampleFloat)))
 		expectedValue := *(inputElement.internal) + *(inputElement.external)
-		if output[i] != expectedValue {
+		if *outputFloat != expectedValue {
 			println(" FAILED.")
-			fmt.Printf("Mismatch at position %d, read %f, expected %f\n", i, output[i], expectedValue)
+			fmt.Printf("Mismatch at position %d, read %f, expected %f\n", i, *outputFloat, expectedValue)
 			return
 		}
 	}
@@ -242,7 +244,9 @@ func svmbasic(size cl.CL_size_t,
 
 	err = cl.CLEnqueueSVMUnmap(queue,
 		output,
-		0, 0, 0)
+		0,
+		nil,
+		nil)
 	utils.CHECK_STATUS(err, cl.CL_SUCCESS, "CLEnqueueSVMUnmap")
 
 	err = cl.CLFinish(queue)
@@ -303,12 +307,12 @@ func main() {
 		cl.CL_DEVICE_SVM_CAPABILITIES,
 		cl.CL_size_t(unsafe.Sizeof(caps)),
 		&caps_value,
-		0)
+		nil)
 	caps = caps_value.(cl.CL_device_svm_capabilities)
 
 	// Coarse-grained buffer SVM should be available on any OpenCL 2.0 device.
 	// So it is either not an OpenCL 2.0 device or it must support coarse-grained buffer SVM:
-	if !(status == cl.CL_SUCCESS && (caps & cl.CL_DEVICE_SVM_COARSE_GRAIN_BUFFER)) {
+	if !(status == cl.CL_SUCCESS && (caps&cl.CL_DEVICE_SVM_COARSE_GRAIN_BUFFER) != 0) {
 		println("Cannot detect SVM capabilities of the device. The device seemingly doesn't support SVM.")
 		return
 	}
@@ -386,7 +390,7 @@ func main() {
 
 	// Then call the main sample routine - resource allocations, OpenCL kernel
 	// execution, and so on.
-	//svmbasic(size.getValue(), oclobjects.context, oclobjects.queue, executable.kernel)
+	svmbasic(1024*1024, context, queue, kernel)
 
 	// All resource deallocations happen in defer.
 }
