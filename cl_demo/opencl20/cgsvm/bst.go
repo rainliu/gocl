@@ -112,17 +112,10 @@ func main() {
 	//-----------------------------------------------------
 	// STEP 5: Create device buffers
 	//-----------------------------------------------------
-	/* root node of the binary tree */
-	var svmRoot *node
+	// initialize any device/SVM memory here.
 
 	/* svm buffer for binary tree */
-	var svmTreeBuf unsafe.Pointer
-
-	/* svm buffer for search keys */
-	var svmSearchBuf unsafe.Pointer
-
-	// initialize any device/SVM memory here.
-	svmTreeBuf = cl.CLSVMAlloc(context,
+	svmTreeBuf := cl.CLSVMAlloc(context,
 		cl.CL_MEM_READ_WRITE,
 		cl.CL_size_t(NUMBER_OF_NODES*unsafe.Sizeof(sampleNode)),
 		0)
@@ -132,7 +125,8 @@ func main() {
 	}
 	defer cl.CLSVMFree(context, svmTreeBuf)
 
-	svmSearchBuf = cl.CLSVMAlloc(context,
+	/* svm buffer for search keys */
+	svmSearchBuf := cl.CLSVMAlloc(context,
 		cl.CL_MEM_READ_WRITE,
 		cl.CL_size_t(NUMBER_OF_SEARCH_KEY*unsafe.Sizeof(sampleKey)),
 		0)
@@ -143,7 +137,8 @@ func main() {
 	defer cl.CLSVMFree(context, svmSearchBuf)
 
 	//create the binary tree and set the root
-	svmRoot = cpuCreateBinaryTree(cmdQueue, svmTreeBuf)
+	/* root node of the binary tree */
+	svmRoot := cpuCreateBinaryTree(cmdQueue, svmTreeBuf)
 
 	//initialize search keys
 	cpuInitSearchKeys(cmdQueue, svmSearchBuf)

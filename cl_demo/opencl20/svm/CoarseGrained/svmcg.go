@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"gocl/cl"
+	"math/rand"
 )
 
 // Array of the structures defined below is built and populated
@@ -13,263 +15,239 @@ type Element struct {
 	value    cl.CL_float
 }
 
-/*
-func svmbasic (size_t size,
-    cl_context context,
-    cl_command_queue queue,
-    cl_kernel kernel){
-    // Prepare input data as follows.
-    // Build two arrays:
-    //     - an array that consists of the Element structures
-    //       (refer to svmbasic.h for the structure definition)
-    //     - an array that consists of the float values
-    //
-    // Each structure of the first array has the following pointers:
-    //     - 'internal', which points to a 'value' field of another entry
-    //       of the same array.
-    //     - 'external', which points to a float value from the the
-    //       second array.
-    //
-    // Pointers are set randomly. The structures do not reflect any real usage
-    // scenario, but are illustrative for a simple device-side traversal.
-    //
-    //        Array of Element                        Array of floats
-    //           structures
-    //
-    //    ||====================||
-    //    ||    .............   ||                   ||============||
-    //    ||    .............   ||<-----+            || .......... ||
-    //    ||====================||      |            ||    float   ||
-    //    ||   float* internal--||------+            ||    float   ||
-    //    ||   float* external--||------------------>||    float   ||
-    //    ||   float value <----||------+            || .......... ||
-    //    ||====================||      |            || .......... ||
-    //    ||    .............   ||      |            ||    float   ||
-    //    ||    .............   ||      |            ||    float   ||
-    //    ||====================||      |            ||    float   ||
-    //    ||====================||      |            ||    float   ||
-    //    ||   float* internal--||------+            ||    float   ||
-    //    ||   float* external--||------------------>||    float   ||
-    //    ||   float value      ||                   ||    float   ||
-    //    ||====================||                   ||    float   ||
-    //    ||    .............   ||                   || .......... ||
-    //    ||    .............   ||                   ||============||
-    //    ||====================||
-    //
-    // The two arrays are created independently and are used to illustrate
-    // two new OpenCL 2.0 API functions:
-    //    - the array of Element structures is passed to the kernel as a
-    //      kernel argument with the clSetKernelArgSVMPointer function
-    //    - the array of floats is used by the kernel indirectly, and this
-    //      dependency should be also specified with the clSetKernelExecInfo
-    //      function prior to the kernel execution
+var sampleElement Element
+var sampleFloat cl.CL_float
 
-    cl_int err = CL_SUCCESS;
+func svmbasic(size cl.CL_size_t,
+	context cl.CL_context,
+	queue cl.CL_command_queue,
+	kernel cl.CL_kernel) {
+	// Prepare input data as follows.
+	// Build two arrays:
+	//     - an array that consists of the Element structures
+	//       (refer to svmbasic.h for the structure definition)
+	//     - an array that consists of the float values
+	//
+	// Each structure of the first array has the following pointers:
+	//     - 'internal', which points to a 'value' field of another entry
+	//       of the same array.
+	//     - 'external', which points to a float value from the the
+	//       second array.
+	//
+	// Pointers are set randomly. The structures do not reflect any real usage
+	// scenario, but are illustrative for a simple device-side traversal.
+	//
+	//        Array of Element                        Array of floats
+	//           structures
+	//
+	//    ||====================||
+	//    ||    .............   ||                   ||============||
+	//    ||    .............   ||<-----+            || .......... ||
+	//    ||====================||      |            ||    float   ||
+	//    ||   float* internal--||------+            ||    float   ||
+	//    ||   float* external--||------------------>||    float   ||
+	//    ||   float value <----||------+            || .......... ||
+	//    ||====================||      |            || .......... ||
+	//    ||    .............   ||      |            ||    float   ||
+	//    ||    .............   ||      |            ||    float   ||
+	//    ||====================||      |            ||    float   ||
+	//    ||====================||      |            ||    float   ||
+	//    ||   float* internal--||------+            ||    float   ||
+	//    ||   float* external--||------------------>||    float   ||
+	//    ||   float value      ||                   ||    float   ||
+	//    ||====================||                   ||    float   ||
+	//    ||    .............   ||                   || .......... ||
+	//    ||    .............   ||                   ||============||
+	//    ||====================||
+	//
+	// The two arrays are created independently and are used to illustrate
+	// two new OpenCL 2.0 API functions:
+	//    - the array of Element structures is passed to the kernel as a
+	//      kernel argument with the clSetKernelArgSVMPointer function
+	//    - the array of floats is used by the kernel indirectly, and this
+	//      dependency should be also specified with the clSetKernelExecInfo
+	//      function prior to the kernel execution
 
-    // To enable host & device code to share pointer to the same address space
-    // the arrays should be allocated as SVM memory. Use the clSVMAlloc function
-    // to allocate SVM memory.
-    //
-    // Optionally, this function allows specifying alignment in bytes as its
-    // last argument. As this basic example doesn't require any _special_ alignment,
-    // the following code illustrates requesting default alignment via passing
-    // zero value.
+	var err cl.CL_int
 
-    Element* inputElements =
-        (Element*)clSVMAlloc(
-            context,                // the context where this memory is supposed to be used
-            CL_MEM_READ_ONLY,
-            size*sizeof(Element),   // amount of memory to allocate (in bytes)
-            0                       // alignment in bytes (0 means default)
-        );
+	// To enable host & device code to share pointer to the same address space
+	// the arrays should be allocated as SVM memory. Use the clSVMAlloc function
+	// to allocate SVM memory.
+	//
+	// Optionally, this function allows specifying alignment in bytes as its
+	// last argument. As this basic example doesn't require any _special_ alignment,
+	// the following code illustrates requesting default alignment via passing
+	// zero value.
 
-    float* inputFloats =
-        (float*)clSVMAlloc(
-            context,                // the context where this memory is supposed to be used
-            CL_MEM_READ_ONLY,
-            size*sizeof(float),     // amount of memory to allocate (in bytes)
-            0                       // alignment in bytes (0 means default)
-        );
+	inputElements := cl.CLSVMAlloc(context, // the context where this memory is supposed to be used
+		cl.CL_MEM_READ_ONLY,
+		size*cl.CL_size_t(unsafe.Sizeof(sampleElement)), // amount of memory to allocate (in bytes)
+		0) // alignment in bytes (0 means default)
+	if nil == inputElements {
+		println("Cannot allocate SVM memory with clSVMAlloc: it returns null pointer. You might be out of memory.")
+		return
+	}
+	defer cl.CLSVMFree(context, inputElements)
 
-    // The OpenCL kernel uses the aforementioned input arrays to compute
-    // values for the output array.
+	inputFloats := cl.CLSVMAlloc(context, // the context where this memory is supposed to be used
+		cl.CL_MEM_READ_ONLY,
+		size*cl.CL_size_t(unsafe.Sizeof(sampleFloat)), // amount of memory to allocate (in bytes)
+		0) // alignment in bytes (0 means default)
+	if nil == inputFloats {
+		println("Cannot allocate SVM memory with clSVMAlloc: it returns null pointer. You might be out of memory.")
+		return
+	}
+	defer cl.CLSVMFree(context, inputFloats)
 
-    float* output =
-        (float*)clSVMAlloc(
-            context,                // the context where this memory is supposed to be used
-            CL_MEM_WRITE_ONLY,
-            size*sizeof(float),     // amount of memory to allocate (in bytes)
-            0                       // alignment in bytes (0 means default)
-    );
+	// The OpenCL kernel uses the aforementioned input arrays to compute
+	// values for the output array.
 
-    if(!inputElements || !inputFloats || !output)
-    {
-        throw Error(
-            "Cannot allocate SVM memory with clSVMAlloc: "
-            "it returns null pointer. "
-            "You might be out of memory."
-        );
-    }
+	output := clSVMAlloc(context, // the context where this memory is supposed to be used
+		cl.CL_MEM_WRITE_ONLY,
+		size*cl.CL_size_t(unsafe.Sizeof(sampleFloat)), // amount of memory to allocate (in bytes)
+		0) // alignment in bytes (0 means default)
+	defer cl.CLSVMFree(context, output)
 
-    // In the coarse-grained buffer SVM model, only one OpenCL device (or
-    // host) can have ownership for writing to the buffer. Specifically, host
-    // explicitly requests the ownership by mapping/unmapping the SVM buffer.
-    //
-    // So to fill the input SVM buffers on the host, you need to map them to have
-    // access from the host program.
-    //
-    // The following two map calls are required in case of coarse-grained SVM only.
+	if nil == output {
+		println("Cannot allocate SVM memory with clSVMAlloc: it returns null pointer. You might be out of memory.")
+		return
+	}
 
-    err = clEnqueueSVMMap(
-        queue,
-        CL_TRUE,       // blocking map
-        CL_MAP_WRITE,
-        inputElements,
-        sizeof(Element)*size,
-        0, 0, 0
-    );
-    SAMPLE_CHECK_ERRORS(err);
+	// In the coarse-grained buffer SVM model, only one OpenCL device (or
+	// host) can have ownership for writing to the buffer. Specifically, host
+	// explicitly requests the ownership by mapping/unmapping the SVM buffer.
+	//
+	// So to fill the input SVM buffers on the host, you need to map them to have
+	// access from the host program.
+	//
+	// The following two map calls are required in case of coarse-grained SVM only.
 
-    err = clEnqueueSVMMap(
-        queue,
-        CL_TRUE,       // blocking map
-        CL_MAP_WRITE,
-        inputFloats,
-        sizeof(float)*size,
-        0, 0, 0
-    );
-    SAMPLE_CHECK_ERRORS(err);
+	err = cl.CLEnqueueSVMMap(queue,
+		cl.CL_TRUE, // blocking map
+		cl.CL_MAP_WRITE,
+		inputElements,
+		size*cl.CL_size_t(unsafe.Sizeof(sampleElement)),
+		0,
+		nil,
+		nil)
+	utils.CHECK_STATUS(err, cl.CL_SUCCESS, "CLEnqueueSVMMap")
 
-    // Populate data-structures with initial data.
+	err = cl.CLEnqueueSVMMap(queue,
+		cl.CL_TRUE, // blocking map
+		cl.CL_MAP_WRITE,
+		inputFloats,
+		size*cl.CL_size_t(unsafe.Sizeof(sampleFloat)),
+		0,
+		nil,
+		nil)
+	utils.CHECK_STATUS(err, cl.CL_SUCCESS, "CLEnqueueSVMMap")
 
-    for (size_t i = 0;  i < size;  i++)
-    {
-        inputElements[i].internal = &(inputElements[rand_index(size)].value);
-        inputElements[i].external = &(inputFloats[rand_index(size)]);
-        inputElements[i].value = float(i);
-        inputFloats[i] = float(i + size);
-    }
+	// Populate data-structures with initial data.
+	r := rand.New(rand.NewSource(99))
 
-    // The following two unmap calls are required in case of coarse-grained SVM only
+	for i := cl.CL_size(0); i < size; i++ {
+		inputElement := (*Element)(unsafe.Pointer(uintptr(inputElements) + uintptr(i)*unsafe.Sizeof(sampleElement)))
+		inputFloat := (*cl.CL_float)(unsafe.Pointer(uintptr(inputFloats) + uintptr(i)*unsafe.Sizeof(sampleFloat)))
+		randElement := (*Element)(unsafe.Pointer(uintptr(inputElements) + uintptr(r.Intn(size))*unsafe.Sizeof(sampleElement)))
+		randFloat := (*cl.CL_float)(unsafe.Pointer(uintptr(inputFloats) + uintptr(r.Intn(size))*unsafe.Sizeof(sampleFloat)))
 
-    err = clEnqueueSVMUnmap(
-        queue,
-        inputElements,
-        0, 0, 0
-    );
-    SAMPLE_CHECK_ERRORS(err);
+		inputElement.internal = &(randElement.value)
+		inputElement.external = randFloat
+		inputElement.value = cl.CL_float(i)
+		inputFloat = cl.CL_float(i + size)
+	}
 
-    err = clEnqueueSVMUnmap(
-        queue,
-        inputFloats,
-        0, 0, 0
-    );
-    SAMPLE_CHECK_ERRORS(err);
+	// The following two unmap calls are required in case of coarse-grained SVM only
 
-    // Pass arguments to the kernel.
-    // According to the OpenCL 2.0 specification, you need to use a special
-    // function to pass a pointer from SVM memory to kernel.
+	err = cl.CLEnqueueSVMUnmap(queue,
+		inputElements,
+		0,
+		nil,
+		nil)
+	utils.CHECK_STATUS(err, cl.CL_SUCCESS, "CLEnqueueSVMUnmap")
 
-    err = clSetKernelArgSVMPointer(kernel, 0, inputElements);
-    SAMPLE_CHECK_ERRORS(err);
+	err = cl.CLEnqueueSVMUnmap(queue,
+		inputFloats,
+		0,
+		nil,
+		nil)
+	utils.CHECK_STATUS(err, cl.CL_SUCCESS, "CLEnqueueSVMUnmap")
 
-    err = clSetKernelArgSVMPointer(kernel, 1, output);
-    SAMPLE_CHECK_ERRORS(err);
+	// Pass arguments to the kernel.
+	// According to the OpenCL 2.0 specification, you need to use a special
+	// function to pass a pointer from SVM memory to kernel.
 
-    // For buffer based SVM (both coarse- and fine-grain) if one SVM buffer
-    // points to memory allocated in another SVM buffer, such allocations
-    // should be passed to the kernel via clSetKernelExecInfo.
+	err = cl.CLSetKernelArgSVMPointer(kernel, 0, inputElements)
+	utils.CHECK_STATUS(err, cl.CL_SUCCESS, "CLSetKernelArgSVMPointer")
 
-    err = clSetKernelExecInfo(
-        kernel,
-        CL_KERNEL_EXEC_INFO_SVM_PTRS,
-        sizeof(inputFloats),
-        &inputFloats
-    );
-    SAMPLE_CHECK_ERRORS(err);
+	err = cl.CLSetKernelArgSVMPointer(kernel, 1, output)
+	utils.CHECK_STATUS(err, cl.CL_SUCCESS, "CLSetKernelArgSVMPointer")
 
-    // Run the kernel.
-    cout << "Running kernel..." << flush;
+	// For buffer based SVM (both coarse- and fine-grain) if one SVM buffer
+	// points to memory allocated in another SVM buffer, such allocations
+	// should be passed to the kernel via clSetKernelExecInfo.
 
-    err = clEnqueueNDRangeKernel(
-        queue,
-        kernel,
-        1,
-        0, &size, 0,
-        0, 0, 0
-    );
-    SAMPLE_CHECK_ERRORS(err);
+	err = cl.CLSetKernelExecInfo(kernel,
+		cl.CL_KERNEL_EXEC_INFO_SVM_PTRS,
+		cl.CL_size_t(unsafe.Sizeof(inputFloats)),
+		unsafe.Pointer(&inputFloats))
+	utils.CHECK_STATUS(err, cl.CL_SUCCESS, "CLSetKernelExecInfo")
 
-    // Map the output SVM buffer to read the results.
-    // Mapping is required for coarse-grained SVM only.
+	// Run the kernel.
+	println("Running kernel...")
 
-    err = clEnqueueSVMMap(
-        queue,
-        CL_TRUE,       // blocking map
-        CL_MAP_READ,
-        output,
-        sizeof(float)*size,
-        0, 0, 0
-    );
-    SAMPLE_CHECK_ERRORS(err);
+	var globalWorkSize [1]cl.CL_size_t
+	globalWorkSize[0] = size
 
-    cout << " DONE.\n";
+	err = cl.CLEnqueueNDRangeKernel(queue,
+		kernel,
+		1,
+		nil,
+		globalWorkSize,
+		nil,
+		0,
+		nil,
+		nil)
+	utils.CHECK_STATUS(err, cl.CL_SUCCESS, "CLEnqueueNDRangeKernel")
 
-    // Validate output state for correctness.
+	// Map the output SVM buffer to read the results.
+	// Mapping is required for coarse-grained SVM only.
 
-    cout << "Checking correctness of the output buffer..." << flush;
-    for(size_t i = 0; i < size; i++)
-    {
-        float expectedValue = *(inputElements[i].internal) + *(inputElements[i].external);
-        if(output[i] != expectedValue)
-        {
-            cout << " FAILED.\n";
+	err = cl.CLEnqueueSVMMap(queue,
+		CL_TRUE, // blocking map
+		CL_MAP_READ,
+		output,
+		sizeof(float)*size,
+		0,
+		nil,
+		nil)
+	utils.CHECK_STATUS(err, cl.CL_SUCCESS, "CLEnqueueSVMMap")
 
-            cerr
-                << "Mismatch at position " << i
-                << ", read " << output[i]
-                << ", expected " << expectedValue << "\n";
+	println(" DONE.")
 
-            throw Error("Validation failed");
-        }
-    }
-    cout << " PASSED.\n";
+	// Validate output state for correctness.
 
-    err = clEnqueueSVMUnmap(
-        queue,
-        output,
-        0, 0, 0
-    );
-    SAMPLE_CHECK_ERRORS(err);
+	println("Checking correctness of the output buffer...")
+	for i := cl.CL_size(0); i < size; i++ {
+		inputElement := (*Element)(unsafe.Pointer(uintptr(inputElements) + uintptr(i)*unsafe.Sizeof(sampleElement)))
 
-    err = clFinish(queue);
-    SAMPLE_CHECK_ERRORS(err);
+		expectedValue := *(inputElement.internal) + *(inputElement.external)
+		if output[i] != expectedValue {
+			println(" FAILED.")
+			fmt.Printf("Mismatch at position %d, read %f, expected %f\n", i, output[i], expectedValue)
+			return
+		}
+	}
+	println(" PASSED.")
 
-    // Release all SVM buffers and exit.
+	err = cl.CLEnqueueSVMUnmap(queue,
+		output,
+		0, 0, 0)
+	utils.CHECK_STATUS(err, cl.CL_SUCCESS, "CLEnqueueSVMUnmap")
 
-    clSVMFree(context, output);
-    clSVMFree(context, inputFloats);
-    clSVMFree(context, inputElements);
+	err = cl.CLFinish(queue)
+	utils.CHECK_STATUS(err, cl.CL_SUCCESS, "CLFinish")
 }
-
-
-bool checkSVMAvailability (cl_device_id device)
-{
-    cl_device_svm_capabilities caps;
-
-    cl_int err = clGetDeviceInfo(
-        device,
-        CL_DEVICE_SVM_CAPABILITIES,
-        sizeof(cl_device_svm_capabilities),
-        &caps,
-        0
-    );
-
-    // Coarse-grained buffer SVM should be available on any OpenCL 2.0 device.
-    // So it is either not an OpenCL 2.0 device or it must support coarse-grained buffer SVM:
-    return err == CL_SUCCESS && (caps & CL_DEVICE_SVM_COARSE_GRAIN_BUFFER);
-}
-*/
 
 func main() {
 	// Use this to check the output of each API call
@@ -279,14 +257,14 @@ func main() {
 	// STEP 1: Discover and initialize the platforms
 	//-----------------------------------------------------
 	var numPlatforms cl.CL_uint
-	var platforms []cl.CL_platform_id
 
 	// Use clGetPlatformIDs() to retrieve the number of
 	// platforms
 	status = cl.CLGetPlatformIDs(0, nil, &numPlatforms)
+	utils.CHECK_STATUS(status, cl.CL_SUCCESS, "CLGetPlatformIDs")
 
 	// Allocate enough space for each platform
-	platforms = make([]cl.CL_platform_id, numPlatforms)
+	platforms := make([]cl.CL_platform_id, numPlatforms)
 
 	// Fill in platforms with clGetPlatformIDs()
 	status = cl.CLGetPlatformIDs(numPlatforms, platforms, nil)
@@ -296,7 +274,6 @@ func main() {
 	// STEP 2: Discover and initialize the GPU devices
 	//-----------------------------------------------------
 	var numDevices cl.CL_uint
-	var devices []cl.CL_device_id
 
 	// Use clGetDeviceIDs() to retrieve the number of
 	// devices present
@@ -308,7 +285,7 @@ func main() {
 	utils.CHECK_STATUS(status, cl.CL_SUCCESS, "CLGetDeviceIDs")
 
 	// Allocate enough space for each device
-	devices = make([]cl.CL_device_id, numDevices)
+	devices := make([]cl.CL_device_id, numDevices)
 
 	// Fill in devices with clGetDeviceIDs()
 	status = cl.CLGetDeviceIDs(platforms[0],
@@ -332,18 +309,16 @@ func main() {
 	// Coarse-grained buffer SVM should be available on any OpenCL 2.0 device.
 	// So it is either not an OpenCL 2.0 device or it must support coarse-grained buffer SVM:
 	if !(status == cl.CL_SUCCESS && (caps & cl.CL_DEVICE_SVM_COARSE_GRAIN_BUFFER)) {
-		println("Cannot detect SVM capabilities of the device.")
-		println("The device seemingly doesn't support SVM.")
+		println("Cannot detect SVM capabilities of the device. The device seemingly doesn't support SVM.")
 		return
 	}
+
 	//-----------------------------------------------------
 	// STEP 3: Create a context
 	//-----------------------------------------------------
-	var context cl.CL_context
-
 	// Create a context using clCreateContext() and
 	// associate it with the devices
-	context = cl.CLCreateContext(nil,
+	context := cl.CLCreateContext(nil,
 		numDevices,
 		devices,
 		nil,
@@ -355,16 +330,14 @@ func main() {
 	//-----------------------------------------------------
 	// STEP 4: Create a command queue
 	//-----------------------------------------------------
-	var cmdQueue cl.CL_command_queue
-
 	// Create a command queue using clCreateCommandQueueWithProperties(),
 	// and associate it with the device you want to execute
-	cmdQueue = cl.CLCreateCommandQueueWithProperties(context,
+	queue := cl.CLCreateCommandQueueWithProperties(context,
 		devices[0],
 		nil,
 		&status)
 	utils.CHECK_STATUS(status, cl.CL_SUCCESS, "CLCreateCommandQueueWithProperties")
-	defer cl.CLReleaseCommandQueue(cmdQueue)
+	defer cl.CLReleaseCommandQueue(queue)
 
 	//-----------------------------------------------------
 	// STEP 5: Create and compile the program
@@ -383,6 +356,7 @@ func main() {
 	// Build (compile) the program for the devices with
 	// clBuildProgram()
 	options := "-cl-std=CL2.0"
+
 	status = cl.CLBuildProgram(program,
 		numDevices,
 		devices,
@@ -390,15 +364,12 @@ func main() {
 		nil,
 		nil)
 	if status != cl.CL_SUCCESS {
-		var program_log interface{}
+		var log interface{}
 		var log_size cl.CL_size_t
-
 		/* Find size of log and print to std output */
-		cl.CLGetProgramBuildInfo(program, devices[0], cl.CL_PROGRAM_BUILD_LOG,
-			0, nil, &log_size)
-		cl.CLGetProgramBuildInfo(program, devices[0], cl.CL_PROGRAM_BUILD_LOG,
-			log_size, &program_log, nil)
-		fmt.Printf("%s\n", program_log)
+		cl.CLGetProgramBuildInfo(program, devices[0], cl.CL_PROGRAM_BUILD_LOG, 0, nil, &log_size)
+		cl.CLGetProgramBuildInfo(program, devices[0], cl.CL_PROGRAM_BUILD_LOG, log_size, &log, nil)
+		fmt.Printf("%s\n", log)
 		return
 	}
 	//utils.CHECK_STATUS(status, cl.CL_SUCCESS, "CLBuildProgram")
@@ -407,7 +378,9 @@ func main() {
 	// STEP 7: Create the kernel
 	//-----------------------------------------------------
 	// Use clCreateKernel() to create a kernel
-	kernel := cl.CLCreateKernel(program, []byte("svmbasic"), &status)
+	kernel := cl.CLCreateKernel(program,
+		[]byte("svmbasic"),
+		&status)
 	utils.CHECK_STATUS(status, cl.CL_SUCCESS, "CLCreateKernel")
 	defer cl.CLReleaseKernel(kernel)
 
