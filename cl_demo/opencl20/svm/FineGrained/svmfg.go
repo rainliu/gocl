@@ -265,7 +265,8 @@ func main() {
 	// Coarse-grained buffer SVM should be available on any OpenCL 2.0 device.
 	// So it is either not an OpenCL 2.0 device or it must support coarse-grained buffer SVM:
 	if !(status == cl.CL_SUCCESS && (caps&cl.CL_DEVICE_SVM_FINE_GRAIN_BUFFER) != 0) {
-		println("Cannot detect fine-grained buffer SVM capabilities on the device. The device seemingly doesn't support fine-grained buffer SVM.")
+		fmt.Printf("Cannot detect fine-grained buffer SVM capabilities on the device. The device seemingly doesn't support fine-grained buffer SVM. caps=%x\n", caps)
+		println("")
 		return
 	}
 
@@ -298,7 +299,7 @@ func main() {
 	//-----------------------------------------------------
 	// STEP 5: Create and compile the program
 	//-----------------------------------------------------
-	programSource, programeSize := utils.Load_programsource("svmcg.cl")
+	programSource, programeSize := utils.Load_programsource("svmfg.cl")
 
 	// Create a program using clCreateProgramWithSource()
 	program := cl.CLCreateProgramWithSource(context,
