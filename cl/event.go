@@ -207,7 +207,8 @@ func CLGetEventProfilingInfo(event CL_event,
 			case CL_PROFILING_COMMAND_QUEUED,
 				CL_PROFILING_COMMAND_SUBMIT,
 				CL_PROFILING_COMMAND_START,
-				CL_PROFILING_COMMAND_END:
+				CL_PROFILING_COMMAND_END,
+				CL_PROFILING_COMMAND_COMPLETE:
 
 				var value C.cl_ulong
 				c_errcode_ret = C.clGetEventProfilingInfo(event.cl_event,

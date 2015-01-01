@@ -188,6 +188,17 @@ func CLGetMemObjectInfo(memobj CL_mem,
 					&c_param_value_size_ret)
 
 				*param_value = CL_mem{value}
+
+			case CL_MEM_USES_SVM_POINTER:
+				var value C.cl_bool
+				c_errcode_ret = C.clGetMemObjectInfo(memobj.cl_mem,
+					C.cl_mem_info(param_name),
+					C.size_t(param_value_size),
+					unsafe.Pointer(&value),
+					&c_param_value_size_ret)
+
+				*param_value = CL_bool(value)
+
 			default:
 				return CL_INVALID_VALUE
 			}

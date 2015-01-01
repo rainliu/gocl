@@ -393,6 +393,18 @@ func CLGetProgramBuildInfo(program CL_program,
 
 				*param_value = CL_program_binary_type(value)
 
+			case CL_PROGRAM_BUILD_GLOBAL_VARIABLE_TOTAL_SIZE:
+				var value C.size_t
+
+				c_errcode_ret = C.clGetProgramBuildInfo(program.cl_program,
+					device.cl_device_id,
+					C.cl_program_build_info(param_name),
+					C.size_t(param_value_size),
+					unsafe.Pointer(&value),
+					&c_param_value_size_ret)
+
+				*param_value = CL_size_t(value)
+
 			default:
 				return CL_INVALID_VALUE
 			}

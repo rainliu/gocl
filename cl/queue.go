@@ -65,7 +65,8 @@ func CLGetCommandQueueInfo(command_queue CL_command_queue,
 
 				*param_value = CL_device_id{value}
 
-			case CL_QUEUE_REFERENCE_COUNT:
+			case CL_QUEUE_REFERENCE_COUNT,
+				CL_QUEUE_SIZE:
 				var value C.cl_uint
 
 				c_errcode_ret = C.clGetCommandQueueInfo(command_queue.cl_command_queue,

@@ -93,6 +93,12 @@ func CLGetSamplerInfo(sampler CL_sampler,
 					&c_param_value_size_ret)
 
 				*param_value = CL_bool(value)
+
+			//TODO in CL.h, but not in spec? Why?
+			//case CL_SAMPLER_MIP_FILTER_MODE,
+			// CL_SAMPLER_LOD_MIN,
+			// CL_SAMPLER_LOD_MAX:
+
 			default:
 				return CL_INVALID_VALUE
 			}
