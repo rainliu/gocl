@@ -32,20 +32,17 @@
 #include "cmdparser.hpp"
 #include "oclobject.hpp"
 
-
-// The following piece of code declares the data structure (in file svmbasic.h)
-// in a way it is the same on the host and device sides.
-// To be used in the OpenCL kernels, the pointers should be defined with 'global' keyword,
-// according to OpenCL specification.
-// But this keyword is redundant for the host, so we define it as empty.
-
-#define global
-#include "svmbasic.h"
-#undef global
-
-
 using namespace std;
 
+// Array of the structures defined below is built and populated
+// with the random values on the host.
+// Then it is traversed in the OpenCL kernel on the device.
+typedef struct _Element
+{
+    float* internal; //points to the "value" of another Element from the same array
+    float* external; //points to the entry in a separate array of floating-point values
+    float value;
+} Element;
 
 void svmbasic (
     size_t size,
@@ -114,7 +111,7 @@ void svmbasic (
     Element* inputElements =
         (Element*)clSVMAlloc(
             context,                // the context where this memory is supposed to be used
-            CL_MEM_READ_ONLY | CL_MEM_SVM_FINE_GRAIN_BUFFER,
+            CL_MEM_READ_ONLY,
             size*sizeof(Element),   // amount of memory to allocate (in bytes)
             0                       // alignment in bytes (0 means default)
         );
@@ -122,7 +119,7 @@ void svmbasic (
     float* inputFloats =
         (float*)clSVMAlloc(
             context,                // the context where this memory is supposed to be used
-            CL_MEM_READ_ONLY | CL_MEM_SVM_FINE_GRAIN_BUFFER,
+            CL_MEM_READ_ONLY,
             size*sizeof(float),     // amount of memory to allocate (in bytes)
             0                       // alignment in bytes (0 means default)
         );
@@ -133,7 +130,7 @@ void svmbasic (
     float* output =
         (float*)clSVMAlloc(
             context,                // the context where this memory is supposed to be used
-            CL_MEM_WRITE_ONLY | CL_MEM_SVM_FINE_GRAIN_BUFFER,
+            CL_MEM_WRITE_ONLY,
             size*sizeof(float),     // amount of memory to allocate (in bytes)
             0                       // alignment in bytes (0 means default)
     );
@@ -147,9 +144,34 @@ void svmbasic (
         );
     }
 
-    // Note: in the coarse-grained SVM, mapping of inputElement and inputFloats is
-    // needed to do the following initialization. While here, in the fine-grained SVM,
-    // it is not necessary.
+    // In the coarse-grained buffer SVM model, only one OpenCL device (or
+    // host) can have ownership for writing to the buffer. Specifically, host 
+    // explicitly requests the ownership by mapping/unmapping the SVM buffer.
+    //
+    // So to fill the input SVM buffers on the host, you need to map them to have
+    // access from the host program.
+    //
+    // The following two map calls are required in case of coarse-grained SVM only.
+
+    err = clEnqueueSVMMap(
+        queue,
+        CL_TRUE,       // blocking map
+        CL_MAP_WRITE,
+        inputElements,
+        sizeof(Element)*size,
+        0, 0, 0
+    );
+    SAMPLE_CHECK_ERRORS(err);
+
+    err = clEnqueueSVMMap(
+        queue,
+        CL_TRUE,       // blocking map
+        CL_MAP_WRITE,
+        inputFloats,
+        sizeof(float)*size,
+        0, 0, 0
+    );
+    SAMPLE_CHECK_ERRORS(err);
 
     // Populate data-structures with initial data.
 
@@ -161,9 +183,21 @@ void svmbasic (
         inputFloats[i] = float(i + size);
     }
 
-    // Note: in the coarse-grained SVM, unmapping of inputElement and inputFloats is
-    // needed before scheduling the kernel for execution. While here, in the fine-grained SVM,
-    // it is not necessary.
+    // The following two unmap calls are required in case of coarse-grained SVM only
+
+    err = clEnqueueSVMUnmap(
+        queue,
+        inputElements,
+        0, 0, 0
+    );
+    SAMPLE_CHECK_ERRORS(err);
+
+    err = clEnqueueSVMUnmap(
+        queue,
+        inputFloats,
+        0, 0, 0
+    );
+    SAMPLE_CHECK_ERRORS(err);
 
     // Pass arguments to the kernel.
     // According to the OpenCL 2.0 specification, you need to use a special
@@ -199,23 +233,22 @@ void svmbasic (
     );
     SAMPLE_CHECK_ERRORS(err);
 
-    // Note: In the fine-grained SVM, after enqueuing the kernel above, the host application is
-    // not blocked from accessing SVM allocations that were passed to the kernel. The host
-    // can access the same regions of SVM memory as does the kernel if the kernel and the host
-    // read/modify different bytes. If one side (host or device) needs to modify the same bytes
-    // that are simultaniously read/modified by another side, atomics operations are usually
-    // required to maintain sufficient memory consistency. This sample doesn't use this possibility
-    // and the host just waits in clFinish below until the kernel is finished.
+    // Map the output SVM buffer to read the results.
+    // Mapping is required for coarse-grained SVM only.
 
-    err = clFinish(queue);
+    err = clEnqueueSVMMap(
+        queue,
+        CL_TRUE,       // blocking map
+        CL_MAP_READ,
+        output,
+        sizeof(float)*size,
+        0, 0, 0
+    );
     SAMPLE_CHECK_ERRORS(err);
 
     cout << " DONE.\n";
 
     // Validate output state for correctness.
-    
-    // Compare: in the coarse-grained SVM case you need to map the output.
-    // Here it is not needed.
 
     cout << "Checking correctness of the output buffer..." << flush;
     for(size_t i = 0; i < size; i++)
@@ -234,6 +267,16 @@ void svmbasic (
         }
     }
     cout << " PASSED.\n";
+
+    err = clEnqueueSVMUnmap(
+        queue,
+        output,
+        0, 0, 0
+    );
+    SAMPLE_CHECK_ERRORS(err);
+
+    err = clFinish(queue);
+    SAMPLE_CHECK_ERRORS(err);
 
     // Release all SVM buffers and exit.
 
@@ -255,8 +298,9 @@ bool checkSVMAvailability (cl_device_id device)
         0
     );
 
-    // Check for fine-grained buffer SVM type availability:
-    return err == CL_SUCCESS && (caps & CL_DEVICE_SVM_FINE_GRAIN_BUFFER);
+    // Coarse-grained buffer SVM should be available on any OpenCL 2.0 device.
+    // So it is either not an OpenCL 2.0 device or it must support coarse-grained buffer SVM:
+    return err == CL_SUCCESS && (caps & CL_DEVICE_SVM_COARSE_GRAIN_BUFFER);
 }
 
 
@@ -288,8 +332,8 @@ int main (int argc, const char** argv)
         if(!checkSVMAvailability(oclobjects.device))
         {
             throw Error(
-                "Cannot detect fine-grained buffer SVM capabilities on the device. "
-                "The device seemingly doesn't support fine-grained buffer SVM."
+                "Cannot detect SVM capabilities of the device. "
+                "The device seemingly doesn't support SVM."
             );
         }
 
