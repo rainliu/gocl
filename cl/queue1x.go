@@ -1,4 +1,4 @@
-// +build cl11 cl12 cl20
+// +build cl11 cl12
 
 package cl
 
