@@ -117,7 +117,18 @@ func CLGetDeviceInfo(device CL_device_id,
 				CL_DEVICE_VENDOR_ID,
 				CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE,
 				CL_DEVICE_PARTITION_MAX_SUB_DEVICES,
-				CL_DEVICE_REFERENCE_COUNT:
+				CL_DEVICE_REFERENCE_COUNT,
+				CL_DEVICE_MAX_READ_WRITE_IMAGE_ARGS,
+				CL_DEVICE_QUEUE_ON_DEVICE_PREFERRED_SIZE,
+				CL_DEVICE_QUEUE_ON_DEVICE_MAX_SIZE,
+				CL_DEVICE_MAX_ON_DEVICE_QUEUES,
+				CL_DEVICE_MAX_ON_DEVICE_EVENTS,
+				CL_DEVICE_MAX_PIPE_ARGS,
+				CL_DEVICE_PIPE_MAX_ACTIVE_RESERVATIONS,
+				CL_DEVICE_PIPE_MAX_PACKET_SIZE,
+				CL_DEVICE_PREFERRED_PLATFORM_ATOMIC_ALIGNMENT,
+				CL_DEVICE_PREFERRED_GLOBAL_ATOMIC_ALIGNMENT,
+				CL_DEVICE_PREFERRED_LOCAL_ATOMIC_ALIGNMENT:
 
 				var value C.cl_uint
 				c_errcode_ret = C.clGetDeviceInfo(device.cl_device_id,
@@ -138,7 +149,9 @@ func CLGetDeviceInfo(device CL_device_id,
 				CL_DEVICE_PROFILING_TIMER_RESOLUTION,
 				CL_DEVICE_IMAGE_MAX_BUFFER_SIZE,
 				CL_DEVICE_IMAGE_MAX_ARRAY_SIZE,
-				CL_DEVICE_PRINTF_BUFFER_SIZE:
+				CL_DEVICE_PRINTF_BUFFER_SIZE,
+				CL_DEVICE_MAX_GLOBAL_VARIABLE_SIZE,
+				CL_DEVICE_GLOBAL_VARIABLE_PREFERRED_TOTAL_SIZE:
 
 				var value C.size_t
 				c_errcode_ret = C.clGetDeviceInfo(device.cl_device_id,
@@ -255,7 +268,9 @@ func CLGetDeviceInfo(device CL_device_id,
 
 				*param_value = CL_device_exec_capabilities(value)
 
-			case CL_DEVICE_QUEUE_PROPERTIES:
+			//case CL_DEVICE_QUEUE_PROPERTIES,//deprecated
+			case CL_DEVICE_QUEUE_ON_HOST_PROPERTIES,
+				CL_DEVICE_QUEUE_ON_DEVICE_PROPERTIES:
 				var value C.cl_command_queue_properties
 				c_errcode_ret = C.clGetDeviceInfo(device.cl_device_id,
 					C.cl_device_info(param_name),
@@ -313,6 +328,16 @@ func CLGetDeviceInfo(device CL_device_id,
 					&c_param_value_size_ret)
 
 				*param_value = CL_device_affinity_domain(value)
+
+			case CL_DEVICE_SVM_CAPABILITIES:
+				var value C.cl_bitfield //C.cl_device_svm_capabilities //use cl_bitfield to make darwin pass
+				c_errcode_ret = C.clGetDeviceInfo(device.cl_device_id,
+					C.cl_device_info(param_name),
+					C.size_t(param_value_size),
+					unsafe.Pointer(&value),
+					&c_param_value_size_ret)
+
+				*param_value = CL_device_svm_capabilities(value)
 
 			default:
 				return CL_INVALID_VALUE
