@@ -7,7 +7,11 @@ package cl
 #cgo !darwin LDFLAGS: -lOpenCL
 #cgo darwin LDFLAGS: -framework OpenCL
 
+#ifdef __APPLE__
+#include "OpenCL/opencl.h"
+#else
 #include "CL/opencl.h"
+#endif
 
 extern void go_evt_notify(cl_event event, cl_int event_command_exec_status, void *user_data);
 static void CL_CALLBACK c_evt_notify(cl_event event, cl_int event_command_exec_status, void *user_data) {

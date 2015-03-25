@@ -7,7 +7,11 @@ package cl
 #cgo !darwin LDFLAGS: -lOpenCL
 #cgo darwin LDFLAGS: -framework OpenCL
 
+#ifdef __APPLE__
+#include "OpenCL/opencl.h"
+#else
 #include "CL/opencl.h"
+#endif
 
 extern void go_ctx_notify(char *errinfo, void *private_info, int cb, void *user_data);
 static void CL_CALLBACK c_ctx_notify(const char *errinfo, const void *private_info, size_t cb, void *user_data) {

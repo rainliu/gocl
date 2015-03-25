@@ -7,8 +7,11 @@ package cl
 #cgo !darwin LDFLAGS: -lOpenCL
 #cgo darwin LDFLAGS: -framework OpenCL
 
+#ifdef __APPLE__
+#include "OpenCL/opencl.h"
+#else
 #include "CL/opencl.h"
-
+#endif
 extern void go_svm_notify(cl_command_queue command_queue, cl_uint num_svm_pointers, void *svm_pointers[], void *user_data);
 static void CL_CALLBACK c_svm_notify(cl_command_queue command_queue, cl_uint num_svm_pointers, void *svm_pointers[], void *user_data) {
 	go_svm_notify(command_queue, num_svm_pointers, svm_pointers, user_data);
