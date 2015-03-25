@@ -7,8 +7,11 @@ package cl
 #cgo !darwin LDFLAGS: -lOpenCL
 #cgo darwin LDFLAGS: -framework OpenCL
 
+#ifdef __APPLE__
+#include "OpenCL/opencl.h"
+#else
 #include "CL/opencl.h"
-
+#endif
 extern void go_mem_notify(cl_mem memobj, void *user_data);
 static void CL_CALLBACK c_mem_notify(cl_mem memobj, void *user_data) {
 	go_mem_notify(memobj, user_data);
