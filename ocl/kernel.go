@@ -86,12 +86,19 @@ func (this *kernel) EnqueueNDRange(queue CommandQueue,
 	event_wait_list []Event) (Event, error) {
 	var errCode cl.CL_int
 	var event_id cl.CL_event
-
+	
 	numEvents := cl.CL_uint(len(event_wait_list))
-	events := make([]cl.CL_event, numEvents)
-	for i := cl.CL_uint(0); i < numEvents; i++ {
+        
+        var events []cl.CL_event
+        
+        if (numEvents>0){
+            events = make([]cl.CL_event, numEvents)
+            for i := cl.CL_uint(0); i < numEvents; i++ {
 		events[i] = event_wait_list[i].GetID()
-	}
+            }
+        }
+	
+	
 
 	if errCode = cl.CLEnqueueNDRangeKernel(queue.GetID(),
 		this.kernel_id,

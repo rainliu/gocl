@@ -38,10 +38,14 @@ func (this *buffer) EnqueueRead(queue CommandQueue,
 	var event_id cl.CL_event
 
 	numEvents := cl.CL_uint(len(event_wait_list))
-	events := make([]cl.CL_event, numEvents)
-	for i := cl.CL_uint(0); i < numEvents; i++ {
+        var events []cl.CL_event
+        if numEvents>0{
+            events = make([]cl.CL_event, numEvents)
+            for i := cl.CL_uint(0); i < numEvents; i++ {
 		events[i] = event_wait_list[i].GetID()
-	}
+            }
+        }
+	
 
 	if errCode = cl.CLEnqueueReadBuffer(queue.GetID(),
 		this.memory_id,
@@ -68,11 +72,15 @@ func (this *buffer) EnqueueWrite(queue CommandQueue,
 	var event_id cl.CL_event
 
 	numEvents := cl.CL_uint(len(event_wait_list))
-	events := make([]cl.CL_event, numEvents)
-	for i := cl.CL_uint(0); i < numEvents; i++ {
+        
+        var events []cl.CL_event
+        if numEvents>0{
+            events = make([]cl.CL_event, numEvents)
+            for i := cl.CL_uint(0); i < numEvents; i++ {
 		events[i] = event_wait_list[i].GetID()
-	}
-
+            }
+        }
+    
 	if errCode = cl.CLEnqueueWriteBuffer(queue.GetID(),
 		this.memory_id,
 		blocking_write,
