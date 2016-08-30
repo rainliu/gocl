@@ -18,6 +18,10 @@ static void CL_CALLBACK c_ctx_notify(const char *errinfo, const void *private_in
 	go_ctx_notify((char *)errinfo, (void *)private_info, cb, user_data);
 }
 
+typedef void* pVoid;
+static pVoid* allocArray(size_t n) { return (pVoid*)malloc(n * sizeof(pVoid)); }
+static void   freeArray (pVoid* p) { free(p); }
+
 static cl_context CLCreateContext(	const cl_context_properties *  	properties,
 					                cl_uint                  		num_devices,
 					                const cl_device_id *     		devices,
@@ -91,12 +95,14 @@ func CLCreateContext(properties []CL_context_properties,
 		}
 
 		if pfn_notify != nil {
-			var c_user_data []unsafe.Pointer
-			c_user_data = make([]unsafe.Pointer, 2)
-			c_user_data[0] = user_data
-			c_user_data[1] = unsafe.Pointer(&pfn_notify)
-
-			ctx_notify[c_user_data[1]] = pfn_notify
+			//var c_user_data []unsafe.Pointer
+			//c_user_data = make([]unsafe.Pointer, 2)
+			arr := C.allocArray(2);
+			c_user_data   := (*[2]C.pVoid)(unsafe.Pointer(arr))[:]
+			c_user_data[0] = (C.pVoid)(user_data)
+			c_user_data[1] = (C.pVoid)(unsafe.Pointer(&pfn_notify))
+			
+			ctx_notify[unsafe.Pointer(&pfn_notify)] = pfn_notify
 
 			c_context = C.CLCreateContext(c_properties_ptr,
 				C.cl_uint(len(c_devices)),
@@ -104,6 +110,7 @@ func CLCreateContext(properties []CL_context_properties,
 				unsafe.Pointer(&c_user_data),
 				&c_errcode_ret)
 
+			C.freeArray(arr)
 		} else {
 			c_context = C.clCreateContext(c_properties_ptr,
 				C.cl_uint(len(c_devices)),
