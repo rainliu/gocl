@@ -97,11 +97,11 @@ func CLCreateContext(properties []CL_context_properties,
 		if pfn_notify != nil {
 			//var c_user_data []unsafe.Pointer
 			//c_user_data = make([]unsafe.Pointer, 2)
-			arr := C.allocArray(2);
-			c_user_data   := (*[2]C.pVoid)(unsafe.Pointer(arr))[:]
+			arr := C.allocArray(2)
+			c_user_data := (*[2]C.pVoid)(unsafe.Pointer(arr))[:]
 			c_user_data[0] = (C.pVoid)(user_data)
 			c_user_data[1] = (C.pVoid)(unsafe.Pointer(&pfn_notify))
-			
+
 			ctx_notify[unsafe.Pointer(&pfn_notify)] = pfn_notify
 
 			c_context = C.CLCreateContext(c_properties_ptr,
@@ -156,18 +156,21 @@ func CLCreateContextFromType(properties []CL_context_properties,
 		}
 
 		if pfn_notify != nil {
-			var c_user_data []unsafe.Pointer
-			c_user_data = make([]unsafe.Pointer, 2)
-			c_user_data[0] = user_data
-			c_user_data[1] = unsafe.Pointer(&pfn_notify)
+			//var c_user_data []unsafe.Pointer
+			//c_user_data = make([]unsafe.Pointer, 2)
+			arr := C.allocArray(2)
+			c_user_data := (*[2]C.pVoid)(unsafe.Pointer(arr))[:]
+			c_user_data[0] = (C.pVoid)(user_data)
+			c_user_data[1] = (C.pVoid)(unsafe.Pointer(&pfn_notify))
 
-			ctx_notify[c_user_data[1]] = pfn_notify
+			ctx_notify[unsafe.Pointer(&pfn_notify)] = pfn_notify
 
 			c_context = C.CLCreateContextFromType(c_properties_ptr,
 				C.cl_device_type(device_type),
 				unsafe.Pointer(&c_user_data),
 				&c_errcode_ret)
 
+			C.freeArray(arr)
 		} else {
 			c_context = C.clCreateContextFromType(c_properties_ptr,
 				C.cl_device_type(device_type),
